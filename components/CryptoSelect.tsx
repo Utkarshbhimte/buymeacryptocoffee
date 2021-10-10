@@ -1,7 +1,7 @@
 import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/solid'
 import React, { Fragment } from 'react'
-import { Wallet } from '..'
+import { Wallet } from '../pages'
 
 export interface CryptoSelectProps {
     availableWallets: Wallet[];

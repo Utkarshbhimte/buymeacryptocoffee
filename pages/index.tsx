@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import { ClipboardCopyIcon } from '@heroicons/react/solid'
-import CryptoSelect, { CryptoSelectProps } from './components/CryptoSelect';
+import CryptoSelect, { CryptoSelectProps } from '../components/CryptoSelect';
 
 export interface Wallet {
   id: string;
@@ -10,6 +11,8 @@ export interface Wallet {
 }
 
 export default function Home() {
+  const router = useRouter();
+  const { color } = router.query;
   const availableWallets: Wallet[] = [
     {id: '1', name: 'Bitcoin', public_address: '1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX'},
     {id: '2', name: 'Ethereum', public_address: '0xCF193782f2eBC069ae05eC0Ef955E4B042D000Dd'},
@@ -31,14 +34,21 @@ export default function Home() {
     selectedWalletId
   }
 
+  const css = `
+    body {
+      --heading-color: ${!!color ? `#${color}` : '#FF8906'}
+    }
+  `
+
   return (
     <div className="flex flex-col items-center min-h-screen">
+      <style>{css}</style>
       <Head key='main-head'>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin='anonymous' />
           <link href="https://fonts.googleapis.com/css2?family=Sora&display=swap" rel="stylesheet" />
       </Head>
-      <div className='flex items-center text-white justify-center text-lg w-full h-14 bg-pizza font-sora'>
+      <div className='flex items-center text-white justify-center text-lg w-full h-14 bg-heading-color font-sora'>
           Buy {firstName} a Crypto Coffee
       </div>
       <CryptoSelect {...cryptoSelectProps} />
@@ -58,7 +68,7 @@ export default function Home() {
         )
       }
       <footer className='mt-auto flex items-center justify-center sticky h-10 w-full'>
-        <a href='#' className='text-blue-400'>Get your own widget</a>
+        <a href='https://www.buymeacryptocoffee.xyz/' target="_blank" rel="noopener noreferrer" className='text-blue-400'>Get your own widget</a>
       </footer>
     </div>
   )

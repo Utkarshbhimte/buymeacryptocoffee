@@ -19,7 +19,8 @@ module.exports = {
       red: colors.rose,
       yellow: colors.amber,
       blue: colors.blue,
-      pizza: '#FF8906'
+      pizza: '#FF8906',
+      'heading-color': 'var(--heading-color)'
     }
   },
   variants: {

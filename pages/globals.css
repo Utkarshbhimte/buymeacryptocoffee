@@ -1,0 +1,5 @@
+@import url('tailwindcss/tailwind.css');
+
+body {
+    --heading-color: #FF8906;
+}
