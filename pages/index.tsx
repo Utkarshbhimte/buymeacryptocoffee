@@ -27,6 +27,14 @@ export default function Home() {
     setSelectedWallet(availableWallets.find(wallet => wallet.id === value))
   }
 
+  const handleCopyAddress = async () => {
+    try {
+      navigator.clipboard.writeText(selectedWallet.public_address)
+    } catch(error) {
+      console.error(error)
+    }
+  }
+
   const cryptoSelectProps: CryptoSelectProps = {
     handleOnChange,
     availableWallets,
@@ -57,7 +65,7 @@ export default function Home() {
           <>
             <div className='w-4/5 flex items-center h-10 mt-4 bg-gray-200 rounded-md'>
               <span className='flex items-center truncate px-3 w-4/5 h-full'>{selectedWallet.public_address}</span>
-              <div className='w-max h-full ml-auto pr-3 pl-3 flex items-center cursor-pointer' onClick={() => navigator.clipboard.writeText(selectedWallet.public_address)}>
+              <div className='w-max h-full ml-auto pr-3 pl-3 flex items-center cursor-pointer' onClick={handleCopyAddress}>
                 <ClipboardCopyIcon
                   className="w-5 h-5 text-gray-500"
                 />
