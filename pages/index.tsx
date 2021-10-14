@@ -3,6 +3,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { ClipboardCopyIcon } from '@heroicons/react/solid'
 import CryptoSelect, { CryptoSelectProps } from '../components/CryptoSelect';
+import CustomiseWidgetForm from '../components/customise-widget-form/CustomiseWidgetForm';
 
 export interface Wallet {
   id: string;
@@ -49,18 +50,20 @@ export default function Home() {
   `
 
   return (
-    <div className="flex flex-col items-center min-h-screen">
-      <style>{css}</style>
-      <Head key='main-head'>
+    // <div className="flex flex-col items-center min-h-screen">
+    <div>
+      {/* <style>{css}</style> */}
+      {/* <Head key='main-head'>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin='anonymous' />
           <link href="https://fonts.googleapis.com/css2?family=Sora&display=swap" rel="stylesheet" />
       </Head>
       <div className='flex items-center text-white justify-center text-lg w-full h-14 bg-heading-color font-sora'>
           Buy {firstName} a Crypto Coffee
-      </div>
-      <CryptoSelect {...cryptoSelectProps} />
-      {
+      </div> */}
+      {/* <CryptoSelect {...cryptoSelectProps} /> */}
+      <CustomiseWidgetForm />
+      {/* {
         !!selectedWallet && (
           <>
             <div className='w-4/5 flex items-center h-10 mt-4 bg-gray-200 rounded-md'>
@@ -74,10 +77,10 @@ export default function Home() {
             <img className='mt-4' src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${selectedWallet.public_address}`} />
           </>
         )
-      }
-      <footer className='mt-auto flex items-center justify-center sticky h-10 w-full'>
+      } */}
+      {/* <footer className='mt-auto flex items-center justify-center sticky h-10 w-full'>
         <a href='https://www.buymeacryptocoffee.xyz/' target="_blank" rel="noopener noreferrer" className='text-blue-400'>Get your own widget</a>
-      </footer>
+      </footer> */}
     </div>
   )
 }

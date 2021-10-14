@@ -10,9 +10,11 @@
     "@heroicons/react": "^1.0.4",
     "@next-auth/firebase-adapter": "0.0.2-canary.207",
     "firebase": "^8.10.0",
+    "@tailwindcss/forms": "^0.3.4",
     "next": "latest",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "react-hook-form": "^7.17.3"
   },
   "devDependencies": {
     "@types/node": "^16.10.3",
