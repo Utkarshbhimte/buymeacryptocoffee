@@ -18,4 +18,7 @@ export default NextAuth({
         })
     ],
     adapter: FirebaseAdapter(firestore),
+    // pages: {
+    //     signIn: '/auth/signin'
+    // }
 })
