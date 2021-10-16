@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react'
-import { useSession, signIn, signOut, getProviders, ClientSafeProvider } from 'next-auth/client'
+import React from 'react'
+import { useSession, signIn, getProviders, ClientSafeProvider } from 'next-auth/client'
 import { useRouter } from 'next/router'
-import { route } from 'next/dist/server/router'
 import Loader from '../utils/loader'
 
 export interface LoginProps {
