@@ -50,7 +50,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center min-h-screen">
-      <div>
         <style>{css}</style>
         <Head key='main-head'>
             <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -79,7 +78,6 @@ export default function Home() {
         <footer className='mt-auto flex items-center justify-center sticky h-10 w-full'>
           <a href='https://www.buymeacryptocoffee.xyz/' target="_blank" rel="noopener noreferrer" className='text-blue-400'>Get your own widget</a>
         </footer>
-      </div>
     </div>
   )
 }
