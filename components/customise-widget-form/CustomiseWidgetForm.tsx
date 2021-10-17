@@ -55,7 +55,7 @@ function CustomiseWidgetForm() {
 
     const closeModal = () => setScriptModalVisible(false)
 
-    const widgetScript = !!currentWidget ? `<script src="https://cdn.jsdelivr.net/gh/shindeajinkya/cryptocoffeewidgetscript@main/widgetscript.min.js" data-name="crypto-coffee-widget" data-userid='${currentWidget.userId}' data-color='${currentWidget.widgetColor}' data-position="${currentWidget.widgetPosition}" data-x_margin="18" data-y_margin="18"></script>` : ''
+    const widgetScript = !!currentWidget ? `<script src="https://cdn.jsdelivr.net/gh/shindeajinkya/cryptocoffeewidgetscript/widgetscript.min.js" data-name="crypto-coffee-widget" data-userid='${currentWidget.userId}' data-color='${currentWidget.widgetColor}' data-position="${currentWidget.widgetPosition}" data-x_margin="18" data-y_margin="18"></script>` : ''
 
     const copyScript = () => {
         setCopyButtonText('Copied!')
