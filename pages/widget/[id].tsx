@@ -63,7 +63,9 @@ export default function Home({ widget }: {
             <link href="https://fonts.googleapis.com/css2?family=Sora&display=swap" rel="stylesheet" />
         </Head>
         <div className='flex items-center text-white justify-center text-lg w-full h-14 bg-heading-color font-sora'>
-            Buy {firstName} a Crypto Coffee
+            Buy
+            <a className='mx-2' href={`http://${websiteUrl}`} target="_blank" rel="noopener noreferrer">{` ${firstName} `}</a>
+            a Crypto Coffee
         </div>
         <CryptoSelect {...cryptoSelectProps} />
         {
