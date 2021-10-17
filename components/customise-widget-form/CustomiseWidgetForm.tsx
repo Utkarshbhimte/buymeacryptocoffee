@@ -1,27 +1,176 @@
-import React from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { EyeIcon } from "@heroicons/react/outline";
+import { User } from "next-auth";
+import { useSession } from "next-auth/client";
+import React, { Fragment, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { db } from "../../utils/firebaseClient";
+import Loader from "../../utils/loader";
+import copy from 'copy-to-clipboard';
+import { Wallet } from "../../pages/widget/[id]";
 
+export interface Widget extends FormValues {
+    id: string;
+    userId: string;
+}
+
+export interface FormValues {
+    firstName: string;
+    websiteUrl: string;
+    widgetColor: string;
+    widgetPosition: string;
+    wallet_address: Wallet[];
+}
+
+export interface UserResponse extends User {
+    id: string
+}
 
 function CustomiseWidgetForm() {
+    const [session] = useSession()
+    const widgetDBCollection = db.collection('widgets')
+    const usersDBCollection = db.collection('users')
+    const [currentUser, setCurrentUser] = useState<UserResponse>()
+    const [loading, setLoading] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [currentWidget, setCurrentWidget] = useState<Widget>()
+    const [editMode, setEditMode] = useState(false)
+    const [scriptModalVisible, setScriptModalVisible] = useState(false)
+    const [copyButtonText, setCopyButtonText] = useState('Copy')
 
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    const { register, handleSubmit, formState: { errors }, setValue } = useForm<FormValues>({
         defaultValues: {
             firstName: "",
             websiteUrl: "",
             widgetColor: "#e66465",
             widgetPosition: "right",
-            walletAddresses: [
-                { id: '0', name: 'Bitcoin', publicAddress: '' },
-                { id: '1', name: 'Ethereum', publicAddress: '' },
-                { id: '2', name: 'Solana', publicAddress: '' },
-                { id: '3', name: 'USDT', publicAddress: '' }
+            wallet_address: [
+                { id: '0', name: 'Bitcoin', public_address: '' },
+                { id: '1', name: 'Ethereum', public_address: '' },
+                { id: '2', name: 'Solana', public_address: '' },
+                { id: '3', name: 'USDT', public_address: '' }
             ]
         }
     });
-    const onSubmit = data => console.log(data);
 
+    const closeModal = () => setScriptModalVisible(false)
 
-    return (
+    const widgetScript = !!currentWidget ? `<script src="https://cdn.jsdelivr.net/gh/shindeajinkya/cryptocoffeewidgetscript@main/widgetscript.min.js" data-name="crypto-coffee-widget" data-userid='${currentWidget.userId}' data-color='${currentWidget.widgetColor}' data-position="${currentWidget.widgetPosition}" data-x_margin="18" data-y_margin="18"></script>` : ''
+
+    const copyScript = () => {
+        setCopyButtonText('Copied!')
+        copy(widgetScript)
+        setTimeout(() => setCopyButtonText('Copy'), 2000)
+    }
+
+    const getCurrentUser = async () => {
+        try {
+            const currentUserResponse = await usersDBCollection.where('email', '==', session.user.email).get()
+
+            if(currentUserResponse.docs[0]) {
+                const currentUser = {
+                    ...currentUserResponse.docs[0].data() as User,
+                    id: currentUserResponse.docs[0].id
+                }
+                setCurrentUser(currentUser)
+                return currentUser
+            } else {
+                return null
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const getEditOrNewState = async () => {
+        setLoading(true)
+        try {
+            const currentUser = await getCurrentUser()
+            const widgetResponse = await widgetDBCollection.where('userId', '==', currentUser.id).get()
+
+            setEditMode(!!widgetResponse.docs[0])
+
+            if(!!widgetResponse.docs[0]) {
+                const widget = {
+                    ...widgetResponse.docs[0].data() as Widget,
+                    id: widgetResponse.docs[0].id
+                }
+                setCurrentWidget(widget)
+            }
+
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const addWidget = async (data: FormValues) => {
+        setIsSubmitting(true)
+        try {
+            const widgetResponse = await widgetDBCollection.add({
+                ...data,
+                userId: currentUser.id
+            })
+            const widget = await widgetResponse.get()
+            setEditMode(!!widget.data())
+            setCurrentWidget({
+                ...widget.data() as Widget,
+                id: widget.id
+            })
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    const editWidget = async (data: FormValues) => {
+        setIsSubmitting(true)
+        try {
+            await widgetDBCollection.doc(currentWidget.id).update({
+                ...data,
+                userId: currentUser.id
+            })
+            const widget = await widgetDBCollection.doc(currentWidget.id).get()
+            setCurrentWidget({
+                ...widget.data() as Widget,
+                id: widget.id
+            })
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    const setWidgetFormValues = (widget: Widget) => {
+        setValue('firstName', widget.firstName)
+        setValue('websiteUrl', widget.websiteUrl)
+        setValue('widgetColor', widget.widgetColor)
+        setValue('widgetPosition', widget.widgetPosition)
+        setValue('wallet_address', widget.wallet_address)
+    }
+
+    const onSubmit = async (data: FormValues) => {
+        if(!editMode) {
+            addWidget(data)
+        } else {
+            editWidget(data)
+        }
+    };
+
+    useEffect(() => {
+        getEditOrNewState()
+    }, [session?.user?.email])
+
+    useEffect(() => {
+        if(!!currentWidget){
+            setWidgetFormValues(currentWidget)
+        }
+    }, [currentWidget])
+
+    return loading ? <Loader /> : (
         <>
             <div className="hidden sm:block" aria-hidden="true">
                 <div className="py-5">
@@ -30,12 +179,6 @@ function CustomiseWidgetForm() {
             </div>
             <div className="mt-10 sm:mt-0">
                 <div className="md:grid md:grid-cols-3 md:gap-6">
-                    <div className="md:col-span-1 bg-gray-100">
-                        <div className="px-4 sm:px-0">
-                            <h3 className="text-lg font-medium leading-6 text-gray-900">Customise Widget</h3>
-                            <p className="mt-1 text-sm text-gray-600">Add data to customise your widget</p>
-                        </div>
-                    </div>
                     <div className="mt-5 md:mt-0 md:col-span-2">
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <div className="shadow overflow-hidden sm:rounded-md">
@@ -92,10 +235,10 @@ function CustomiseWidgetForm() {
                                                     </span>
                                                     <input
                                                         type="text"
-                                                        name="walletAddresses[0].publicAddress"
+                                                        name="wallet_address[0].public_address"
                                                         id="company-website"
                                                         className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
-                                                        ref{...register("walletAddresses[0].publicAddress")}
+                                                        ref{...register("wallet_address[0].public_address")}
                                                     />
                                                 </div>
                                             </div>
@@ -108,11 +251,11 @@ function CustomiseWidgetForm() {
                                                     </span>
                                                     <input
                                                         type="text"
-                                                        name="walletAddresses[1].publicAddress"
+                                                        name="wallet_address[1].public_address"
                                                         id="company-website"
                                                         className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
                                                         // placeholder="Ethereum address"
-                                                        {...register("walletAddresses[1].publicAddress")}
+                                                        {...register("wallet_address[1].public_address")}
                                                     />
                                                 </div>
                                             </div>
@@ -125,11 +268,11 @@ function CustomiseWidgetForm() {
                                                     </span>
                                                     <input
                                                         type="text"
-                                                        name="walletAddresses[2].publicAddress"
+                                                        name="wallet_address[2].public_address"
                                                         id="company-website"
                                                         className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
                                                         // placeholder="Solana address"
-                                                        {...register("walletAddresses[2].publicAddress")}
+                                                        {...register("wallet_address[2].public_address")}
                                                     />
                                                 </div>
                                             </div>
@@ -142,11 +285,11 @@ function CustomiseWidgetForm() {
                                                     </span>
                                                     <input
                                                         type="text"
-                                                        name="walletAddresses[3].publicAddress"
+                                                        name="wallet_address[3].public_address"
                                                         id="company-website"
                                                         className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
                                                         // placeholder="USDT address"
-                                                        {...register("walletAddresses[3].publicAddress")}
+                                                        {...register("wallet_address[3].public_address")}
                                                     />
                                                 </div>
                                             </div>
@@ -208,15 +351,40 @@ function CustomiseWidgetForm() {
                                     </div>
                                 </div>
                                 <div className="px-4 py-3 bg-gray-50 text-right sm:px-6">
+                                    {
+                                        !!currentWidget && (
+                                            <button
+                                                type='button'
+                                                onClick={() => setScriptModalVisible(true)}
+                                                className= "mr-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-400 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                            >
+                                                Show Widget Script
+                                            </button>
+                                        )
+                                    }
                                     <button
                                         type="submit"
-                                        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                        disabled={isSubmitting}
+                                        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400"
                                     >
                                         Save
                                     </button>
                                 </div>
                             </div>
                         </form>
+                    </div>
+                    <div className="md:col-span-1 bg-gray-100">
+                        {
+                            !currentWidget ? (
+                                <div className='h-full flex flex-col items-center justify-center'>
+                                    <EyeIcon width={50} height={50} />
+                                    <div className='text-lg'>Widget Preview</div>
+                                    <div>Fill and save the form to see widget</div>
+                                </div>
+                            ) : (
+                                <iframe key={JSON.stringify(currentWidget)} className='w-full h-full' src={`/widget/${currentWidget.userId}`} />
+                            )
+                        }
                     </div>
                 </div>
             </div>
@@ -225,9 +393,83 @@ function CustomiseWidgetForm() {
                     <div className="border-t border-gray-200" />
                 </div>
             </div>
+            {
+                !!currentWidget && (
+                    <Transition appear show={scriptModalVisible} as={Fragment}>
+                            <Dialog
+                                as="div"
+                                className="fixed inset-0 z-10 overflow-y-auto"
+                                onClose={closeModal}
+                            >
+                            <div className="min-h-screen px-4 text-center">
+                                <Transition.Child
+                                    as={Fragment}
+                                    enter="ease-out duration-300"
+                                    enterFrom="opacity-0"
+                                    enterTo="opacity-100"
+                                    leave="ease-in duration-200"
+                                    leaveFrom="opacity-100"
+                                    leaveTo="opacity-0"
+                                >
+                                <Dialog.Overlay className="fixed inset-0" />
+                                </Transition.Child>
+
+                                <span
+                                    className="inline-block h-screen align-middle"
+                                    aria-hidden="true"
+                                >
+                                &#8203;
+                                </span>
+                                <Transition.Child
+                                    as={Fragment}
+                                    enter="ease-out duration-300"
+                                    enterFrom="opacity-0 scale-95"
+                                    enterTo="opacity-100 scale-100"
+                                    leave="ease-in duration-200"
+                                    leaveFrom="opacity-100 scale-100"
+                                    leaveTo="opacity-0 scale-95"
+                                >
+                                <div className="inline-block w-3/5 p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+                                    <Dialog.Title
+                                        as="h3"
+                                        className="text-lg font-medium leading-6 text-gray-900"
+                                    >
+                                        Copy This Script and paste into your site's html
+                                    </Dialog.Title>
+                                    <div className="rounded-md mt-2 bg-gray-900 text-gray-50 p-3 overflow-x-auto">
+                                        <pre>
+                                            <code className="text-sm">
+                                                {widgetScript}
+                                            </code>
+                                        </pre>
+                                    </div>
+
+                                    <div className="mt-4">
+                                        <button
+                                            type="button"
+                                            className="inline-flex mr-2 justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                                            onClick={copyScript}
+                                        >
+                                            {copyButtonText}
+                                        </button>
+                                        <button
+                                            onClick={closeModal}
+                                            className="inline-flex mr-2 justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-gray-100 border border-transparent rounded-md hover:bg-blue-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                                        >
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
+                                </Transition.Child>
+                            </div>
+                        </Dialog>
+                    </Transition>
+                )
+            }
         </>
     );
 
 };
 
 export default CustomiseWidgetForm;
+

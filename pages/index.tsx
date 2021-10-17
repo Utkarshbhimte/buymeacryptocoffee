@@ -1,84 +1,202 @@
-import React, { useState } from 'react'
-import Head from 'next/head'
+import { signOut, useSession } from 'next-auth/client'
+import React, { Fragment, useEffect } from 'react'
+import Loader from '../utils/loader'
+import { Disclosure, Menu, Transition } from '@headlessui/react'
+import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
 import { useRouter } from 'next/router'
-import { ClipboardCopyIcon } from '@heroicons/react/solid'
-import CryptoSelect, { CryptoSelectProps } from '../components/CryptoSelect';
+import CustomiseWidgetForm from '../components/customise-widget-form/CustomiseWidgetForm'
 
-export interface Wallet {
-  id: string;
-  name: string;
-  public_address: string;
+const navigation = [
+    { name: 'Create Widget', href: '#', current: true }
+]
+const userNavigation = [
+    { name: 'Your Profile', href: '#' },
+    { name: 'Settings', href: '#' },
+    { name: 'Sign out', href: '#', onClick: () => signOut() },
+]
+  
+function classNames(...classes) {
+    return classes.filter(Boolean).join(' ')
 }
 
-export default function Home() {
-  const router = useRouter();
-  const { color } = router.query;
-  const availableWallets: Wallet[] = [
-    {id: '1', name: 'Bitcoin', public_address: '1F1tAaz5x1HUXrCNLbtMDqcw6o5GNn4xqX'},
-    {id: '2', name: 'Ethereum', public_address: '0xCF193782f2eBC069ae05eC0Ef955E4B042D000Dd'},
-    {id: '3', name: 'Solana', public_address: 'HekM1hBawXQu6wK6Ah1yw1YXXeMUDD2bfCHEzo25vnEB'}
-  ];
-  const [selectedWalletId, setSelectedWalletId] = useState<string>(availableWallets[0].id);
-  const [selectedWallet, setSelectedWallet] = useState<Wallet>(availableWallets[0])
-  const firstName = 'Akhil';
+const Dashboard: React.FC = () => {
+    const [session, loading] = useSession()
+    const router = useRouter()
 
-  const handleOnChange = (value: string) => {
-    setSelectedWalletId(value);
-    setSelectedWallet(availableWallets.find(wallet => wallet.id === value))
-  }
-
-  const handleCopyAddress = async () => {
-    try {
-      navigator.clipboard.writeText(selectedWallet.public_address)
-    } catch(error) {
-      console.error(error)
-    }
-  }
-
-  const cryptoSelectProps: CryptoSelectProps = {
-    handleOnChange,
-    availableWallets,
-    selectedWallet,
-    selectedWalletId
-  }
-
-  const css = `
-    body {
-      --heading-color: ${!!color ? `#${color}` : '#FF8906'}
-    }
-  `
-
-  return (
-    <div className="flex flex-col items-center min-h-screen">
-        <style>{css}</style>
-        <Head key='main-head'>
-            <link rel="preconnect" href="https://fonts.googleapis.com" />
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin='anonymous' />
-            <link href="https://fonts.googleapis.com/css2?family=Sora&display=swap" rel="stylesheet" />
-        </Head>
-        <div className='flex items-center text-white justify-center text-lg w-full h-14 bg-heading-color font-sora'>
-            Buy {firstName} a Crypto Coffee
-        </div>
-        <CryptoSelect {...cryptoSelectProps} />
-        {
-          !!selectedWallet && (
-            <>
-              <div className='w-4/5 flex items-center h-10 mt-4 bg-gray-200 rounded-md'>
-                <span className='flex items-center truncate px-3 w-4/5 h-full'>{selectedWallet.public_address}</span>
-                <div className='w-max h-full ml-auto pr-3 pl-3 flex items-center cursor-pointer' onClick={handleCopyAddress}>
-                  <ClipboardCopyIcon
-                    className="w-5 h-5 text-gray-500"
-                  />
-                </div>
-              </div>
-              <img className='mt-4' src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${selectedWallet.public_address}`} />
-            </>
-          )
+    useEffect(() => {
+        if(!session) {
+            router.push('/login')
         }
-        <footer className='mt-auto flex items-center justify-center sticky h-10 w-full'>
-          <a href='https://www.buymeacryptocoffee.xyz/' target="_blank" rel="noopener noreferrer" className='text-blue-400'>Get your own widget</a>
-        </footer>
-    </div>
-  )
+    }, [session])
+
+    if(loading){
+        return <Loader />
+    }
+
+    return (
+        <div className="min-h-screen bg-white">
+            <Disclosure as="nav" className="bg-white border-b border-gray-200">
+                {({ open }) => (
+                <>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between h-16">
+                        <div className="flex">
+                        <div className="flex-shrink-0 flex items-center">
+                            <img
+                            className="block lg:hidden h-8 w-auto"
+                            src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
+                            alt="Workflow"
+                            />
+                            <img
+                            className="hidden lg:block h-8 w-auto"
+                            src="https://tailwindui.com/img/logos/workflow-logo-indigo-600-mark-gray-800-text.svg"
+                            alt="Workflow"
+                            />
+                        </div>
+                        <div className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
+                            {navigation.map((item) => (
+                            <a
+                                key={item.name}
+                                href={item.href}
+                                className={classNames(
+                                item.current
+                                    ? 'border-indigo-500 text-gray-900'
+                                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+                                'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                                )}
+                                aria-current={item.current ? 'page' : undefined}
+                            >
+                                {item.name}
+                            </a>
+                            ))}
+                        </div>
+                        </div>
+                        <div className="hidden sm:ml-6 sm:flex sm:items-center">
+                        <button
+                            type="button"
+                            className="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                            <span className="sr-only">View notifications</span>
+                            <BellIcon className="h-6 w-6" aria-hidden="true" />
+                        </button>
+
+                        {/* Profile dropdown */}
+                        <Menu as="div" className="ml-3 relative">
+                            <div>
+                            <Menu.Button className="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <span className="sr-only">Open user menu</span>
+                                <img className="h-8 w-8 rounded-full" src={session?.user.image} alt="" />
+                            </Menu.Button>
+                            </div>
+                            <Transition
+                            as={Fragment}
+                            enter="transition ease-out duration-200"
+                            enterFrom="transform opacity-0 scale-95"
+                            enterTo="transform opacity-100 scale-100"
+                            leave="transition ease-in duration-75"
+                            leaveFrom="transform opacity-100 scale-100"
+                            leaveTo="transform opacity-0 scale-95"
+                            >
+                            <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                {userNavigation.map((item) => (
+                                <Menu.Item key={item.name} onClick={item?.onClick}>
+                                    {({ active }) => (
+                                    <a
+                                        href={item.href}
+                                        className={classNames(
+                                        active ? 'bg-gray-100' : '',
+                                        'block px-4 py-2 text-sm text-gray-700'
+                                        )}
+                                    >
+                                        {item.name}
+                                    </a>
+                                    )}
+                                </Menu.Item>
+                                ))}
+                            </Menu.Items>
+                            </Transition>
+                        </Menu>
+                        </div>
+                        <div className="-mr-2 flex items-center sm:hidden">
+                        {/* Mobile menu button */}
+                        <Disclosure.Button className="bg-white inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <span className="sr-only">Open main menu</span>
+                            {open ? (
+                            <XIcon className="block h-6 w-6" aria-hidden="true" />
+                            ) : (
+                            <MenuIcon className="block h-6 w-6" aria-hidden="true" />
+                            )}
+                        </Disclosure.Button>
+                        </div>
+                    </div>
+                    </div>
+
+                    <Disclosure.Panel className="sm:hidden">
+                    <div className="pt-2 pb-3 space-y-1">
+                        {navigation.map((item) => (
+                        <a
+                            key={item.name}
+                            href={item.href}
+                            className={classNames(
+                            item.current
+                                ? 'bg-indigo-50 border-indigo-500 text-indigo-700'
+                                : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800',
+                            'block pl-3 pr-4 py-2 border-l-4 text-base font-medium'
+                            )}
+                            aria-current={item.current ? 'page' : undefined}
+                        >
+                            {item.name}
+                        </a>
+                        ))}
+                    </div>
+                    <div className="pt-4 pb-3 border-t border-gray-200">
+                        <div className="flex items-center px-4">
+                        <div className="flex-shrink-0">
+                            <img className="h-10 w-10 rounded-full" src={session?.user.image} alt="" />
+                        </div>
+                        <div className="ml-3">
+                            <div className="text-base font-medium text-gray-800">{session?.user.name}</div>
+                            <div className="text-sm font-medium text-gray-500">{session?.user.email}</div>
+                        </div>
+                        <button
+                            type="button"
+                            className="ml-auto bg-white flex-shrink-0 p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                            <span className="sr-only">View notifications</span>
+                            <BellIcon className="h-6 w-6" aria-hidden="true" />
+                        </button>
+                        </div>
+                        <div className="mt-3 space-y-1">
+                        {userNavigation.map((item) => (
+                            <a
+                            key={item.name}
+                            href={item.href}
+                            className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+                            >
+                            {item.name}
+                            </a>
+                        ))}
+                        </div>
+                    </div>
+                    </Disclosure.Panel>
+                </>
+                )}
+            </Disclosure>
+
+            <div className="py-10">
+                <header>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h1 className="text-3xl font-bold leading-tight text-gray-900">Dashboard</h1>
+                </div>
+                </header>
+                <main>
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <CustomiseWidgetForm />
+                </div>
+                </main>
+            </div>
+            </div>
+    )
 }
 
+export default Dashboard
