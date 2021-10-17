@@ -17,5 +17,8 @@ export default NextAuth({
             clientSecret: process.env.TWITTER_API_SECRET_KEY
         })
     ],
-    adapter: FirebaseAdapter(firestore)
+    adapter: FirebaseAdapter(firestore),
+    pages: {
+        signIn: '/login'
+    }
 })
