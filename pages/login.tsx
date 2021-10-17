@@ -10,6 +10,7 @@ export interface LoginProps {
 const Login: React.FC<LoginProps> = ({ providers }) => {
     const [session, loading] = useSession()
     const router = useRouter()
+    console.log(providers)
 
     const handleSignIn = () => signIn(providers['twitter'].id, {
         callbackUrl: `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/login`

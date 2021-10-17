@@ -238,7 +238,7 @@ function CustomiseWidgetForm() {
                                                         name="wallet_address[0].public_address"
                                                         id="bitcoin-address"
                                                         className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
-                                                        {...register("wallet_address[0].public_address")}
+                                                        {...register("wallet_address.0.public_address")}
                                                     />
                                                 </div>
                                             </div>
@@ -255,7 +255,7 @@ function CustomiseWidgetForm() {
                                                         id="ethereum-address"
                                                         className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
                                                         placeholder="Ethereum address"
-                                                        {...register("wallet_address[1].public_address")}
+                                                        {...register("wallet_address.1.public_address")}
                                                     />
                                                 </div>
                                             </div>
@@ -272,7 +272,7 @@ function CustomiseWidgetForm() {
                                                         id="solana-address"
                                                         className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
                                                         placeholder="Solana address"
-                                                        {...register("wallet_address[2].public_address")}
+                                                        {...register("wallet_address.2.public_address")}
                                                     />
                                                 </div>
                                             </div>
@@ -289,7 +289,7 @@ function CustomiseWidgetForm() {
                                                         id="tether-address"
                                                         className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
                                                         placeholder="USDT address"
-                                                        {...register("wallet_address[3].public_address")}
+                                                        {...register("wallet_address.3.public_address")}
                                                     />
                                                 </div>
                                             </div>
