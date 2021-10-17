@@ -226,7 +226,7 @@ function CustomiseWidgetForm() {
                                         {/* coin list section */}
                                         <div className="col-span-6">
                                             <div>
-                                                <label htmlFor="company-website" className="block text-sm font-medium text-gray-700">
+                                                <label htmlFor="bitcoin-address" className="block text-sm font-medium text-gray-700">
                                                     Coins
                                                 </label>
                                                 <div className="mt-1 flex rounded-md shadow-sm">
@@ -236,9 +236,9 @@ function CustomiseWidgetForm() {
                                                     <input
                                                         type="text"
                                                         name="wallet_address[0].public_address"
-                                                        id="company-website"
+                                                        id="bitcoin-address"
                                                         className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
-                                                        ref{...register("wallet_address[0].public_address")}
+                                                        {...register("wallet_address[0].public_address")}
                                                     />
                                                 </div>
                                             </div>
@@ -252,9 +252,9 @@ function CustomiseWidgetForm() {
                                                     <input
                                                         type="text"
                                                         name="wallet_address[1].public_address"
-                                                        id="company-website"
+                                                        id="ethereum-address"
                                                         className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
-                                                        // placeholder="Ethereum address"
+                                                        placeholder="Ethereum address"
                                                         {...register("wallet_address[1].public_address")}
                                                     />
                                                 </div>
@@ -269,9 +269,9 @@ function CustomiseWidgetForm() {
                                                     <input
                                                         type="text"
                                                         name="wallet_address[2].public_address"
-                                                        id="company-website"
+                                                        id="solana-address"
                                                         className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
-                                                        // placeholder="Solana address"
+                                                        placeholder="Solana address"
                                                         {...register("wallet_address[2].public_address")}
                                                     />
                                                 </div>
@@ -286,9 +286,9 @@ function CustomiseWidgetForm() {
                                                     <input
                                                         type="text"
                                                         name="wallet_address[3].public_address"
-                                                        id="company-website"
+                                                        id="tether-address"
                                                         className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
-                                                        // placeholder="USDT address"
+                                                        placeholder="USDT address"
                                                         {...register("wallet_address[3].public_address")}
                                                     />
                                                 </div>
