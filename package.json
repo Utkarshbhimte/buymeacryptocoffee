@@ -9,9 +9,11 @@
     "@headlessui/react": "^1.4.1",
     "@heroicons/react": "^1.0.4",
     "@next-auth/firebase-adapter": "0.0.2-canary.207",
-    "firebase": "^8.10.0",
     "@tailwindcss/forms": "^0.3.4",
+    "@types/qrcode": "^1.4.1",
+    "firebase": "^8.10.0",
     "next": "latest",
+    "qrcode": "^1.4.4",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.17.3"

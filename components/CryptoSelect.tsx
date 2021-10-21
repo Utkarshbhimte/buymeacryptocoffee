@@ -17,15 +17,19 @@ const CryptoSelect: React.FC<CryptoSelectProps> = ({
     handleOnChange
 }) => {
     return (
-        <Listbox value={selectedWalletId} onChange={handleOnChange}>
+        <Listbox value={selectedWalletId} onChange={handleOnChange} disabled={availableWallets.length < 2}>
             <div className="relative w-4/5 h-10 bg-gray-200 mt-4 rounded-md">
             <Listbox.Button className="relative justify-center w-full h-full py-2 pl-3 pr-10 text-left rounded-lg cursor-default focus:outline-none focus-visible:ring-2 focus-visible:ring-opacity-75 focus-visible:ring-white focus-visible:ring-offset-orange-300 focus-visible:ring-offset-2 focus-visible:border-indigo-500 sm:text-sm">
                 <span className="block truncate">{selectedWallet?.name}</span>
                 <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                <ChevronDownIcon
-                    className="w-5 h-5 text-gray-400"
-                    aria-hidden="true"
-                />
+                {
+                    availableWallets.length > 1 && (
+                        <ChevronDownIcon
+                            className="w-5 h-5 text-gray-400"
+                            aria-hidden="true"
+                        />
+                    )
+                }
                 </span>
             </Listbox.Button>
             <Transition

@@ -8,6 +8,7 @@ import { db } from "../../utils/firebaseClient";
 import Loader from "../../utils/loader";
 import copy from 'copy-to-clipboard';
 import { Wallet } from "../../pages/widget/[id]";
+import WidgetComponent from "../Widget";
 
 export interface Widget extends FormValues {
     id: string;
@@ -16,7 +17,6 @@ export interface Widget extends FormValues {
 
 export interface FormValues {
     firstName: string;
-    websiteUrl: string;
     widgetColor: string;
     widgetPosition: string;
     wallet_address: Wallet[];
@@ -41,7 +41,6 @@ function CustomiseWidgetForm() {
     const { register, handleSubmit, formState: { errors }, setValue } = useForm<FormValues>({
         defaultValues: {
             firstName: "",
-            websiteUrl: "",
             widgetColor: "#e66465",
             widgetPosition: "right",
             wallet_address: [
@@ -80,6 +79,16 @@ function CustomiseWidgetForm() {
         } catch (error) {
             console.error(error)
         }
+    }
+
+    const handleAddressInputChange = (name: string, value: string) => {
+        const index = name.split('.')[1]
+        const wallet_address = [...currentWidget.wallet_address]
+        wallet_address[index].public_address = value
+        setCurrentWidget({
+            ...currentWidget,
+            wallet_address
+        })
     }
 
     const getEditOrNewState = async () => {
@@ -146,7 +155,6 @@ function CustomiseWidgetForm() {
 
     const setWidgetFormValues = (widget: Widget) => {
         setValue('firstName', widget.firstName)
-        setValue('websiteUrl', widget.websiteUrl)
         setValue('widgetColor', widget.widgetColor)
         setValue('widgetPosition', widget.widgetPosition)
         setValue('wallet_address', widget.wallet_address)
@@ -197,31 +205,17 @@ function CustomiseWidgetForm() {
                                                 autoComplete="given-name"
                                                 placeholder="Name to display on widget"
                                                 className="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                                                {...register("firstName")}
+                                                {...register("firstName", {
+                                                    value: currentWidget?.firstName,
+                                                    onChange: (e) => setCurrentWidget({
+                                                        ...currentWidget,
+                                                        firstName: e.target.value
+                                                    })
+                                                })}
                                             />
                                         </div>
 
                                         {/* website URL section */}
-                                        <div className="col-span-6">
-                                            <div>
-                                                <label htmlFor="company-website" className="block text-sm font-medium text-gray-700">
-                                                    Website
-                                                </label>
-                                                <div className="mt-1 flex rounded-md shadow-sm">
-                                                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                                                        https://
-                                                    </span>
-                                                    <input
-                                                        type="text"
-                                                        name="company-website"
-                                                        id="company-website"
-                                                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
-                                                        placeholder="www.example.com"
-                                                        {...register("websiteUrl")}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
 
                                         {/* coin list section */}
                                         <div className="col-span-6">
@@ -237,8 +231,12 @@ function CustomiseWidgetForm() {
                                                         type="text"
                                                         name="wallet_address[0].public_address"
                                                         id="bitcoin-address"
+                                                        placeholder="Bitcoin address"
                                                         className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
-                                                        {...register("wallet_address.0.public_address")}
+                                                        {...register("wallet_address.0.public_address", {
+                                                            onChange: (e) => handleAddressInputChange('wallet_address.0.public_address', e.target.value),
+                                                            value: currentWidget?.wallet_address[0].public_address
+                                                        })}
                                                     />
                                                 </div>
                                             </div>
@@ -255,7 +253,10 @@ function CustomiseWidgetForm() {
                                                         id="ethereum-address"
                                                         className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
                                                         placeholder="Ethereum address"
-                                                        {...register("wallet_address.1.public_address")}
+                                                        {...register("wallet_address.1.public_address", {
+                                                            onChange: (e) => handleAddressInputChange('wallet_address.1.public_address', e.target.value),
+                                                            value: currentWidget?.wallet_address[1].public_address
+                                                        })}
                                                     />
                                                 </div>
                                             </div>
@@ -272,7 +273,10 @@ function CustomiseWidgetForm() {
                                                         id="solana-address"
                                                         className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
                                                         placeholder="Solana address"
-                                                        {...register("wallet_address.2.public_address")}
+                                                        {...register("wallet_address.2.public_address", {
+                                                            onChange: (e) => handleAddressInputChange('wallet_address.2.public_address', e.target.value),
+                                                            value: currentWidget?.wallet_address[2].public_address
+                                                        })}
                                                     />
                                                 </div>
                                             </div>
@@ -289,7 +293,10 @@ function CustomiseWidgetForm() {
                                                         id="tether-address"
                                                         className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
                                                         placeholder="USDT address"
-                                                        {...register("wallet_address.3.public_address")}
+                                                        {...register("wallet_address.3.public_address", {
+                                                            onChange: (e) => handleAddressInputChange('wallet_address.3.public_address', e.target.value),
+                                                            value: currentWidget?.wallet_address[3].public_address
+                                                        })}
                                                     />
                                                 </div>
                                             </div>
@@ -306,7 +313,10 @@ function CustomiseWidgetForm() {
                                                     <input
                                                         name="widgetColor"
                                                         type="color"
-                                                        {...register("widgetColor", { required: true })}
+                                                        {...register("widgetColor", { required: true, onChange: (e) => setCurrentWidget({
+                                                            ...currentWidget,
+                                                            widgetColor: e.target.value
+                                                        }) })}
                                                     />
                                                 </div>
                                             </div>
@@ -375,14 +385,20 @@ function CustomiseWidgetForm() {
                     </div>
                     <div className="md:col-span-1 bg-gray-100">
                         {
-                            !currentWidget ? (
+                            !currentWidget || !currentWidget?.wallet_address.filter(wallet => !!wallet.public_address.length).length ? (
                                 <div className='h-full flex flex-col items-center justify-center'>
                                     <EyeIcon width={50} height={50} />
                                     <div className='text-lg'>Widget Preview</div>
                                     <div>Fill and save the form to see widget</div>
                                 </div>
                             ) : (
-                                <iframe key={JSON.stringify(currentWidget)} className='w-full h-full' src={`/widget/${currentWidget.userId}`} />
+                                <div className='flex flex-col items-center h-full'>
+                                    <WidgetComponent 
+                                        widgetColor={currentWidget.widgetColor}
+                                        firstName={currentWidget.firstName}
+                                        availableWallets={currentWidget.wallet_address.filter(wallet => !!wallet.public_address.length)}
+                                    />
+                                </div>
                             )
                         }
                     </div>
