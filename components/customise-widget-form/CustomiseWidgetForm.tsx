@@ -159,6 +159,7 @@ function CustomiseWidgetForm() {
             const widget = await widgetDBCollection.doc(currentWidget.id).get()
             setCurrentWidget({
                 ...widget.data() as Widget,
+                isFromDb: true,
                 id: widget.id
             })
         } catch (error) {
