@@ -12,6 +12,7 @@
     "@tailwindcss/forms": "^0.3.4",
     "@types/qrcode": "^1.4.1",
     "firebase": "^8.10.0",
+    "multicoin-address-validator": "^0.5.2",
     "next": "latest",
     "qrcode": "^1.4.4",
     "react": "^17.0.2",

@@ -7,6 +7,7 @@ import WidgetComponent, { WidgetProps } from '../../components/Widget';
 export interface Wallet {
   id: string;
   name: string;
+  short_name: string;
   public_address: string;
 }
 
