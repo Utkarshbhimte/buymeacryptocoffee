@@ -1,5 +1,5 @@
 import React from 'react'
-import { GetServerSideProps } from 'next';
+import { GetServerSideProps, GetStaticPaths, GetStaticProps } from 'next';
 import { db } from '../../utils/firebaseClient';
 import { Widget } from '../../components/customise-widget-form/CustomiseWidgetForm';
 import WidgetComponent, { WidgetProps } from '../../components/Widget';
@@ -41,7 +41,7 @@ export default function Home({ widget }: {
   )
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getStaticProps: GetStaticProps = async (context) => {
     const userId = context.params.id
     const widgetResponse = await db.collection('widgets').where('userId', '==', userId).get()
     const widget = {
@@ -54,4 +54,18 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             widget
         }
     }
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const widgetResponse = await db.collection('widgets').get()
+  const widgets: Widget[] = widgetResponse.docs.map(doc => ({
+    ...doc.data() as Widget,
+    id: doc.id
+  }))
+
+  const paths = widgets.map(widget => ({
+    params: {id: widget.userId}
+  }))
+
+  return { paths, fallback: 'blocking' }
 }
