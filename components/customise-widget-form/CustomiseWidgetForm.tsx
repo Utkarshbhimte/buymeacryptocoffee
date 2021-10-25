@@ -9,6 +9,7 @@ import Loader from "../../utils/loader";
 import copy from 'copy-to-clipboard';
 import { Wallet } from "../../pages/widget/[id]";
 import WidgetComponent from "../Widget";
+var WAValidator = require('multicoin-address-validator');
 
 export interface Widget extends FormValues {
     id: string;
@@ -39,10 +40,10 @@ function CustomiseWidgetForm() {
         widgetColor: "#e66465",
         widgetPosition: "right",
         wallet_address: [
-            { id: '0', name: 'Bitcoin', public_address: '' },
-            { id: '1', name: 'Ethereum', public_address: '' },
-            { id: '2', name: 'Solana', public_address: '' },
-            { id: '3', name: 'USDT', public_address: '' }
+            { id: '0', name: 'Bitcoin', short_name: 'BTC', public_address: '' },
+            { id: '1', name: 'Ethereum', short_name: 'ETH', public_address: '' },
+            { id: '2', name: 'Solana', short_name: 'SOL', public_address: '' },
+            { id: '3', name: 'USDT', short_name: 'USDT', public_address: '' }
         ],
         id: 'new_widget',
         userId: currentUser?.id ?? 'user_id'
@@ -51,16 +52,16 @@ function CustomiseWidgetForm() {
     const [scriptModalVisible, setScriptModalVisible] = useState(false)
     const [copyButtonText, setCopyButtonText] = useState('Copy')
 
-    const { register, handleSubmit, formState: { errors }, setValue } = useForm<FormValues>({
+    const { register, handleSubmit, setError, clearErrors, formState: { errors }, setValue } = useForm<FormValues>({
         defaultValues: {
             firstName: "",
             widgetColor: "#e66465",
             widgetPosition: "right",
             wallet_address: [
-                { id: '0', name: 'Bitcoin', public_address: '' },
-                { id: '1', name: 'Ethereum', public_address: '' },
-                { id: '2', name: 'Solana', public_address: '' },
-                { id: '3', name: 'USDT', public_address: '' }
+                { id: '0', name: 'Bitcoin', short_name: 'BTC', public_address: '' },
+                { id: '1', name: 'Ethereum', short_name: 'ETH', public_address: '' },
+                { id: '2', name: 'Solana', short_name: 'SOL', public_address: '' },
+                { id: '3', name: 'USDT', short_name: 'USDT', public_address: '' }
             ]
         }
     });
@@ -79,7 +80,7 @@ function CustomiseWidgetForm() {
         try {
             const currentUserResponse = await usersDBCollection.where('email', '==', session.user.email).get()
 
-            if(currentUserResponse.docs[0]) {
+            if (currentUserResponse.docs[0]) {
                 const currentUser = {
                     ...currentUserResponse.docs[0].data() as User,
                     id: currentUserResponse.docs[0].id
@@ -97,11 +98,22 @@ function CustomiseWidgetForm() {
     const handleAddressInputChange = (name: string, value: string) => {
         const index = name.split('.')[1]
         const wallet_address = [...currentWidget.wallet_address]
-        wallet_address[index].public_address = value
-        setCurrentWidget({
-            ...currentWidget,
-            wallet_address
-        })
+        const isAddressValid = (wallet_address[index].short_name === 'SOL') || WAValidator.validate(value, wallet_address[index].short_name) || (value.length == 0)
+
+        if (isAddressValid) {
+            clearErrors(wallet_address[index].short_name);
+            wallet_address[index].public_address = value
+            setCurrentWidget({
+                ...currentWidget,
+                wallet_address
+            })
+        }
+        else {
+            setError(wallet_address[index].short_name, {
+                type: "manual",
+                message: "Invalid address",
+            });
+        }
     }
 
     const getEditOrNewState = async () => {
@@ -112,7 +124,7 @@ function CustomiseWidgetForm() {
 
             setEditMode(!!widgetResponse.docs[0])
 
-            if(!!widgetResponse.docs[0]) {
+            if (!!widgetResponse.docs[0]) {
                 const widget = {
                     ...widgetResponse.docs[0].data() as Widget,
                     isFromDb: true,
@@ -177,7 +189,7 @@ function CustomiseWidgetForm() {
     }
 
     const onSubmit = async (data: FormValues) => {
-        if(!editMode) {
+        if (!editMode) {
             addWidget(data)
         } else {
             editWidget(data)
@@ -189,7 +201,7 @@ function CustomiseWidgetForm() {
     }, [session?.user?.email])
 
     useEffect(() => {
-        if(!!currentWidget){
+        if (!!currentWidget) {
             setWidgetFormValues(currentWidget)
         }
     }, [currentWidget])
@@ -240,7 +252,7 @@ function CustomiseWidgetForm() {
                                                 <label htmlFor="bitcoin-address" className="block text-sm font-medium text-gray-700">
                                                     Coins
                                                 </label>
-                                                <div className="mt-1 flex rounded-md shadow-sm">
+                                                <div className="mt-1 flex rounded-md">
                                                     <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                                                         Bitcoin
                                                     </span>
@@ -249,18 +261,30 @@ function CustomiseWidgetForm() {
                                                         name="wallet_address[0].public_address"
                                                         id="bitcoin-address"
                                                         placeholder="Bitcoin Wallet address"
-                                                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
+                                                        className={
+                                                            errors.BTC ?
+                                                                "focus:ring-red-500 focus:border-red-500 flex-1 block w-full rounded-r-md sm:text-sm border-red-300" :
+                                                                "focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
+                                                        }
                                                         {...register("wallet_address.0.public_address", {
                                                             onChange: (e) => handleAddressInputChange('wallet_address.0.public_address', e.target.value),
-                                                            value: currentWidget?.wallet_address[0]?.public_address
+                                                            value: currentWidget?.wallet_address[0]?.public_address,
+                                                            required: true
                                                         })}
                                                     />
+                                                    {
+                                                        errors.BTC ?
+                                                            <span>
+                                                                <label className="items-center px-4 text-red-500 text-xs italic">{errors.BTC.message}</label>
+                                                            </span>
+                                                            : null
+                                                    }
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="col-span-6">
                                             <div>
-                                                <div className="mt-1 flex rounded-md shadow-sm">
+                                                <div className="mt-1 flex rounded-md">
                                                     <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                                                         Ethereum
                                                     </span>
@@ -268,19 +292,31 @@ function CustomiseWidgetForm() {
                                                         type="text"
                                                         name="wallet_address[1].public_address"
                                                         id="ethereum-address"
-                                                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
+                                                        className={
+                                                            errors.ETH ?
+                                                                "focus:ring-red-500 focus:border-red-500 flex-1 block w-full rounded-r-md sm:text-sm border-red-300" :
+                                                                "focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
+                                                        }
                                                         placeholder="Ethereum Wallet address"
                                                         {...register("wallet_address.1.public_address", {
                                                             onChange: (e) => handleAddressInputChange('wallet_address.1.public_address', e.target.value),
-                                                            value: currentWidget?.wallet_address[1]?.public_address
+                                                            value: currentWidget?.wallet_address[1]?.public_address,
+                                                            required: true
                                                         })}
                                                     />
+                                                    {
+                                                        errors.ETH ?
+                                                            <span>
+                                                                <label className="items-center px-4 text-red-500 text-xs italic">{errors.ETH.message}</label>
+                                                            </span>
+                                                            : null
+                                                    }
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="col-span-6">
                                             <div>
-                                                <div className="mt-1 flex rounded-md shadow-sm">
+                                                <div className="mt-1 flex rounded-md">
                                                     <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                                                         Solana
                                                     </span>
@@ -288,19 +324,31 @@ function CustomiseWidgetForm() {
                                                         type="text"
                                                         name="wallet_address[2].public_address"
                                                         id="solana-address"
-                                                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
+                                                        className={
+                                                            errors.SOL ?
+                                                                "focus:ring-red-500 focus:border-red-500 flex-1 block w-full rounded-r-md sm:text-sm border-red-300" :
+                                                                "focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
+                                                        }
                                                         placeholder="Solana Wallet address"
                                                         {...register("wallet_address.2.public_address", {
                                                             onChange: (e) => handleAddressInputChange('wallet_address.2.public_address', e.target.value),
-                                                            value: currentWidget?.wallet_address[2]?.public_address
+                                                            value: currentWidget?.wallet_address[2]?.public_address,
+                                                            required: true
                                                         })}
                                                     />
+                                                    {
+                                                        errors.SOL ?
+                                                            <span>
+                                                                <label className="items-center px-4 text-red-500 text-xs italic">{errors.SOL.message}</label>
+                                                            </span>
+                                                            : null
+                                                    }
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="col-span-6">
                                             <div>
-                                                <div className="mt-1 flex rounded-md shadow-sm">
+                                                <div className="mt-1 flex rounded-md">
                                                     <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                                                         USDT
                                                     </span>
@@ -308,13 +356,24 @@ function CustomiseWidgetForm() {
                                                         type="text"
                                                         name="wallet_address[3].public_address"
                                                         id="tether-address"
-                                                        className="focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
+                                                        className={
+                                                            errors.USDT ?
+                                                                "focus:ring-red-500 focus:border-red-500 flex-1 block w-full rounded-r-md sm:text-sm border-red-300" :
+                                                                "focus:ring-indigo-500 focus:border-indigo-500 flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300"
+                                                        }
                                                         placeholder="USDT Wallet address"
                                                         {...register("wallet_address.3.public_address", {
                                                             onChange: (e) => handleAddressInputChange('wallet_address.3.public_address', e.target.value),
                                                             value: currentWidget?.wallet_address[3]?.public_address
                                                         })}
                                                     />
+                                                    {
+                                                        errors.USDT ?
+                                                            <span>
+                                                                <label className="items-center px-4 text-red-500 text-xs italic">{errors.USDT.message}</label>
+                                                            </span>
+                                                            : null
+                                                    }
                                                 </div>
                                             </div>
                                         </div>
@@ -330,10 +389,12 @@ function CustomiseWidgetForm() {
                                                     <input
                                                         name="widgetColor"
                                                         type="color"
-                                                        {...register("widgetColor", { required: true, onChange: (e) => setCurrentWidget({
-                                                            ...currentWidget,
-                                                            widgetColor: e.target.value
-                                                        }) })}
+                                                        {...register("widgetColor", {
+                                                            required: true, onChange: (e) => setCurrentWidget({
+                                                                ...currentWidget,
+                                                                widgetColor: e.target.value
+                                                            })
+                                                        })}
                                                     />
                                                 </div>
                                             </div>
@@ -383,7 +444,7 @@ function CustomiseWidgetForm() {
                                             <button
                                                 type='button'
                                                 onClick={() => setScriptModalVisible(true)}
-                                                className= "mr-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                                className="mr-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                             >
                                                 Show Widget Script
                                             </button>
@@ -391,7 +452,7 @@ function CustomiseWidgetForm() {
                                     }
                                     <button
                                         type="submit"
-                                        disabled={isSubmitting}
+                                        disabled={isSubmitting || (Object.keys(errors).length !== 0)}
                                         className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400"
                                     >
                                         Save
@@ -410,7 +471,7 @@ function CustomiseWidgetForm() {
                                 </div>
                             ) : (
                                 <div className='flex flex-col items-center h-full'>
-                                    <WidgetComponent 
+                                    <WidgetComponent
                                         widgetColor={currentWidget.widgetColor}
                                         firstName={currentWidget.firstName}
                                         availableWallets={currentWidget.wallet_address.filter(wallet => !!wallet.public_address.length)}
@@ -429,11 +490,11 @@ function CustomiseWidgetForm() {
             {
                 !!currentWidget && (
                     <Transition appear show={scriptModalVisible} as={Fragment}>
-                            <Dialog
-                                as="div"
-                                className="fixed inset-0 z-10 overflow-y-auto"
-                                onClose={closeModal}
-                            >
+                        <Dialog
+                            as="div"
+                            className="fixed inset-0 z-10 overflow-y-auto"
+                            onClose={closeModal}
+                        >
                             <div className="min-h-screen px-4 text-center">
                                 <Transition.Child
                                     as={Fragment}
@@ -444,14 +505,14 @@ function CustomiseWidgetForm() {
                                     leaveFrom="opacity-100"
                                     leaveTo="opacity-0"
                                 >
-                                <Dialog.Overlay className="fixed inset-0" />
+                                    <Dialog.Overlay className="fixed inset-0" />
                                 </Transition.Child>
 
                                 <span
                                     className="inline-block h-screen align-middle"
                                     aria-hidden="true"
                                 >
-                                &#8203;
+                                    &#8203;
                                 </span>
                                 <Transition.Child
                                     as={Fragment}
@@ -462,37 +523,37 @@ function CustomiseWidgetForm() {
                                     leaveFrom="opacity-100 scale-100"
                                     leaveTo="opacity-0 scale-95"
                                 >
-                                <div className="inline-block w-3/5 p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
-                                    <Dialog.Title
-                                        as="h3"
-                                        className="text-lg font-medium leading-6 text-gray-900"
-                                    >
-                                        Copy This Script and paste into your site's html
-                                    </Dialog.Title>
-                                    <div className="rounded-md mt-2 bg-gray-900 text-gray-50 p-3 overflow-x-auto">
-                                        <pre>
-                                            <code className="text-sm">
-                                                {widgetScript}
-                                            </code>
-                                        </pre>
-                                    </div>
+                                    <div className="inline-block w-3/5 p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+                                        <Dialog.Title
+                                            as="h3"
+                                            className="text-lg font-medium leading-6 text-gray-900"
+                                        >
+                                            Copy This Script and paste into your site's html
+                                        </Dialog.Title>
+                                        <div className="rounded-md mt-2 bg-gray-900 text-gray-50 p-3 overflow-x-auto">
+                                            <pre>
+                                                <code className="text-sm">
+                                                    {widgetScript}
+                                                </code>
+                                            </pre>
+                                        </div>
 
-                                    <div className="mt-4">
-                                        <button
-                                            type="button"
-                                            className="inline-flex mr-2 justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
-                                            onClick={copyScript}
-                                        >
-                                            {copyButtonText}
-                                        </button>
-                                        <button
-                                            onClick={closeModal}
-                                            className="inline-flex mr-2 justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-gray-100 border border-transparent rounded-md hover:bg-blue-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
-                                        >
-                                            Close
-                                        </button>
+                                        <div className="mt-4">
+                                            <button
+                                                type="button"
+                                                className="inline-flex mr-2 justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                                                onClick={copyScript}
+                                            >
+                                                {copyButtonText}
+                                            </button>
+                                            <button
+                                                onClick={closeModal}
+                                                className="inline-flex mr-2 justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-gray-100 border border-transparent rounded-md hover:bg-blue-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                                            >
+                                                Close
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
                                 </Transition.Child>
                             </div>
                         </Dialog>
