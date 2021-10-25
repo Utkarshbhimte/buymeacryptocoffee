@@ -98,10 +98,11 @@ function CustomiseWidgetForm() {
     const handleAddressInputChange = (name: string, value: string) => {
         const index = name.split('.')[1]
         const wallet_address = [...currentWidget.wallet_address]
-        const isAddressValid = (wallet_address[index].short_name === 'SOL') || WAValidator.validate(value, wallet_address[index].short_name) || (value.length == 0)
+        const shortName = wallet_address[index].name === 'Bitcoin' ? 'BTC' : wallet_address[index].name === 'Ethereum' ? 'ETH' : 'USDT';
+        const isAddressValid = (wallet_address[index].short_name === 'SOL') || WAValidator.validate(value, wallet_address[index]?.short_name ?? shortName) || (value.length == 0);
 
         if (isAddressValid) {
-            clearErrors(wallet_address[index].short_name);
+            clearErrors(wallet_address[index]?.short_name ?? shortName);
             wallet_address[index].public_address = value
             setCurrentWidget({
                 ...currentWidget,
@@ -109,7 +110,10 @@ function CustomiseWidgetForm() {
             })
         }
         else {
-            setError(wallet_address[index].short_name, {
+            if(wallet_address[index].name === 'Solana') {
+                return
+            }
+            setError(wallet_address[index]?.short_name ?? shortName, {
                 type: "manual",
                 message: "Invalid address",
             });
@@ -205,7 +209,6 @@ function CustomiseWidgetForm() {
             setWidgetFormValues(currentWidget)
         }
     }, [currentWidget])
-    console.log(!!currentWidget?.wallet_address.filter(wallet => !!wallet.public_address.length).length || !!currentWidget?.firstName?.length)
 
     return loading ? <Loader /> : (
         <>
