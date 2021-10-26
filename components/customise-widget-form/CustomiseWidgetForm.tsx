@@ -22,6 +22,10 @@ export interface FormValues {
     widgetColor: string;
     widgetPosition: string;
     wallet_address: Wallet[];
+    BTC?: string;
+    ETH?: string;
+    USDT?: string;
+    SOL?: string;
 }
 
 export interface UserResponse extends User {
