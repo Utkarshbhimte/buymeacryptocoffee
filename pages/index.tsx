@@ -12,7 +12,7 @@ const navigation = [
 	// { name: 'Create Widget', href: '#', current: true }
 ];
 const userNavigation = [
-	// { name: 'Your Profile', href: '#' },
+	{ name: "Your Profile", href: "#" },
 	// { name: 'Settings', href: '#' },
 	{ name: "Sign out", href: "#", onClick: () => signOut() },
 ];
@@ -75,15 +75,6 @@ const Dashboard: React.FC = () => {
 									</div>
 								</div>
 								<div className="hidden sm:ml-6 sm:flex sm:items-center">
-									{/* <button
-                            type="button"
-                            className="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        >
-                            <span className="sr-only">View notifications</span>
-                            <BellIcon className="h-6 w-6" aria-hidden="true" />
-                        </button> */}
-
-									{/* Profile dropdown */}
 									<Menu as="div" className="ml-3 relative">
 										<div>
 											<Menu.Button className="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
