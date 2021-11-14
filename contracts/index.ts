@@ -1,14 +1,14 @@
-export interface Social {
-	twitter: string;
-	instagram: string;
-	website: string;
+export class Social {
+	twitter: string = "";
+	instagram: string = "";
+	website: string = "";
 }
 
 export class User {
-	profileImage: string;
-	coverImage: string;
-	address: string = "";
+	profileImage: string = "";
+	coverImage: string = "";
+	id: string = "";
 	name: string = "";
 	description: string = "";
-	social: Social | null = null;
+	social: Social = new Social();
 }
