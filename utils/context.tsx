@@ -45,10 +45,6 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 			}
 			ethers.utils.getAddress(routerAddress?.toString());
 			const user = await getOrCreateUser(routerAddress?.toString());
-			console.log({
-				user,
-				routerAddress,
-			});
 			if (user.address === routerAddress?.toString()) {
 				setUser(user);
 			}
@@ -78,9 +74,10 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 	}, [currentWallet]);
 
 	useEffect(() => {
-		// setInterval(() => {
+		(window as any).ethereum.on("accountsChanged", function (accounts) {
+			setCurrentWallet(accounts[0] ?? null);
+		});
 		initialWalletCheck();
-		// }, 500);
 	}, []);
 	useEffect(() => {
 		fetchUpdateUser();
