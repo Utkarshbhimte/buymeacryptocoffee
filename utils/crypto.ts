@@ -1,3 +1,5 @@
+import { ethers } from "ethers";
+
 declare let window: any;
 
 export const checkIfWalletIsConnected = async (): Promise<string> => {
@@ -90,4 +92,27 @@ export const connectWallet = async () => {
 	} catch (error) {
 		console.log(error);
 	}
+};
+
+export const sendTransaction = async (
+	addr: string,
+	message: string,
+	ether: string
+) => {
+	await window.ethereum.send("eth_requestAccounts");
+	console.log("here", ethers);
+	const provider = new ethers.providers.Web3Provider(window.ethereum);
+	console.log({ provider });
+	const signer = provider.getSigner();
+	ethers.utils.getAddress(addr);
+	console.log({ signer });
+	const hexaMessage = ethers.utils.formatBytes32String(message);
+	console.log({ hexaMessage });
+	const tx = await signer.sendTransaction({
+		to: addr,
+		value: ethers.utils.parseEther(ether),
+		data: hexaMessage,
+	});
+
+	return tx;
 };

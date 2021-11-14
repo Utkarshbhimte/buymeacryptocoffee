@@ -5,6 +5,8 @@ export interface Social {
 }
 
 export class User {
+	profileImage: string;
+	coverImage: string;
 	address: string = "";
 	name: string = "";
 	description: string = "";

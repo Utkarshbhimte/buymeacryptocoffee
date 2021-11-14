@@ -20,3 +20,15 @@ export const getOrCreateUser = async (address: string): Promise<User> => {
 
 	return newUser;
 };
+
+export const getUser = async (address: string): Promise<User> => {
+	const response = await db
+		.doc(`${firestoreCollections.USERS}/${address}`)
+		.get();
+
+	if (response.exists) {
+		return response.data() as User;
+	}
+
+	return null;
+};

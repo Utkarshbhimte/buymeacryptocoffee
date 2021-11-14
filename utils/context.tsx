@@ -1,12 +1,16 @@
+import { ethers } from "ethers";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { getOrCreateUser } from ".";
 import { User } from "../contracts";
 import { checkIfWalletIsConnected, connectWallet } from "./crypto";
 
 interface IAuthContext {
-	readonly user: User;
+	readonly user: User | null;
 	readonly connectWallet: () => Promise<void>;
 	readonly loading: boolean;
+	readonly authenticated: boolean;
+	readonly currentWallet: string | null;
 }
 
 const AuthContext = React.createContext<IAuthContext | null>(null);
@@ -15,6 +19,12 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 	const [user, setUser] = React.useState<User | null>(null);
 	const [currentWallet, setCurrentWallet] = useState<string | null>(null);
 	const [loading, setLoading] = React.useState(false);
+
+	const [authenticated, setAuthenticated] = useState(false);
+
+	const router = useRouter();
+
+	const { id: routerAddress } = router.query;
 
 	const handleConnectWallet = async () => {
 		try {
@@ -30,10 +40,21 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 
 	const fetchUpdateUser = async () => {
 		try {
-			const user = await getOrCreateUser(currentWallet);
-			setUser(user);
+			if (!routerAddress?.toString()) {
+				return;
+			}
+			ethers.utils.getAddress(routerAddress?.toString());
+			const user = await getOrCreateUser(routerAddress?.toString());
+			console.log({
+				user,
+				routerAddress,
+			});
+			if (user.address === routerAddress?.toString()) {
+				setUser(user);
+			}
 		} catch (error) {
 			console.error(error);
+			setAuthenticated(false);
 		}
 	};
 
@@ -48,13 +69,22 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 
 	useEffect(() => {
 		if (currentWallet) {
-			fetchUpdateUser();
+			if (currentWallet === routerAddress?.toString()) {
+				setAuthenticated(true);
+			} else {
+				setAuthenticated(false);
+			}
 		}
 	}, [currentWallet]);
 
 	useEffect(() => {
+		// setInterval(() => {
 		initialWalletCheck();
+		// }, 500);
 	}, []);
+	useEffect(() => {
+		fetchUpdateUser();
+	}, [routerAddress]);
 
 	return (
 		<AuthContext.Provider
@@ -62,6 +92,8 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 				user,
 				connectWallet: handleConnectWallet,
 				loading,
+				authenticated,
+				currentWallet,
 			}}
 		>
 			{children}

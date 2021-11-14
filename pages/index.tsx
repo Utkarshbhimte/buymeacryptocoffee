@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import CustomiseWidgetForm from "../components/customise-widget-form/CustomiseWidgetForm";
 import cryptoCoffeeLogo from "../assets/cryptocoffeelogo.png";
 import Image from "next/image";
+import { useUser } from "../utils/context";
 
 const navigation = [
 	// { name: 'Create Widget', href: '#', current: true }
@@ -24,6 +25,8 @@ function classNames(...classes) {
 const Dashboard: React.FC = () => {
 	const [session, loading] = useSession();
 	const router = useRouter();
+
+	const { user } = useUser();
 
 	// useEffect(() => {
 	//     if(!session) {
