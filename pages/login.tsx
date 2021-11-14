@@ -22,7 +22,7 @@ const Login: React.FC<LoginProps> = ({ providers }) => {
     }
 
     if (session) {
-        router.push('/')
+        router.back()
     }
     return (
         <>
