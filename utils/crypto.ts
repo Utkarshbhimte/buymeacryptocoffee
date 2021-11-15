@@ -36,6 +36,7 @@ export const checkIfWalletIsConnected = async (): Promise<string> => {
 		/*
 		 * User can have multiple authorized accounts, we grab the first one if its there!
 		 */
+
 		if (accounts.length !== 0) {
 			const account = accounts[0];
 			console.log("Found an authorized account:", account);

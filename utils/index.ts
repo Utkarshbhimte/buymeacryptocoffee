@@ -17,6 +17,7 @@ export const getOrCreateUser = async (address: string): Promise<User> => {
 	const newUser: User = {
 		...new User(),
 		id: address,
+		name: "Unnamed",
 		social: {
 			...new Social(),
 		},

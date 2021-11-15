@@ -132,7 +132,9 @@ const Profile: React.FC<ProfileProps> = ({ widget }) => {
 	const [message, setMessage] = useState<string>("");
 	const [loading, setLoading] = useState<boolean>(false);
 
-	const { user, authenticated } = useUser();
+	const { user, authenticated, currentWallet, connectWallet } = useUser();
+
+	console.log(authenticated);
 
 	const [transactionDetails, setTransactionDetails] = useState(null);
 
@@ -201,16 +203,41 @@ const Profile: React.FC<ProfileProps> = ({ widget }) => {
 									className="ml-4 relative flex-shrink-0"
 								>
 									<div>
-										<Menu.Button className="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-											<span className="sr-only">
-												Open user menu
-											</span>
-											<img
-												className="h-8 w-8 rounded-full"
-												src={user?.profileImage}
-												alt=""
-											/>
-										</Menu.Button>
+										{currentWallet ? (
+											<Menu.Button className="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+												<span className="sr-only">
+													Open user menu
+												</span>
+												{user?.profileImage ? (
+													<img
+														className="h-8 w-8 rounded-md"
+														src={user?.profileImage}
+														alt=""
+													/>
+												) : (
+													<div className="h-8 rounded-md overflow-hidden bg-gray-100 cursor-pointer flex items-center">
+														<svg
+															className="h-8 w-8 text-gray-300"
+															fill="currentColor"
+															viewBox="0 0 24 24"
+														>
+															<path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+														</svg>
+														<span className="w-20 px-2 truncate text-gray-800 bg-gray-100">
+															{currentWallet}
+														</span>
+													</div>
+												)}
+											</Menu.Button>
+										) : (
+											<button
+												type="button"
+												onClick={() => connectWallet()}
+												className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+											>
+												Connect
+											</button>
+										)}
 									</div>
 									<Transition
 										as={Fragment}
@@ -253,15 +280,23 @@ const Profile: React.FC<ProfileProps> = ({ widget }) => {
 						<div className="flex items-center space-x-5">
 							<div className="flex-shrink-0">
 								<div className="relative">
-									<img
-										className="h-16 w-16 rounded-full"
-										src={user?.profileImage}
-										alt=""
-									/>
-									<span
-										className="absolute inset-0 shadow-inner rounded-full"
-										aria-hidden="true"
-									/>
+									{user?.profileImage ? (
+										<img
+											className="h-20 w-20 rounded-full"
+											src={user?.profileImage}
+											alt=""
+										/>
+									) : (
+										<div className="h-20 w-20 rounded-full overflow-hidden bg-gray-100 cursor-pointer hover:bg-gray-200">
+											<svg
+												className="h-20 w-20 text-gray-300"
+												fill="currentColor"
+												viewBox="0 0 24 24"
+											>
+												<path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+											</svg>
+										</div>
+									)}
 								</div>
 							</div>
 							<div>

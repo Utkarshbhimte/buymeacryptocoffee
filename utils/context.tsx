@@ -45,7 +45,10 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 			}
 			ethers.utils.getAddress(routerAddress?.toString());
 			const user = await getOrCreateUser(routerAddress?.toString());
-			if (user.id === routerAddress?.toString()) {
+			if (
+				user.id?.toLowerCase() ===
+				routerAddress?.toString()?.toLowerCase()
+			) {
 				setUser(user);
 			}
 		} catch (error) {
@@ -57,6 +60,7 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 	const initialWalletCheck = async () => {
 		try {
 			const wallet = await checkIfWalletIsConnected();
+			console.log("initial wallet --> ", wallet);
 			setCurrentWallet(wallet);
 		} catch (error) {
 			console.error(error);
@@ -64,9 +68,18 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 	};
 
 	useEffect(() => {
+		console.log("updated currentwallet", currentWallet);
 		if (currentWallet) {
-			if (currentWallet === routerAddress?.toString()) {
+			console.log({
+				currentWallet,
+				routerAddress,
+			});
+			if (
+				currentWallet.toLowerCase() ===
+				routerAddress?.toString()?.toLowerCase()
+			) {
 				setAuthenticated(true);
+				console.log("authenticated");
 			} else {
 				setAuthenticated(false);
 			}
@@ -76,9 +89,11 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 	useEffect(() => {
 		(window as any).ethereum.on("accountsChanged", function (accounts) {
 			setCurrentWallet(accounts[0] ?? null);
+			console.log("Wallet changed to -> ", accounts[0]);
 		});
 		initialWalletCheck();
 	}, []);
+
 	useEffect(() => {
 		fetchUpdateUser();
 	}, [routerAddress]);
