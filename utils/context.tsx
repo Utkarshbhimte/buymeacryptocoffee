@@ -45,7 +45,7 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 			}
 			ethers.utils.getAddress(routerAddress?.toString());
 			const user = await getOrCreateUser(routerAddress?.toString());
-			if (user.address === routerAddress?.toString()) {
+			if (user.id === routerAddress?.toString()) {
 				setUser(user);
 			}
 		} catch (error) {

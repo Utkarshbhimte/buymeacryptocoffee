@@ -138,13 +138,13 @@ const Profile: React.FC<ProfileProps> = ({ widget }) => {
 
 	const handleSendTransaction = async () => {
 		try {
-			if (!user?.address) {
+			if (!user?.id) {
 				throw new Error("No user address found");
 			}
 
 			setLoading(true);
 			const response = await sendTransaction(
-				user.address,
+				user.id,
 				message,
 				price.toString()
 			);
