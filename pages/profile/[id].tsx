@@ -51,6 +51,7 @@ const eventTypes = {
 	advanced: { icon: ThumbUpIcon, bgColorClass: "bg-blue-500" },
 	completed: { icon: CheckIcon, bgColorClass: "bg-green-500" },
 };
+// cmmiut
 const timeline = [
 	{
 		id: 1,
