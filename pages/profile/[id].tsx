@@ -34,6 +34,8 @@ import WidgetComponent from "../../components/Widget";
 import { useUser } from "../../utils/context";
 import { sendTransaction } from "../../utils/crypto";
 import Modal from "../../components/Modal";
+import { Transaction } from "../../contracts";
+import { saveTransaction } from "../../utils";
 
 const user = {
 	name: "Whitney Francis",
@@ -155,6 +157,17 @@ const Profile: React.FC<ProfileProps> = ({ widget }) => {
 			setModalOpen(true);
 			setMessage("");
 			setPrice(0);
+
+			const transaction: Transaction = {
+				...new Transaction(),
+				to: user.id,
+				from: currentWallet,
+				id: response.hash,
+				amount: price,
+			};
+
+			console.log({ transaction });
+			await saveTransaction(transaction);
 		} catch (error) {
 			console.error(error);
 		} finally {

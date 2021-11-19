@@ -20,6 +20,7 @@ const db = firebase.firestore();
 
 export const firestoreCollections = {
 	USERS: "users",
+	TRANSACTIONS: "transactions",
 };
 
 export { db };

@@ -1,4 +1,4 @@
-import { Social, User } from "../contracts";
+import { Transaction, Social, User } from "../contracts";
 import { db, firestoreCollections } from "./firebaseClient";
 
 export const getOrCreateUser = async (address: string): Promise<User> => {
@@ -40,4 +40,12 @@ export const getUser = async (address: string): Promise<User> => {
 	}
 
 	return null;
+};
+
+export const saveTransaction = async (
+	transaction: Transaction
+): Promise<void> => {
+	await db
+		.doc(`${firestoreCollections.TRANSACTIONS}/${transaction.id}`)
+		.set(transaction);
 };
