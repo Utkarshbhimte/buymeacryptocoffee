@@ -9,9 +9,18 @@ interface IModal {
 	readonly title: string;
 	readonly onOk: () => void;
 	readonly okText: string;
+	readonly width?: string;
 }
 
-const Modal: React.FC<IModal> = ({ open, onClose, title, onOk, okText }) => {
+const Modal: React.FC<IModal> = ({
+	open,
+	onClose,
+	title,
+	onOk,
+	okText,
+	children,
+	width,
+}) => {
 	return (
 		<Transition.Root show={open} as={Fragment}>
 			<Dialog
@@ -48,26 +57,20 @@ const Modal: React.FC<IModal> = ({ open, onClose, title, onOk, okText }) => {
 						leaveFrom="opacity-100 translate-y-0 sm:scale-100"
 						leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
 					>
-						<div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
+						<div
+							className={`inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle ${
+								width ? width : " sm:max-w-sm sm:w-full "
+							} sm:p-6`}
+						>
 							<div>
-								<div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-									<CheckIcon
-										className="h-6 w-6 text-green-600"
-										aria-hidden="true"
-									/>
-								</div>
 								<div className="mt-3 text-center sm:mt-5">
 									<Dialog.Title
 										as="h3"
 										className="text-lg leading-6 font-medium text-gray-900"
 									>
-										Transaction successful
+										{title}
 									</Dialog.Title>
-									<div className="mt-2">
-										<p className="text-sm text-gray-500">
-											Thanks for donating !!
-										</p>
-									</div>
+									<div className="mt-2">{children}</div>
 								</div>
 							</div>
 							<div className="mt-5 sm:mt-6">
