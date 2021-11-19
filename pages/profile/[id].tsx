@@ -514,7 +514,7 @@ const Profile: React.FC<ProfileProps> = ({ widget }) => {
 				</main>
 			</div>
 			<SuccessTransactionModal
-				open={modalOpen || true}
+				open={modalOpen}
 				onClose={() => setModalOpen(false)}
 				title="Transaction successful"
 				onOk={handleEtherScanRedirect}
