@@ -19,6 +19,7 @@ export class Transaction {
 	amount: number = 0;
 	timestamp: number = new Date().getTime();
 	id: string = "";
+	message: string = "";
 	cronStatus: "pending" | "success" = "pending";
 	status: "success" | "failure" | "" = "";
 }
