@@ -27,7 +27,7 @@ import Image from "next/image";
 import cryptoCoffeeLogo from "../../assets/cryptocoffeelogo.png";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/client";
-import { GetStaticPaths, GetStaticProps } from "next";
+import { GetServerSideProps, GetStaticPaths, GetStaticProps } from "next";
 import { db } from "../../utils/firebaseClient";
 import { Widget } from "../../components/customise-widget-form/CustomiseWidgetForm";
 import WidgetComponent from "../../components/Widget";
@@ -35,16 +35,10 @@ import { useUser } from "../../utils/context";
 import { sendTransaction } from "../../utils/crypto";
 import Modal from "../../components/Modal";
 import ProfileModal from "../../components/ProfileModal";
-import { Transaction } from "../../contracts";
+import { Transaction, User } from "../../contracts";
 import { saveTransaction } from "../../utils";
 import SuccessTransactionModal from "../../components/SuccessTransactionModal";
 
-const user = {
-	name: "Whitney Francis",
-	email: "whitney@example.com",
-	imageUrl:
-		"https://images.unsplash.com/photo-1517365830460-955ce3ccd263?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=8&w=256&h=256&q=80",
-};
 const userNavigation = [
 	{ name: "Your Profile", href: "#" },
 	{ name: "Settings", href: "#" },
@@ -55,82 +49,16 @@ const eventTypes = {
 	advanced: { icon: ThumbUpIcon, bgColorClass: "bg-blue-500" },
 	completed: { icon: CheckIcon, bgColorClass: "bg-green-500" },
 };
-// cmmiut
-const timeline = [
-	{
-		id: 1,
-		type: eventTypes.applied,
-		content: "Applied to",
-		target: "Front End Developer",
-		date: "Sep 20",
-		datetime: "2020-09-20",
-	},
-	{
-		id: 2,
-		type: eventTypes.advanced,
-		content: "Advanced to phone screening by",
-		target: "Bethany Blake",
-		date: "Sep 22",
-		datetime: "2020-09-22",
-	},
-	{
-		id: 3,
-		type: eventTypes.completed,
-		content: "Completed phone screening with",
-		target: "Martha Gardner",
-		date: "Sep 28",
-		datetime: "2020-09-28",
-	},
-	{
-		id: 4,
-		type: eventTypes.advanced,
-		content: "Advanced to interview by",
-		target: "Bethany Blake",
-		date: "Sep 30",
-		datetime: "2020-09-30",
-	},
-	{
-		id: 5,
-		type: eventTypes.completed,
-		content: "Completed interview with",
-		target: "Katherine Snyder",
-		date: "Oct 4",
-		datetime: "2020-10-04",
-	},
-];
-const comments = [
-	{
-		id: 1,
-		name: "Leslie Alexander",
-		date: "4d ago",
-		imageId: "1494790108377-be9c29b29330",
-		body: "Ducimus quas delectus ad maxime totam doloribus reiciendis ex. Tempore dolorem maiores. Similique voluptatibus tempore non ut.",
-	},
-	{
-		id: 2,
-		name: "Michael Foster",
-		date: "4d ago",
-		imageId: "1519244703995-f4e0f30006d5",
-		body: "Et ut autem. Voluptatem eum dolores sint necessitatibus quos. Quis eum qui dolorem accusantium voluptas voluptatem ipsum. Quo facere iusto quia accusamus veniam id explicabo et aut.",
-	},
-	{
-		id: 3,
-		name: "Dries Vincent",
-		date: "4d ago",
-		imageId: "1506794778202-cad84cf45f1d",
-		body: "Expedita consequatur sit ea voluptas quo ipsam recusandae. Ab sint et voluptatem repudiandae voluptatem et eveniet. Nihil quas consequatur autem. Perferendis rerum et.",
-	},
-];
 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
 }
 
 export interface ProfileProps {
-	widget: Widget;
+	transactions: Transaction[];
 }
 
-const Profile: React.FC<ProfileProps> = ({ widget }) => {
+const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 	// edit modal state
 	const [editModalOpen, setEditModalOpen] = useState(false);
 
@@ -170,6 +98,7 @@ const Profile: React.FC<ProfileProps> = ({ widget }) => {
 				from: currentWallet,
 				id: response.hash,
 				amount: price,
+				message,
 			};
 
 			console.log({ transaction });
@@ -195,6 +124,10 @@ const Profile: React.FC<ProfileProps> = ({ widget }) => {
 			setTransactionDetails(null);
 		}
 	}, [modalOpen]);
+
+	useEffect(() => {
+		setTransactions(allTransactions);
+	}, [allTransactions])
 
 	return (
 		<>
@@ -323,7 +256,7 @@ const Profile: React.FC<ProfileProps> = ({ widget }) => {
 									{user?.name}
 								</h1>
 								<p className="text-sm font-medium text-gray-500">
-									{widget?.wallet_address[1].public_address}
+									{user?.id}
 								</p>
 							</div>
 						</div>
@@ -343,22 +276,21 @@ const Profile: React.FC<ProfileProps> = ({ widget }) => {
 					<div className="mt-8 max-w-3xl mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
 						<div className="space-y-6 lg:col-start-1 lg:col-span-2">
 							{/* Description list*/}
-							<section aria-labelledby="applicant-information-title">
+							{user?.description && <section aria-labelledby="applicant-information-title">
 								<div className="bg-white shadow sm:rounded-lg">
 									<div className="px-4 py-5 sm:px-6">
 										<h2
 											id="applicant-information-title"
 											className="text-lg leading-6 font-medium text-gray-900"
 										>
-											I think and write code, sometime
-											design.😄
+											{user.description}
 										</h2>
 									</div>
 								</div>
-							</section>
+							</section>}
 
 							{/* Comments*/}
-							{!!transactions.length && (
+							{!!transactions?.length && (
 								<section aria-labelledby="notes-title">
 									<div className="bg-white shadow sm:rounded-lg sm:overflow-hidden">
 										<div className="divide-y divide-gray-200">
@@ -376,15 +308,15 @@ const Profile: React.FC<ProfileProps> = ({ widget }) => {
 													className="space-y-8"
 												>
 													{transactions.map(
-														(comment) => (
+														(transaction) => (
 															<li
-																key={comment.id}
+																key={transaction.id}
 															>
 																<div className="flex space-x-3">
 																	<div className="flex-shrink-0">
 																		<img
 																			className="h-10 w-10 rounded-full"
-																			src={`https://images.unsplash.com/photo-${comment.imageId}?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
+																			// src={`https://images.unsplash.com/photo-${transaction.imageId}?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
 																			alt=""
 																		/>
 																	</div>
@@ -395,14 +327,14 @@ const Profile: React.FC<ProfileProps> = ({ widget }) => {
 																				className="font-medium text-gray-900"
 																			>
 																				{
-																					comment.from
+																					`${transaction.from} has sent ${transaction.amount} eth.`
 																				}
 																			</a>
 																		</div>
 																		<div className="mt-1 text-sm text-gray-700">
 																			<p>
 																				{
-																					comment.message
+																					transaction.message
 																				}
 																			</p>
 																		</div>
@@ -424,7 +356,7 @@ const Profile: React.FC<ProfileProps> = ({ widget }) => {
 							className="lg:col-start-3 lg:col-span-1"
 						>
 							<div className="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6">
-								{!widget ? (
+								{/* {!widget ? ( */}
 									<div className="h-full px-4">
 										<div className="text-lg my-4">
 											Buy me a coffee
@@ -495,7 +427,7 @@ const Profile: React.FC<ProfileProps> = ({ widget }) => {
 											Donate {price} ETH
 										</button>
 									</div>
-								) : (
+								{/* ) : (
 									<div className="flex flex-col items-center h-full">
 										<WidgetComponent
 											firstName={widget.firstName}
@@ -507,7 +439,7 @@ const Profile: React.FC<ProfileProps> = ({ widget }) => {
 											)}
 										/>
 									</div>
-								)}
+								)} */}
 							</div>
 						</section>
 					</div>
@@ -523,41 +455,33 @@ const Profile: React.FC<ProfileProps> = ({ widget }) => {
 			<ProfileModal
 				open={editModalOpen}
 				onClose={() => setEditModalOpen(false)}
+				userAddress={user?.id}
 			/>
 		</>
 	);
 };
 
-// export const getStaticProps: GetStaticProps = async (context) => {
-// 	const userId = context.params.id;
-// 	const widgetResponse = await db
-// 		.collection("widgets")
-// 		.where("userId", "==", userId)
-// 		.get();
-// 	const widget = {
-// 		...widgetResponse.docs[0].data(),
-// 		id: widgetResponse.docs[0].id,
-// 	};
+export const getServerSideProps: GetServerSideProps = async (context) => {
+	const userAddress = context.params.id;
+	const transactionsResponse = await db
+		.collection("transactions")
+		.where("to", "==", userAddress)
+		.get();
 
-// 	return {
-// 		props: {
-// 			widget,
-// 		},
-// 	};
-// };
+	const transactions: Transaction[] = transactionsResponse.docs.map((doc) => {
+		const data = doc.data();
+		return {
+			...data as Transaction,
+			id: doc.id,
+		};
+	});
 
-// export const getStaticPaths: GetStaticPaths = async () => {
-// 	const widgetResponse = await db.collection("widgets").get();
-// 	const widgets: Widget[] = widgetResponse.docs.map((doc) => ({
-// 		...(doc.data() as Widget),
-// 		id: doc.id,
-// 	}));
 
-// 	const paths = widgets.map((widget) => ({
-// 		params: { id: widget.userId },
-// 	}));
-
-// 	return { paths, fallback: "blocking" };
-// };
+	return {
+		props: {
+			transactions
+		},
+	};
+};
 
 export default Profile;

@@ -7,6 +7,7 @@ import { checkIfWalletIsConnected, connectWallet } from "./crypto";
 
 interface IAuthContext {
 	readonly user: User | null;
+	readonly setUser: React.Dispatch<React.SetStateAction<User>>;
 	readonly connectWallet: () => Promise<void>;
 	readonly loading: boolean;
 	readonly authenticated: boolean;
@@ -102,6 +103,7 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 		<AuthContext.Provider
 			value={{
 				user,
+				setUser,
 				connectWallet: handleConnectWallet,
 				loading,
 				authenticated,

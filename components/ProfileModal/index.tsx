@@ -1,13 +1,71 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { getUser } from "../../utils";
+import { useUser } from "../../utils/context";
+import { db, firestoreCollections, storage } from "../../utils/firebaseClient";
 import Modal from "../Modal";
 
 interface IProfileModal {
 	readonly open: boolean;
 	readonly onClose: () => void;
+	readonly userAddress: string;
 }
 
-const ProfileModal: React.FC<IProfileModal> = ({ open, onClose }) => {
-	const handleProfileUpdate = async () => {};
+const ProfileModal: React.FC<IProfileModal> = ({ open, onClose, userAddress }) => {
+
+	const { setUser, user } = useUser()
+	
+	const [name, setName] = useState(user?.name ?? '');
+	const [description, setDescription] = useState(user?.description ?? '');
+	const [image, setImage] = useState<File>();
+	const [coverImageFile, setCoverImageFile] = useState<File>();
+	
+	useEffect(() => {
+		if (user) {
+			setName(user.name);
+			setDescription(user.description);
+		}
+	}, [user])
+	const handleProfileUpdate = async () => {
+		if(!name || !description || !userAddress) {
+			return;
+		}
+		try {
+			
+			const profileResponse = image && await storage.ref(`profiles/${user.id}`).put(image)
+			const coverImageResponse = coverImageFile && await storage.ref(`cover-images/${user.id}`).put(coverImageFile)
+
+			const profileImage = profileResponse && await profileResponse.ref.getDownloadURL()
+			const coverImage = coverImageResponse && await coverImageResponse.ref.getDownloadURL()
+
+			console.log({
+				name,
+				description,
+				profileImage: profileImage ?? user.profileImage,
+				coverImage: coverImage ?? user.coverImage
+			})
+
+			await db
+				.doc(`${firestoreCollections.USERS}/${userAddress}`)
+				.update({
+					name,
+					description,
+					profileImage: profileImage ?? user.profileImage,
+					coverImage: coverImage ?? user.coverImage
+				});
+
+			const updatedUser = await getUser(userAddress);
+
+			setUser({
+				...updatedUser,
+				id: userAddress
+			});
+
+			onClose();
+
+		} catch(error) {
+			console.error(error);
+		}
+	};
 
 	return (
 		<Modal
@@ -23,12 +81,11 @@ const ProfileModal: React.FC<IProfileModal> = ({ open, onClose }) => {
 					<div>
 						<div className="sm:col-span-6">
 							<label
-								htmlFor="photo"
 								className="block text-sm font-medium text-gray-700"
 							>
 								Photo
 							</label>
-							<div className="mt-1 flex items-center">
+							<label htmlFor='profile-upload' className="mt-1 flex items-center">
 								<span className="h-12 w-12 rounded-full overflow-hidden bg-gray-100">
 									<svg
 										className="h-full w-full text-gray-300"
@@ -38,13 +95,19 @@ const ProfileModal: React.FC<IProfileModal> = ({ open, onClose }) => {
 										<path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
 									</svg>
 								</span>
-								<button
-									type="button"
-									className="ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+								<input
+									id="profile-upload"
+									name="profile-upload"
+									type="file"
+									className="sr-only"
+									onChange={e => setImage(e.target.files[0])}
+								/>
+								<div
+									className="cursor-pointer ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
 								>
 									Change
-								</button>
-							</div>
+								</div>
+							</label>
 						</div>
 
 						<div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
@@ -53,7 +116,7 @@ const ProfileModal: React.FC<IProfileModal> = ({ open, onClose }) => {
 									htmlFor="username"
 									className="block text-sm font-medium text-gray-700"
 								>
-									Fullname
+									Name
 								</label>
 								<div className="mt-1 flex rounded-md shadow-sm">
 									<input
@@ -61,23 +124,8 @@ const ProfileModal: React.FC<IProfileModal> = ({ open, onClose }) => {
 										name="username"
 										id="username"
 										autoComplete="username"
-										className="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-none rounded-r-md sm:text-sm border-gray-300"
-									/>
-								</div>
-							</div>
-							<div className="sm:col-span-4">
-								<label
-									htmlFor="title"
-									className="block text-sm font-medium text-gray-700"
-								>
-									What are you upto?
-								</label>
-								<div className="mt-1 flex rounded-md shadow-sm">
-									<input
-										type="text"
-										name="title"
-										id="title"
-										autoComplete="title"
+										value={name}
+										onChange={(e) => setName(e.target.value)}
 										className="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-none rounded-r-md sm:text-sm border-gray-300"
 									/>
 								</div>
@@ -88,13 +136,15 @@ const ProfileModal: React.FC<IProfileModal> = ({ open, onClose }) => {
 									htmlFor="about"
 									className="block text-sm font-medium text-gray-700"
 								>
-									About
+									Description
 								</label>
 								<div className="mt-1">
 									<textarea
 										id="about"
 										name="about"
 										rows={3}
+										value={description}
+										onChange={(e) => setDescription(e.target.value)}
 										className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md"
 										defaultValue={""}
 									/>
@@ -129,15 +179,16 @@ const ProfileModal: React.FC<IProfileModal> = ({ open, onClose }) => {
 										</svg>
 										<div className="flex text-sm text-gray-600">
 											<label
-												htmlFor="file-upload"
+												htmlFor="cover-image-upload"
 												className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
 											>
 												<span>Upload a file</span>
 												<input
-													id="file-upload"
-													name="file-upload"
+													id="cover-image-upload"
+													name="cover-image-upload"
 													type="file"
 													className="sr-only"
+													onChange={e => setCoverImageFile(e.target.files[0])}
 												/>
 											</label>
 											<p className="pl-1">
