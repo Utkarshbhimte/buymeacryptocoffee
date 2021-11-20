@@ -10,6 +10,8 @@ import Image from "next/image";
 import { useUser } from "../utils/context";
 import { ethers } from "ethers";
 
+declare let window: any;
+
 const navigation = [
 	// { name: 'Create Widget', href: '#', current: true }
 ];
@@ -41,11 +43,19 @@ const Dashboard: React.FC = () => {
 	// 	return <Loader />;
 	// }
 
-	const handleRedirect = (e) => {
+	const handleRedirect = async (e) => {
 		try {
 			e.preventDefault();
-			ethers.utils.getAddress(address);
-			router.push(`/profile/${address}`);
+			if(!address.length) return
+			let userAddress = address;
+			if(userAddress.includes('.eth')){
+				const provider = new ethers.providers.Web3Provider(window.ethereum);
+				const ensResolver = await provider.getResolver(address)
+				
+				userAddress = ensResolver.address;
+			}
+			ethers.utils.getAddress(userAddress);
+			router.push(`/profile/${userAddress}`);
 		} catch (error) {
 			console.error(error);
 		}

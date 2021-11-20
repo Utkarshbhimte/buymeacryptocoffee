@@ -38,6 +38,9 @@ import ProfileModal from "../../components/ProfileModal";
 import { Transaction, User } from "../../contracts";
 import { saveTransaction } from "../../utils";
 import SuccessTransactionModal from "../../components/SuccessTransactionModal";
+import { ethers } from "ethers";
+
+declare let window: any;
 
 const userNavigation = [
 	{ name: "Your Profile", href: "#" },
@@ -119,6 +122,12 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 		}
 	};
 
+	const getENSFromName = async () => {
+		const provider = new ethers.providers.Web3Provider(window.ethereum);
+		const ensResolver = await provider.lookupAddress(user.id);
+		const address = ensResolver;
+	}
+
 	useEffect(() => {
 		if (!modalOpen) {
 			setTransactionDetails(null);
@@ -128,6 +137,12 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 	useEffect(() => {
 		setTransactions(allTransactions);
 	}, [allTransactions])
+
+	useEffect(() => {
+		if(user) {
+			getENSFromName()
+		}
+	}, [user])
 
 	return (
 		<>
