@@ -21,15 +21,15 @@ export const checkIfWalletIsConnected = async (): Promise<string> => {
 		 * Check if we're authorized to access the user's wallet
 		 */
 
-		let chainId = await ethereum.request({ method: "eth_chainId" });
-		console.log(chainId);
-		console.log("Connected to chain " + chainId);
+		// let chainId = await ethereum.request({ method: "eth_chainId" });
+		// console.log(chainId);
+		// console.log("Connected to chain " + chainId);
 
-		// String, hex code of the chainId of the Rinkebey test network
-		const rinkebyChainId = "0x4";
-		if (chainId !== rinkebyChainId) {
-			return;
-		}
+		// // String, hex code of the chainId of the Rinkebey test network
+		// const rinkebyChainId = "0x4";
+		// if (chainId !== rinkebyChainId) {
+		// 	return;
+		// }
 
 		const accounts = await ethereum.request({ method: "eth_accounts" });
 
@@ -66,18 +66,18 @@ export const connectWallet = async () => {
 		 * Fancy method to request access to account.
 		 */
 
-		let chainId = await ethereum.request({ method: "eth_chainId" });
-		console.log(chainId);
-		console.log("Connected to chain " + chainId);
+		// let chainId = await ethereum.request({ method: "eth_chainId" });
+		// console.log(chainId);
+		// console.log("Connected to chain " + chainId);
 
-		// String, hex code of the chainId of the Rinkebey test network
-		const rinkebyChainId = "0x4";
-		if (chainId !== rinkebyChainId) {
-			alert("You are not connected to the Rinkeby Test Network!");
-			throw new Error(
-				"You are not connected to the Rinkeby Test Network!"
-			);
-		}
+		// // String, hex code of the chainId of the Rinkebey test network
+		// const rinkebyChainId = "0x4";
+		// if (chainId !== rinkebyChainId) {
+		// 	alert("You are not connected to the Rinkeby Test Network!");
+		// 	throw new Error(
+		// 		"You are not connected to the Rinkeby Test Network!"
+		// 	);
+		// }
 
 		const accounts = await ethereum.request({
 			method: "eth_requestAccounts",
