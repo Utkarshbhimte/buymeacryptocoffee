@@ -14,44 +14,29 @@
   }
   ```
 */
-import React, { Fragment, useEffect, useState } from "react";
-import { Menu, Popover, Transition } from "@headlessui/react";
+import React, { useEffect, useState } from "react";
+import { Menu, Popover } from "@headlessui/react";
 import {
+	ArrowUpIcon,
 	CheckIcon,
-	EyeIcon,
-	QuestionMarkCircleIcon,
-	ThumbUpIcon,
-	UserIcon,
 } from "@heroicons/react/solid";
 import Image from "next/image";
-import cryptoCoffeeLogo from "../../assets/cryptocoffeelogo.png";
-import { useRouter } from "next/router";
-import { useSession } from "next-auth/client";
-import { GetServerSideProps, GetStaticPaths, GetStaticProps } from "next";
+import sampleprofilepic from '../../assets/sampleprofilepic.png';
+import { DuplicateIcon, LinkIcon } from '@heroicons/react/outline';
+import { GetServerSideProps } from "next";
 import { db } from "../../utils/firebaseClient";
-import { Widget } from "../../components/customise-widget-form/CustomiseWidgetForm";
-import WidgetComponent from "../../components/Widget";
 import { useUser } from "../../utils/context";
 import { sendTransaction } from "../../utils/crypto";
-import Modal from "../../components/Modal";
 import ProfileModal from "../../components/ProfileModal";
-import { Transaction, User } from "../../contracts";
-import { saveTransaction } from "../../utils";
+import { Transaction } from "../../contracts";
+import { minimizeAddress, saveTransaction } from "../../utils";
 import SuccessTransactionModal from "../../components/SuccessTransactionModal";
 import { ethers } from "ethers";
+import Logo from "../../components/Logo";
+import copy from "copy-to-clipboard";
+import { toast } from "react-toastify";
 
 declare let window: any;
-
-const userNavigation = [
-	{ name: "Your Profile", href: "#" },
-	{ name: "Settings", href: "#" },
-	{ name: "Sign out", href: "#" },
-];
-const eventTypes = {
-	applied: { icon: UserIcon, bgColorClass: "bg-gray-400" },
-	advanced: { icon: ThumbUpIcon, bgColorClass: "bg-blue-500" },
-	completed: { icon: CheckIcon, bgColorClass: "bg-green-500" },
-};
 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
@@ -76,6 +61,15 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
 
 	const [transactionDetails, setTransactionDetails] = useState(null);
+
+	const [isCopied, setIsCopied] = useState(false);
+
+	const handleCopyAddress = (address: string | undefined) => {
+		if(!address) return;
+        setIsCopied(true)
+        copy(address)
+        setTimeout(() => setIsCopied(false), 1500)
+    }
 
 	const handleSendTransaction = async () => {
 		try {
@@ -146,20 +140,14 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 
 	return (
 		<>
-			<div className="min-h-full">
+			<div className="bg-gray-50 min-h-screen">
 				<header className="bg-white shadow">
 					<div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
 						<Popover className="flex justify-between h-16">
 							<div className="flex px-2 lg:px-0">
 								<div className="flex-shrink-0 flex items-center">
 									<a href="#">
-										<Image
-											className="block lg:hidden h-8 w-auto"
-											src={cryptoCoffeeLogo}
-											alt="Workflow"
-											width={300}
-											height={30}
-										/>
+										<Logo />
 									</a>
 								</div>
 							</div>
@@ -171,70 +159,22 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 								>
 									<div>
 										{currentWallet ? (
-											<Menu.Button className="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-												<span className="sr-only">
-													Open user menu
-												</span>
-												{user?.profileImage ? (
-													<img
-														className="h-8 w-8 rounded-md"
-														src={user?.profileImage}
-														alt=""
-													/>
-												) : (
-													<div className="h-8 rounded-md overflow-hidden bg-gray-100 cursor-pointer flex items-center">
-														<svg
-															className="h-8 w-8 text-gray-300"
-															fill="currentColor"
-															viewBox="0 0 24 24"
-														>
-															<path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-														</svg>
-														<span className="w-20 px-2 truncate text-gray-800 bg-gray-100">
-															{currentWallet}
-														</span>
-													</div>
-												)}
-											</Menu.Button>
+											<button
+												type="button"
+												className="inline-flex items-center px-3 py-2 border border-cryptoblue text-sm leading-4 font-medium rounded-md shadow-sm text-cryptoblue hover:bg-gray-100"
+											>
+												Contact Us
+											</button>
 										) : (
 											<button
 												type="button"
 												onClick={() => connectWallet()}
-												className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+												className="inline-flex items-center px-3 py-2 border border-cryptoblue text-sm leading-4 font-medium rounded-md shadow-sm text-cryptoblue hover:bg-gray-100"
 											>
 												Connect
 											</button>
 										)}
 									</div>
-									<Transition
-										as={Fragment}
-										enter="transition ease-out duration-100"
-										enterFrom="transform opacity-0 scale-95"
-										enterTo="transform opacity-100 scale-100"
-										leave="transition ease-in duration-75"
-										leaveFrom="transform opacity-100 scale-100"
-										leaveTo="transform opacity-0 scale-95"
-									>
-										<Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
-											{userNavigation.map((item) => (
-												<Menu.Item key={item.name}>
-													{({ active }) => (
-														<a
-															href={item.href}
-															className={classNames(
-																active
-																	? "bg-gray-100"
-																	: "",
-																"block px-4 py-2 text-sm text-gray-700"
-															)}
-														>
-															{item.name}
-														</a>
-													)}
-												</Menu.Item>
-											))}
-										</Menu.Items>
-									</Transition>
 								</Menu>
 							</div>
 						</Popover>
@@ -243,220 +183,269 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 
 				<main className="py-10">
 					{/* Page header */}
-					<div className="max-w-3xl mx-auto px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-7xl lg:px-8">
-						<div className="flex items-center space-x-5">
-							<div className="flex-shrink-0">
-								<div className="relative">
-									{user?.profileImage ? (
-										<img
-											className="h-20 w-20 rounded-full"
-											src={user?.profileImage}
+					<div className='max-w-7xl bg-white py-12 rounded-xl shadow-md mx-auto'>
+						<div className="mx-auto pb-12 border-b border-gray-300 px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-7xl lg:px-8">
+							<div className="flex items-center space-x-5">
+								<div className="flex-shrink-0">
+									<div className="relative">
+										<Image
+											className="h-16 w-16 rounded-full"
+											src={sampleprofilepic}
 											alt=""
 										/>
-									) : (
-										<div className="h-20 w-20 rounded-full overflow-hidden bg-gray-100 cursor-pointer hover:bg-gray-200">
-											<svg
-												className="h-20 w-20 text-gray-300"
-												fill="currentColor"
-												viewBox="0 0 24 24"
-											>
-												<path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-											</svg>
-										</div>
-									)}
-								</div>
-							</div>
-							<div>
-								<h1 className="text-2xl font-bold text-gray-900">
-									{user?.name}
-								</h1>
-								<p className="text-sm font-medium text-gray-500">
-									{user?.id}
-								</p>
-							</div>
-						</div>
-						<div className="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
-							{authenticated && (
-								<button
-									type="button"
-									className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-blue-500"
-									onClick={() => setEditModalOpen(true)}
-								>
-									Edit Profile
-								</button>
-							)}
-						</div>
-					</div>
-
-					<div className="mt-8 max-w-3xl mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
-						<div className="space-y-6 lg:col-start-1 lg:col-span-2">
-							{/* Description list*/}
-							{user?.description && <section aria-labelledby="applicant-information-title">
-								<div className="bg-white shadow sm:rounded-lg">
-									<div className="px-4 py-5 sm:px-6">
-										<h2
-											id="applicant-information-title"
-											className="text-lg leading-6 font-medium text-gray-900"
-										>
-											{user.description}
-										</h2>
+										{/* {user?.profileImage ? (
+											<img
+												className="h-16 w-16 rounded-full"
+												src={user?.profileImage}
+												alt=""
+											/>
+										) : (
+											<div className="h-20 w-20 rounded-full overflow-hidden bg-gray-100 cursor-pointer hover:bg-gray-200">
+												<svg
+													className="h-20 w-20 text-gray-300"
+													fill="currentColor"
+													viewBox="0 0 24 24"
+												>
+													<path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+												</svg>
+											</div>
+										)} */}
 									</div>
 								</div>
-							</section>}
+								<div data-tip={user?.id}>
+									<h1 className="font-urbanist text-3xl font-bold text-gray-900">
+										{minimizeAddress(user?.id)}
+									</h1>
+									{/* <p className="text-sm font-medium text-gray-500">
+										{user?.id}
+									</p> */}
+								</div>
+							</div>
+							<div className="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-8">
+								<button className='flex items-center' onClick={() => handleCopyAddress(user?.id)}>
+									{
+										isCopied ? (
+											<CheckIcon className='text-green-600 w-6 h-6 mr-2'  />
+										) : (
+											<DuplicateIcon className='w-6 h-6 mr-2' />
+										)
+									}
+									Copy Wallet Address
+								</button>
+								{authenticated && (
+									<>
+										<button
+											className='flex items-center border border-cryptoblue rounded-md border-solid px-5 py-2.5 text-cryptoblue hover:bg-gray-100'
+											onClick={() => {
+												copy(window.location.href)
+												toast('Copied to clipboard!', { position: 'top-center', type: 'success' })
+											}}
+										>
+											Copy Page Link
+											<LinkIcon className='w-5 h-5 ml-2' />
+										</button>
+										<button
+											className='flex items-center border border-twitterblue rounded-md border-solid px-5 py-2.5 text-twitterblue hover:bg-gray-100'
+										>
+											Tweet This
+											<svg className='ml-2' width="20" height="20" viewBox="0 0 15 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+												<path d="M14.1673 0.673342C13.5007 1.00001 12.8473 1.13268 12.1673 1.33334C11.42 0.490009 10.312 0.443342 9.24732 0.842009C8.18265 1.24068 7.48532 2.21534 7.50065 3.33334V4.00001C5.33732 4.05534 3.41065 3.07001 2.16732 1.33334C2.16732 1.33334 -0.620682 6.28868 4.83398 8.66668C3.58598 9.49801 2.34132 10.0587 0.833984 10C3.03932 11.202 5.44265 11.6153 7.52332 11.0113C9.90998 10.318 11.8713 8.52934 12.624 5.85001C12.8485 5.03512 12.96 4.19325 12.9553 3.34801C12.954 3.18201 13.962 1.50001 14.1673 0.672675V0.673342Z" stroke="#1DA1F2" stroke-linecap="round" stroke-linejoin="round"/>
+											</svg>
+										</button>
+									</>
+								)}
+							</div>
+						</div>
 
-							{/* Comments*/}
-							{!!transactions?.length && (
-								<section aria-labelledby="notes-title">
-									<div className="bg-white shadow sm:rounded-lg sm:overflow-hidden">
-										<div className="divide-y divide-gray-200">
+						<div className="mt-8 mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
+							<div className="space-y-6 lg:col-start-1 lg:col-span-2">
+								{/* Description list*/}
+								{/* {user?.description && <section aria-labelledby="applicant-information-title">
+									<div className="bg-white shadow sm:rounded-lg">
+										<div className="px-4 py-5 sm:px-6">
+											<h2
+												id="applicant-information-title"
+												className="text-lg leading-6 font-medium text-gray-900"
+											>
+												{user.description}
+											</h2>
+										</div>
+									</div>
+								</section>} */}
+
+								{/* Comments*/}
+								{!!transactions?.length && (
+									<section aria-labelledby="notes-title">
+										<div className="bg-white sm:rounded-lg sm:overflow-hidden">
 											<div className="px-4 py-5 sm:px-6">
 												<h2
 													id="notes-title"
-													className="text-lg font-medium text-gray-900"
+													className="text-xl font-urbanist font-bold text-gray-900"
 												>
-													Recent Crypto Coffees
+													Recent Supporters 🤝
 												</h2>
 											</div>
-											<div className="px-4 py-6 sm:px-6">
+											<div className="px-4 pb-6 sm:px-6">
 												<ul
 													role="list"
 													className="space-y-8"
 												>
 													{transactions.map(
-														(transaction) => (
+														(transaction, index) => (
 															<li
-																key={transaction.id}
+																key={index}
+																className='p-8 pb-9 bg-faintblue rounded-xl border border-cryptoblue'
 															>
 																<div className="flex space-x-3">
 																	<div className="flex-shrink-0">
-																		<img
-																			className="h-10 w-10 rounded-full"
+																		<Image
+																			className="h-16 w-16 rounded-full"
 																			// src={`https://images.unsplash.com/photo-${transaction.imageId}?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
+																			src={sampleprofilepic}
 																			alt=""
 																		/>
 																	</div>
 																	<div>
-																		<div className="text-sm">
-																			<a
-																				href="#"
-																				className="font-medium text-gray-900"
-																			>
+																		<div className="text-lg">
+																			<span data-tip={transaction?.from}>
 																				{
-																					`${transaction.from} has sent ${transaction.amount} eth.`
+																					`${minimizeAddress(transaction?.from)} `
 																				}
-																			</a>
+																			</span>
+																			bought you a CryptoCoffee🎉
 																		</div>
-																		<div className="mt-1 text-sm text-gray-700">
-																			<p>
-																				{
-																					transaction.message
-																				}
-																			</p>
-																		</div>
+																		<div className='inline-block mr-1 font-urbanist font-semibold text-base'>
+																			{`${transaction?.amount}`}
+																		</div>Ξ
 																	</div>
 																</div>
+																{
+																	!!transaction?.message.length && (
+																		<>
+																			<div className='w-0 ml-5 mt-6 border-8 border-transparent border-b-8 border-b-white' />
+																			<div className="bg-white rounded-md w-max p-4 text-base text-gray-700">
+																				<p>
+																					{
+																						transaction.message
+																					}
+																				</p>
+																			</div>
+																		</>
+																	)
+																}
+																<a
+																	className='cursor-pointer absolute flex items-center justify-center rounded-full w-6 h-6 bg-cryptoblue left-auto right-auto'
+																	href={`https://etherscan.io/tx/${transaction?.id}`}
+																	target='_blank'
+																	rel="noopener noreferrer"
+																	style={{
+																		left: '59%'
+																	}}
+																>
+																	<ArrowUpIcon className='w-4 h-4 rotate-45 text-white' />
+																</a>
 															</li>
 														)
 													)}
 												</ul>
 											</div>
 										</div>
-									</div>
-								</section>
-							)}
-						</div>
+									</section>
+								)}
+							</div>
 
-						<section
-							aria-labelledby="timeline-title"
-							className="lg:col-start-3 lg:col-span-1"
-						>
-							<div className="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6">
-								{/* {!widget ? ( */}
-									<div className="h-full px-4">
-										<div className="text-lg my-4">
-											Buy me a coffee
-										</div>
-										<div className="flex items-center justify-between">
-											<span>Send ETH:</span>
-											<div className="flex items-center">
-												<div className="mt-1 flex rounded-md shadow-sm">
-													<input
-														value={price}
-														min={0}
-														onChange={(e) =>
-															!isNaN(
-																Number(
-																	e.target
-																		.value
+							<section
+								aria-labelledby="timeline-title"
+								className="lg:col-start-3 lg:col-span-1"
+							>
+								<div className="bg-white border border-gray-200 sm:rounded-lg">
+									{/* {!widget ? ( */}
+										<div className="h-full">
+											<div className="font-urbanist font-bold px-6 py-4 text-lg border-b border-gray-200">
+												Support the Creator 🤝
+											</div>
+											<div className="flex px-6 pt-7 font-urbanist font-normal items-center justify-between">
+												<span>Enter ETH Amount:</span>
+												<div className="flex items-center">
+													<div className="mt-1 flex rounded-md shadow-sm">
+														<input
+															value={price}
+															min={0}
+															onChange={(e) =>
+																!isNaN(
+																	Number(
+																		e.target
+																			.value
+																	)
+																) &&
+																setPrice(
+																	Number(
+																		e.target
+																			.value
+																	)
 																)
-															) &&
-															setPrice(
-																Number(
-																	e.target
-																		.value
-																)
-															)
-														}
-														type="number"
-														className="flex-1 min-w-0 block w-36 px-3 py-2 rounded-md sm:text-sm border-gray-300 text-right"
-														placeholder="0"
-													/>
+															}
+															type="number"
+															className="flex-1 min-w-0 block w-36 px-3 py-2 rounded-md sm:text-sm border-gray-300 text-right"
+															placeholder="0"
+														/>
+													</div>
 												</div>
 											</div>
-										</div>
 
-										<div className="mt-4">
-											<label
-												htmlFor="comment"
-												className="block text-sm font-medium text-gray-700"
-											>
-												Add your comment
-											</label>
-											<div className="mt-1">
-												<textarea
-													value={message}
-													onChange={(e) =>
-														setMessage(
-															e.target.value
-														)
+											<div className="font-urbanist pt-8 px-6">
+												<label
+													htmlFor="comment"
+													className="block text-gray-700"
+												>
+													Add your comment (Optional)
+												</label>
+												<div className="mt-1">
+													<textarea
+														value={message}
+														onChange={(e) =>
+															setMessage(
+																e.target.value
+															)
+														}
+														rows={4}
+														name="comment"
+														id="comment"
+														className="shadow-sm block w-full sm:text-sm border-gray-300 rounded-md"
+													/>
+												</div>
+												<button
+													onClick={() =>
+														handleSendTransaction()
 													}
-													rows={4}
-													name="comment"
-													id="comment"
-													className="shadow-sm block w-full sm:text-sm border-gray-300 rounded-md"
-												/>
+													type="button"
+													disabled={
+														loading ||
+														!price ||
+														authenticated
+													}
+													className="font-urbanist font-bold mt-4 mb-6 inline-flex items-center justify-center px-4 py-2 border border-transparent text-lg rounded-md shadow-sm text-white bg-cryptoblue focus:outline-none w-full text-center"
+												>
+													Support Now ({price} ETH)
+												</button>
 											</div>
 										</div>
-										<button
-											onClick={() =>
-												handleSendTransaction()
-											}
-											type="button"
-											disabled={
-												loading ||
-												!price ||
-												authenticated
-											}
-											className="mt-4 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full text-center"
-										>
-											Donate {price} ETH
-										</button>
-									</div>
-								{/* ) : (
-									<div className="flex flex-col items-center h-full">
-										<WidgetComponent
-											firstName={widget.firstName}
-											widgetColor={widget.widgetColor}
-											availableWallets={widget.wallet_address.filter(
-												(wallet) =>
-													!!wallet.public_address
-														.length
-											)}
-										/>
-									</div>
-								)} */}
-							</div>
-						</section>
+									{/* ) : (
+										<div className="flex flex-col items-center h-full">
+											<WidgetComponent
+												firstName={widget.firstName}
+												widgetColor={widget.widgetColor}
+												availableWallets={widget.wallet_address.filter(
+													(wallet) =>
+														!!wallet.public_address
+															.length
+												)}
+											/>
+										</div>
+									)} */}
+								</div>
+							</section>
+						</div>
 					</div>
 				</main>
 			</div>

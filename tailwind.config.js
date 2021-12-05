@@ -7,7 +7,8 @@ module.exports = {
   theme: {
     extend: {},
     fontFamily: {
-      'sora': ["'Sora'"]
+      'sora': ["'Sora'"],
+      'urbanist': ["'Urbanist'"],
     },
     colors: {
       transparent: 'transparent',
@@ -21,6 +22,9 @@ module.exports = {
       blue: colors.blue,
       green: colors.green,
       pizza: '#FF8906',
+      cryptoblue: '#4065F6',
+      faintblue: '#F2F5FF',
+      twitterblue: '#1DA1F2',
       'heading-color': 'var(--heading-color)'
     }
   },

@@ -1,6 +1,5 @@
 import { ClipboardCopyIcon } from '@heroicons/react/outline';
 import copy from 'copy-to-clipboard';
-import Head from 'next/head';
 import React, { useEffect, useState } from 'react'
 import { Wallet } from '../pages/widget/[id]';
 import CryptoSelect, { CryptoSelectProps } from './CryptoSelect';
@@ -68,11 +67,6 @@ const WidgetComponent: React.FC<WidgetProps> = ({
     return (
         <>
             <style>{css}</style>
-            <Head key='main-head'>
-                <link rel="preconnect" href="https://fonts.googleapis.com" />
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin='anonymous' />
-                <link href="https://fonts.googleapis.com/css2?family=Sora&display=swap" rel="stylesheet" />
-            </Head>
             <div className='flex items-center text-white justify-center text-lg w-full h-14 bg-heading-color font-sora'>
                 <span>
                     Buy{` ${firstName} `}a Crypto Coffee
