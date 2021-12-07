@@ -1,5 +1,4 @@
 import { ethers } from "ethers";
-import toast from "react-hot-toast";
 
 declare let window: any;
 

@@ -85,7 +85,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 			await saveTransaction(transaction);
 		} catch (error) {
 			console.error(error);
-			toast.error(error);
+			toast.error(error, { position: "top-center" });
 		} finally {
 			setLoading(false);
 		}
@@ -224,7 +224,8 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 											onClick={() => {
 												copy(window.location.href);
 												toast.success(
-													"Copied to clipboard!"
+													"Copied to clipboard!",
+													{ position: "top-center" }
 												);
 											}}
 										>

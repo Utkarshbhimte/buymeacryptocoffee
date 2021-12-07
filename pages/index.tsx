@@ -5,8 +5,8 @@ import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
 import { useRouter } from "next/router";
 import { ethers } from "ethers";
 import { validateAndResolveAddress } from "../utils/crypto";
-import toast from "react-hot-toast";
 import Logo from "../components/Logo";
+import { toast } from "react-toastify";
 
 declare let window: any;
 
@@ -57,7 +57,9 @@ const Dashboard: React.FC = () => {
 			const { name, address: userAddress } = validatedAddress;
 
 			if (!userAddress) {
-				toast.error("Please enter valid ens or address");
+				toast.error("Please enter valid ens or address", {
+					position: "top-center",
+				});
 				setLoading(false);
 				return;
 			}

@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 import { getOrCreateUser } from ".";
 import { User } from "../contracts";
 import {
