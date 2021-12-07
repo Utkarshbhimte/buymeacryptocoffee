@@ -78,3 +78,8 @@ export const saveTransaction = async (
 		.doc(`${firestoreCollections.TRANSACTIONS}/${transaction.id}`)
 		.set(transaction);
 };
+
+export const minimizeAddress = (address?: string): string => {
+	if(!address) return "";
+	return address.substring(0, 6) + "..." + address.substring(address.length - 4);
+}

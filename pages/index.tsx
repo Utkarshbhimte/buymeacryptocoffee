@@ -1,16 +1,12 @@
-import { signOut, useSession } from "next-auth/client";
-import React, { Fragment, useState } from "react";
-import Loader from "../utils/loader";
-import { Disclosure, Menu, Transition } from "@headlessui/react";
+import { signOut } from "next-auth/client";
+import React, { useState } from "react";
+import { Disclosure } from "@headlessui/react";
 import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
-import router, { useRouter } from "next/router";
-import CustomiseWidgetForm from "../components/customise-widget-form/CustomiseWidgetForm";
-import cryptoCoffeeLogo from "../assets/cryptocoffeelogo.png";
-import Image from "next/image";
-import { useUser } from "../utils/context";
+import { useRouter } from "next/router";
 import { ethers } from "ethers";
 import { validateAndResolveAddress } from "../utils/crypto";
 import toast from "react-hot-toast";
+import Logo from "../components/Logo";
 
 declare let window: any;
 
@@ -95,13 +91,7 @@ const Dashboard: React.FC = () => {
 							<div className="flex justify-between h-16">
 								<div className="flex">
 									<div className="flex-shrink-0 flex items-center">
-										<Image
-											className="block lg:hidden h-8 w-auto"
-											src={cryptoCoffeeLogo}
-											alt="Workflow"
-											width={300}
-											height={30}
-										/>
+										<Logo />
 									</div>
 									<div className="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
 										{navigation.map((item) => (
