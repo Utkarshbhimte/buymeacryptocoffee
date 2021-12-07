@@ -1,42 +1,71 @@
+import { ethers } from "ethers";
 import { Transaction, Social, User } from "../contracts";
+import { validateAndResolveAddress } from "./crypto";
 import { db, firestoreCollections } from "./firebaseClient";
 
-export const getOrCreateUser = async (address: string): Promise<User> => {
+export const getOrCreateUser = async (
+	address: string,
+	customProvider?:
+		| ethers.providers.Web3Provider
+		| ethers.providers.JsonRpcProvider
+): Promise<User> => {
 	// create new user in firesbase if not exists
-	const response = await db
-		.doc(`${firestoreCollections.USERS}/${address}`)
-		.get();
 
-	if (response.exists) {
-		console.log("got the user sending it");
-		return response.data() as User;
+	const provider = customProvider
+		? customProvider
+		: new ethers.providers.Web3Provider((window as any).ethereum);
+
+	const { address: userAddress, name } = await validateAndResolveAddress(
+		address,
+		provider
+	);
+
+	const user = await getUser(userAddress, provider);
+
+	if (user) {
+		return user;
 	}
 
-	console.log("Didn\t get the user, creating one");
+	const docRef = db.collection(firestoreCollections.USERS).doc();
 
 	const newUser: User = {
 		...new User(),
-		id: address,
-		name: "Unnamed",
+		id: docRef.id,
+		name: !!name ? name : "Unnamed",
 		social: {
 			...new Social(),
 		},
+		ens: name,
+		address: userAddress,
 	};
 
-	console.log("creating user 000,", newUser);
-
-	await db.doc(`${firestoreCollections.USERS}/${address}`).set(newUser);
+	await db.doc(`${firestoreCollections.USERS}/${docRef.id}`).set(newUser);
 
 	return newUser;
 };
 
-export const getUser = async (address: string): Promise<User> => {
+export const getUser = async (
+	address: string,
+	customProvider?:
+		| ethers.providers.Web3Provider
+		| ethers.providers.JsonRpcProvider
+): Promise<User> => {
+	const provider = customProvider
+		? customProvider
+		: new ethers.providers.Web3Provider((window as any).ethereum);
+
+	const { address: userAddress } = await validateAndResolveAddress(
+		address,
+		provider
+	);
+
 	const response = await db
-		.doc(`${firestoreCollections.USERS}/${address}`)
+		.collection(firestoreCollections.USERS)
+		.where("address", "==", userAddress)
 		.get();
 
-	if (response.exists) {
-		return response.data() as User;
+	if (!response.empty) {
+		return response.docs[0].data() as User;
 	}
 
 	return null;

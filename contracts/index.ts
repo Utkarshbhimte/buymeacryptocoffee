@@ -11,6 +11,8 @@ export class User {
 	name: string = "";
 	description: string = "";
 	social: Social = new Social();
+	address: string = "";
+	ens: string | null = null;
 }
 
 export class Transaction {

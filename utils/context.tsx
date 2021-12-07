@@ -1,9 +1,14 @@
 import { ethers } from "ethers";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { getOrCreateUser } from ".";
 import { User } from "../contracts";
-import { checkIfWalletIsConnected, connectWallet } from "./crypto";
+import {
+	checkIfWalletIsConnected,
+	connectWallet,
+	validateAndResolveAddress,
+} from "./crypto";
 
 interface IAuthContext {
 	readonly user: User | null;
@@ -26,10 +31,16 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 	const router = useRouter();
 
 	const { id: routerAddress } = router.query;
+	const address = routerAddress?.toString() ?? "";
 
 	const handleConnectWallet = async () => {
 		try {
+			if (!(window as any).ethereum) {
+				toast.error("You don't have metamask install");
+				return;
+			}
 			setLoading(true);
+
 			const wallet = await connectWallet();
 			setCurrentWallet(wallet);
 		} catch (error) {
@@ -41,17 +52,14 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 
 	const fetchUpdateUser = async () => {
 		try {
-			if (!routerAddress?.toString()) {
+			if (!address) {
 				return;
 			}
-			ethers.utils.getAddress(routerAddress?.toString());
-			const user = await getOrCreateUser(routerAddress?.toString());
-			if (
-				user.id?.toLowerCase() ===
-				routerAddress?.toString()?.toLowerCase()
-			) {
-				setUser(user);
-			}
+
+			const response = await fetch(`/api?address=${address}`);
+			const fetchedUser: User = await response.json();
+
+			setUser(fetchedUser);
 		} catch (error) {
 			console.error(error);
 			setAuthenticated(false);
@@ -60,8 +68,11 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 
 	const initialWalletCheck = async () => {
 		try {
+			if (!(window as any).ethereum) {
+				return;
+			}
+
 			const wallet = await checkIfWalletIsConnected();
-			console.log("initial wallet --> ", wallet);
 			setCurrentWallet(wallet);
 		} catch (error) {
 			console.error(error);
@@ -69,18 +80,9 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 	};
 
 	useEffect(() => {
-		console.log("updated currentwallet", currentWallet);
 		if (currentWallet) {
-			console.log({
-				currentWallet,
-				routerAddress,
-			});
-			if (
-				currentWallet.toLowerCase() ===
-				routerAddress?.toString()?.toLowerCase()
-			) {
+			if (currentWallet.toLowerCase() === address.toLowerCase()) {
 				setAuthenticated(true);
-				console.log("authenticated");
 			} else {
 				setAuthenticated(false);
 			}
@@ -88,10 +90,11 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 	}, [currentWallet]);
 
 	useEffect(() => {
-		(window as any).ethereum.on("accountsChanged", function (accounts) {
-			setCurrentWallet(accounts[0] ?? null);
-			console.log("Wallet changed to -> ", accounts[0]);
-		});
+		if ((window as any).ethereum) {
+			(window as any).ethereum.on("accountsChanged", function (accounts) {
+				setCurrentWallet(accounts[0] ?? null);
+			});
+		}
 		initialWalletCheck();
 	}, []);
 

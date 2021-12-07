@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import toast from "react-hot-toast";
 
 declare let window: any;
 
@@ -116,4 +117,37 @@ export const sendTransaction = async (
 	});
 
 	return tx;
+};
+
+export const validateAndResolveAddress = async (
+	userAddress: string,
+	provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider
+): Promise<{ address?: string | null; name?: string | null } | undefined> => {
+	try {
+		let address, name;
+
+		if (userAddress.includes(".")) {
+			const ensResolver = await provider.resolveName(userAddress);
+
+			if (!ensResolver) {
+				// toast.error("This address is not valid");
+				throw new Error("This address is not valid");
+			}
+
+			address = ensResolver;
+			name = userAddress;
+		}
+
+		if (!userAddress.includes(".")) {
+			ethers.utils.getAddress(userAddress);
+
+			name = await provider.lookupAddress(userAddress);
+
+			address = userAddress;
+		}
+		return { address, name };
+	} catch (error) {
+		console.error(error);
+		return {};
+	}
 };

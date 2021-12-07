@@ -1,44 +1,17 @@
-/*
-  This example requires Tailwind CSS v2.0+ 
-  
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/forms'),
-    ],
-  }
-  ```
-*/
-import React, { Fragment, useEffect, useState } from "react";
 import { Menu, Popover, Transition } from "@headlessui/react";
-import {
-	CheckIcon,
-	EyeIcon,
-	QuestionMarkCircleIcon,
-	ThumbUpIcon,
-	UserIcon,
-} from "@heroicons/react/solid";
+import { CheckIcon, ThumbUpIcon, UserIcon } from "@heroicons/react/solid";
+import { GetServerSideProps } from "next";
 import Image from "next/image";
-import cryptoCoffeeLogo from "../../assets/cryptocoffeelogo.png";
-import { useRouter } from "next/router";
-import { useSession } from "next-auth/client";
-import { GetServerSideProps, GetStaticPaths, GetStaticProps } from "next";
-import { db } from "../../utils/firebaseClient";
-import { Widget } from "../../components/customise-widget-form/CustomiseWidgetForm";
-import WidgetComponent from "../../components/Widget";
-import { useUser } from "../../utils/context";
-import { sendTransaction } from "../../utils/crypto";
-import Modal from "../../components/Modal";
-import ProfileModal from "../../components/ProfileModal";
-import { Transaction, User } from "../../contracts";
-import { saveTransaction } from "../../utils";
-import SuccessTransactionModal from "../../components/SuccessTransactionModal";
-import { ethers } from "ethers";
+import React, { Fragment, useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import cryptoCoffeeLogo from "../assets/cryptocoffeelogo.png";
+import ProfileModal from "../components/ProfileModal";
+import SuccessTransactionModal from "../components/SuccessTransactionModal";
+import { Transaction, User } from "../contracts";
+import { saveTransaction } from "../utils";
+import { useUser } from "../utils/context";
+import { sendTransaction } from "../utils/crypto";
+import { db } from "../utils/firebaseClient";
 
 declare let window: any;
 
@@ -63,6 +36,7 @@ export interface ProfileProps {
 
 const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 	// edit modal state
+
 	const [editModalOpen, setEditModalOpen] = useState(false);
 
 	const [modalOpen, setModalOpen] = useState(false);
@@ -70,7 +44,8 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 	const [message, setMessage] = useState<string>("");
 	const [loading, setLoading] = useState<boolean>(false);
 
-	const { user, authenticated, currentWallet, connectWallet } = useUser();
+	const { user, authenticated, currentWallet, connectWallet, setUser } =
+		useUser();
 
 	// transaction data
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -79,13 +54,13 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 
 	const handleSendTransaction = async () => {
 		try {
-			if (!user?.id) {
+			if (!user?.address) {
 				throw new Error("No user address found");
 			}
 
 			setLoading(true);
 			const response = await sendTransaction(
-				user.id,
+				user.address,
 				message,
 				price.toString()
 			);
@@ -122,12 +97,6 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 		}
 	};
 
-	const getENSFromName = async () => {
-		const provider = new ethers.providers.Web3Provider(window.ethereum);
-		const ensResolver = await provider.lookupAddress(user.id);
-		const address = ensResolver;
-	}
-
 	useEffect(() => {
 		if (!modalOpen) {
 			setTransactionDetails(null);
@@ -136,13 +105,12 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 
 	useEffect(() => {
 		setTransactions(allTransactions);
-	}, [allTransactions])
+	}, [allTransactions]);
 
-	useEffect(() => {
-		if(user) {
-			getENSFromName()
-		}
-	}, [user])
+	const disableDonateButton =
+		loading || !price || authenticated || !(window as any).ethereum;
+
+	console.log(user);
 
 	return (
 		<>
@@ -268,10 +236,18 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 							</div>
 							<div>
 								<h1 className="text-2xl font-bold text-gray-900">
-									{user?.name}
+									{!user ? (
+										<div className=" animate-pulse h-8 bg-gray-300 rounded w-36" />
+									) : (
+										user?.name
+									)}
 								</h1>
 								<p className="text-sm font-medium text-gray-500">
-									{user?.id}
+									{!user ? (
+										<div className=" animate-pulse h-6 bg-gray-300 rounded w-48 mt-2" />
+									) : (
+										user?.address
+									)}
 								</p>
 							</div>
 						</div>
@@ -291,18 +267,20 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 					<div className="mt-8 max-w-3xl mx-auto grid grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
 						<div className="space-y-6 lg:col-start-1 lg:col-span-2">
 							{/* Description list*/}
-							{user?.description && <section aria-labelledby="applicant-information-title">
-								<div className="bg-white shadow sm:rounded-lg">
-									<div className="px-4 py-5 sm:px-6">
-										<h2
-											id="applicant-information-title"
-											className="text-lg leading-6 font-medium text-gray-900"
-										>
-											{user.description}
-										</h2>
+							{user?.description && (
+								<section aria-labelledby="applicant-information-title">
+									<div className="bg-white shadow sm:rounded-lg">
+										<div className="px-4 py-5 sm:px-6">
+											<h2
+												id="applicant-information-title"
+												className="text-lg leading-6 font-medium text-gray-900"
+											>
+												{user.description}
+											</h2>
+										</div>
 									</div>
-								</div>
-							</section>}
+								</section>
+							)}
 
 							{/* Comments*/}
 							{!!transactions?.length && (
@@ -325,7 +303,9 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 													{transactions.map(
 														(transaction) => (
 															<li
-																key={transaction.id}
+																key={
+																	transaction.id
+																}
 															>
 																<div className="flex space-x-3">
 																	<div className="flex-shrink-0">
@@ -341,9 +321,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 																				href="#"
 																				className="font-medium text-gray-900"
 																			>
-																				{
-																					`${transaction.from} has sent ${transaction.amount} eth.`
-																				}
+																				{`${transaction.from} has sent ${transaction.amount} eth.`}
 																			</a>
 																		</div>
 																		<div className="mt-1 text-sm text-gray-700">
@@ -372,76 +350,70 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 						>
 							<div className="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6">
 								{/* {!widget ? ( */}
-									<div className="h-full px-4">
-										<div className="text-lg my-4">
-											Buy me a coffee
-										</div>
-										<div className="flex items-center justify-between">
-											<span>Send ETH:</span>
-											<div className="flex items-center">
-												<div className="mt-1 flex rounded-md shadow-sm">
-													<input
-														value={price}
-														min={0}
-														onChange={(e) =>
-															!isNaN(
-																Number(
-																	e.target
-																		.value
-																)
-															) &&
-															setPrice(
-																Number(
-																	e.target
-																		.value
-																)
-															)
-														}
-														type="number"
-														className="flex-1 min-w-0 block w-36 px-3 py-2 rounded-md sm:text-sm border-gray-300 text-right"
-														placeholder="0"
-													/>
-												</div>
-											</div>
-										</div>
-
-										<div className="mt-4">
-											<label
-												htmlFor="comment"
-												className="block text-sm font-medium text-gray-700"
-											>
-												Add your comment
-											</label>
-											<div className="mt-1">
-												<textarea
-													value={message}
+								<div className="h-full px-4">
+									<div className="text-lg my-4">
+										Buy me a coffee
+									</div>
+									<div className="flex items-center justify-between">
+										<span>Send ETH:</span>
+										<div className="flex items-center">
+											<div className="mt-1 flex rounded-md shadow-sm">
+												<input
+													value={price}
+													min={0}
 													onChange={(e) =>
-														setMessage(
-															e.target.value
+														!isNaN(
+															Number(
+																e.target.value
+															)
+														) &&
+														setPrice(
+															Number(
+																e.target.value
+															)
 														)
 													}
-													rows={4}
-													name="comment"
-													id="comment"
-													className="shadow-sm block w-full sm:text-sm border-gray-300 rounded-md"
+													type="number"
+													className="flex-1 min-w-0 block w-36 px-3 py-2 rounded-md sm:text-sm border-gray-300 text-right"
+													placeholder="0"
 												/>
 											</div>
 										</div>
-										<button
-											onClick={() =>
-												handleSendTransaction()
-											}
-											type="button"
-											disabled={
-												loading ||
-												!price ||
-												authenticated
-											}
-											className="mt-4 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full text-center"
-										>
-											Donate {price} ETH
-										</button>
 									</div>
+
+									<div className="mt-4">
+										<label
+											htmlFor="comment"
+											className="block text-sm font-medium text-gray-700"
+										>
+											Add your comment
+										</label>
+										<div className="mt-1">
+											<textarea
+												value={message}
+												onChange={(e) =>
+													setMessage(e.target.value)
+												}
+												rows={4}
+												name="comment"
+												id="comment"
+												className="shadow-sm block w-full sm:text-sm border-gray-300 rounded-md"
+											/>
+										</div>
+									</div>
+									<button
+										onClick={() => handleSendTransaction()}
+										type="button"
+										disabled={disableDonateButton}
+										className={`mt-4 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full text-center ${
+											disableDonateButton
+												? " bg-indigo-300 cursor-not-allowed "
+												: " bg-indigo-600 hover:bg-indigo-700 "
+										}`}
+									>
+										Donate {price} ETH
+									</button>
+								</div>
 								{/* ) : (
 									<div className="flex flex-col items-center h-full">
 										<WidgetComponent
@@ -478,6 +450,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
 	const userAddress = context.params.id;
+
 	const transactionsResponse = await db
 		.collection("transactions")
 		.where("to", "==", userAddress)
@@ -486,15 +459,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 	const transactions: Transaction[] = transactionsResponse.docs.map((doc) => {
 		const data = doc.data();
 		return {
-			...data as Transaction,
+			...(data as Transaction),
 			id: doc.id,
 		};
 	});
 
-
 	return {
 		props: {
-			transactions
+			transactions,
 		},
 	};
 };
