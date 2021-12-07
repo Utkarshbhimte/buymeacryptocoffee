@@ -3,6 +3,7 @@ import "tailwindcss/tailwind.css";
 import Head from "next/head";
 import { AuthWrapper } from "../utils/context";
 import { ToastContainer } from "react-toastify";
+import { Toaster } from "react-hot-toast";
 import "react-toastify/dist/ReactToastify.css";
 import ReactTooltip from "react-tooltip";
 
@@ -27,6 +28,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 			</Head>
 			<Component {...pageProps} />
 			<ToastContainer />
+			<Toaster />
 			<ReactTooltip effect="solid" />
 		</AuthWrapper>
 	);

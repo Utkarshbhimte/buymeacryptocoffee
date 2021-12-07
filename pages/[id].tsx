@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Menu, Popover } from "@headlessui/react";
 import { ArrowUpIcon, CheckIcon } from "@heroicons/react/solid";
 import Image from "next/image";
-import sampleprofilepic from "../../assets/sampleprofilepic.png";
+import sampleprofilepic from "../assets/sampleprofilepic.png";
 import { DuplicateIcon, LinkIcon } from "@heroicons/react/outline";
 import { GetServerSideProps } from "next";
 import { db } from "../utils/firebaseClient";
@@ -74,7 +74,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 
 			const transaction: Transaction = {
 				...new Transaction(),
-				to: user.id,
+				to: user.address,
 				from: currentWallet,
 				id: response.hash,
 				amount: price,
@@ -85,6 +85,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 			await saveTransaction(transaction);
 		} catch (error) {
 			console.error(error);
+			toast.error(error);
 		} finally {
 			setLoading(false);
 		}
@@ -190,7 +191,12 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 								</div>
 								<div data-tip={user?.id}>
 									<h1 className="font-urbanist text-3xl font-bold text-gray-900">
-										{minimizeAddress(user?.id)}
+										{!user ? (
+											<div className="animate-pulse h-12 w-48 bg-gray-300 rounded-md" />
+										) : (
+											user?.ens ??
+											minimizeAddress(user?.address)
+										)}
 									</h1>
 									{/* <p className="text-sm font-medium text-gray-500">
 										{user?.id}
@@ -215,10 +221,9 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 											className="flex items-center border border-cryptoblue rounded-md border-solid px-5 py-2.5 text-cryptoblue hover:bg-gray-100"
 											onClick={() => {
 												copy(window.location.href);
-												toast("Copied to clipboard!", {
-													position: "top-center",
-													type: "success",
-												});
+												toast.success(
+													"Copied to clipboard!"
+												);
 											}}
 										>
 											Copy Page Link
