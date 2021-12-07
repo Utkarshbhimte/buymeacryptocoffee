@@ -206,7 +206,9 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 							<div className="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-8">
 								<button
 									className="flex items-center"
-									onClick={() => handleCopyAddress(user?.id)}
+									onClick={() =>
+										handleCopyAddress(user?.address)
+									}
 								>
 									{isCopied ? (
 										<CheckIcon className="text-green-600 w-6 h-6 mr-2" />
