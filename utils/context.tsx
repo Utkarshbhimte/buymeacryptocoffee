@@ -56,10 +56,16 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 				return;
 			}
 
-			const response = await fetch(`/api?address=${address}`);
-			const fetchedUser: User = await response.json();
+			if (!(window as any).ethereum) {
+				const response = await fetch(`/api?address=${address}`);
+				const fetchedUser: User = await response.json();
 
-			setUser(fetchedUser);
+				setUser(fetchedUser);
+				return;
+			}
+
+			const user = await getOrCreateUser(address);
+			setUser(user);
 		} catch (error) {
 			console.error(error);
 			setAuthenticated(false);
