@@ -7,7 +7,7 @@ class MyDocument extends Document {
 	}
 
 	render() {
-		const GTag = "G-CFSW8Y0R6K";
+		const GTag = "G-4HENSLHDZS";
 		return (
 			<Html>
 				<Head>
