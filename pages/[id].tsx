@@ -291,7 +291,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 														) => (
 															<li
 																key={index}
-																className="p-8 pb-9 bg-faintblue rounded-xl border border-cryptoblue"
+																className="relative p-8 pb-9 bg-faintblue rounded-xl border border-cryptoblue"
 															>
 																<div className="flex space-x-3">
 																	<div className="flex-shrink-0">
@@ -334,13 +334,10 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 																	</>
 																)}
 																<a
-																	className="cursor-pointer absolute flex items-center justify-center rounded-full w-6 h-6 bg-cryptoblue left-auto right-auto"
+																	className="cursor-pointer absolute flex items-center justify-center rounded-full w-6 h-6 bg-cryptoblue right-4 bottom-4"
 																	href={`https://etherscan.io/tx/${transaction?.id}`}
 																	target="_blank"
 																	rel="noopener noreferrer"
-																	style={{
-																		left: "59%",
-																	}}
 																>
 																	<ArrowUpIcon className="w-4 h-4 rotate-45 text-white" />
 																</a>
