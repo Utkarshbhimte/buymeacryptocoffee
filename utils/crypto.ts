@@ -21,15 +21,14 @@ export const checkIfWalletIsConnected = async (): Promise<string> => {
 		 * Check if we're authorized to access the user's wallet
 		 */
 
-		// let chainId = await ethereum.request({ method: "eth_chainId" });
-		// console.log(chainId);
-		// console.log("Connected to chain " + chainId);
+		let chainId = await ethereum.request({ method: "eth_chainId" });
 
-		// // String, hex code of the chainId of the Rinkebey test network
+		// String, hex code of the chainId of the Rinkebey test network
 		// const rinkebyChainId = "0x4";
-		// if (chainId !== rinkebyChainId) {
-		// 	return;
-		// }
+		const mainnetChainId = "0x1";
+		if (chainId !== mainnetChainId) {
+			throw new Error("Please connect to the mainnet");
+		}
 
 		const accounts = await ethereum.request({ method: "eth_accounts" });
 
