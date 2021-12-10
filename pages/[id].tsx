@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Menu, Popover } from "@headlessui/react";
 import { ArrowUpIcon, CheckIcon } from "@heroicons/react/solid";
-import Image from "next/image";
-import sampleprofilepic from "../assets/sampleprofilepic.png";
 import { DuplicateIcon, LinkIcon } from "@heroicons/react/outline";
 import { GetServerSideProps } from "next";
 import { db } from "../utils/firebaseClient";
@@ -11,7 +9,6 @@ import { sendTransaction } from "../utils/crypto";
 import ProfileModal from "../components/ProfileModal";
 import { Transaction } from "../contracts";
 import { minimizeAddress, saveTransaction } from "../utils";
-import SuccessTransactionModal from "../components/SuccessTransactionModal";
 import Logo from "../components/Logo";
 import copy from "copy-to-clipboard";
 import { toast } from "react-toastify";
@@ -32,14 +29,12 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 
 	const [editModalOpen, setEditModalOpen] = useState(false);
 
-	const [modalOpen, setModalOpen] = useState(false);
 	const [price, setPrice] = useState<number>(0);
 	const [message, setMessage] = useState<string>("");
 	const [loading, setLoading] = useState<boolean>(false);
 
 	const { user, authenticated, currentWallet, connectWallet, setUser } =
 		useUser();
-
 	// transaction data
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
 
@@ -68,7 +63,20 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 			);
 
 			setTransactionDetails(response);
-			setModalOpen(true);
+			toast.success(
+				<div className='flex items-center'>
+					Transaction Successful!
+					<a
+						className="cursor-pointer ml-2 flex items-center justify-center rounded-full w-5 h-5 bg-cryptoblue"
+						href={`https://etherscan.io/tx/${response?.hash}`}
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<ArrowUpIcon className="w-3 h-3 rotate-45 text-white" />
+					</a>
+				</div>,
+				{ position: 'top-center', autoClose: 5000 }
+			)
 			setMessage("");
 			setPrice(0);
 
@@ -91,29 +99,12 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 		}
 	};
 
-	const handleEtherScanRedirect = () => {
-		if (transactionDetails?.hash) {
-			window.open(
-				`https://etherscan.io/tx/${transactionDetails.hash}`,
-				"_blank"
-			);
-		}
-	};
-
-	useEffect(() => {
-		if (!modalOpen) {
-			setTransactionDetails(null);
-		}
-	}, [modalOpen]);
-
 	useEffect(() => {
 		setTransactions(allTransactions);
 	}, [allTransactions]);
 
 	const disableDonateButton =
 		loading || !price || authenticated || !(window as any).ethereum;
-
-	console.log(user);
 
 	return (
 		<>
@@ -446,13 +437,6 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 					</div>
 				</main>
 			</div>
-			<SuccessTransactionModal
-				open={modalOpen}
-				onClose={() => setModalOpen(false)}
-				title="Transaction successful"
-				onOk={handleEtherScanRedirect}
-				okText="View on Etherscan"
-			/>
 			<ProfileModal
 				open={editModalOpen}
 				onClose={() => setEditModalOpen(false)}
