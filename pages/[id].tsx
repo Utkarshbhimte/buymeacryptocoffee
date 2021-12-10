@@ -12,10 +12,10 @@ import ProfileModal from "../components/ProfileModal";
 import { Transaction } from "../contracts";
 import { minimizeAddress, saveTransaction } from "../utils";
 import SuccessTransactionModal from "../components/SuccessTransactionModal";
-import { ethers } from "ethers";
 import Logo from "../components/Logo";
 import copy from "copy-to-clipboard";
 import { toast } from "react-toastify";
+import Blockies from "react-blockies";
 
 declare let window: any;
 
@@ -165,11 +165,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 							<div className="flex items-center space-x-5">
 								<div className="flex-shrink-0">
 									<div className="relative">
-										<Image
-											className="h-16 w-16 rounded-full"
-											src={sampleprofilepic}
-											alt=""
-										/>
+										<Blockies seed={user?.address} size={9} scale={8} className='rounded-full'  />
 										{/* {user?.profileImage ? (
 											<img
 												className="h-16 w-16 rounded-full"
@@ -299,14 +295,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 															>
 																<div className="flex space-x-3">
 																	<div className="flex-shrink-0">
-																		<Image
-																			className="h-16 w-16 rounded-full"
-																			// src={`https://images.unsplash.com/photo-${transaction.imageId}?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
-																			src={
-																				sampleprofilepic
-																			}
-																			alt=""
-																		/>
+																		<Blockies seed={transaction?.from} size={9} scale={8} className='rounded-full' /> 
 																	</div>
 																	<div>
 																		<div className="text-lg">
