@@ -50,7 +50,6 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 										</span>
 									</Link>
 								</div>
-								<Address avatar="left" size={6} copyable />
 							</div>
 							<div className="flex space-x-6 items-center">
 								<Chains />
