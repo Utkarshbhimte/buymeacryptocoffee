@@ -1,9 +1,6 @@
 import { ethers } from "ethers";
 import { NextApiRequest, NextApiResponse } from "next";
-import { Transaction } from "../../contracts";
 import { getOrCreateUser } from "../../utils";
-import { validateAndResolveAddress } from "../../utils/crypto";
-import { db, firestoreCollections } from "../../utils/firebaseClient";
 
 const init = async (req: NextApiRequest, res: NextApiResponse) => {
 	try {

@@ -1,14 +1,10 @@
-import { ethers } from "ethers";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import { useMoralis } from "react-moralis";
 import { toast } from "react-toastify";
 import { getOrCreateUser } from ".";
 import { User } from "../contracts";
-import {
-	checkIfWalletIsConnected,
-	connectWallet,
-	validateAndResolveAddress,
-} from "./crypto";
+import { checkIfWalletIsConnected, connectWallet } from "./crypto";
 
 interface IAuthContext {
 	readonly user: User | null;
@@ -22,6 +18,9 @@ interface IAuthContext {
 const AuthContext = React.createContext<IAuthContext | null>(null);
 
 export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
+	const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading } =
+		useMoralis();
+
 	const [user, setUser] = React.useState<User | null>(null);
 	const [currentWallet, setCurrentWallet] = useState<string | null>(null);
 	const [loading, setLoading] = React.useState(false);
@@ -107,6 +106,12 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 	useEffect(() => {
 		fetchUpdateUser();
 	}, [routerAddress]);
+
+	useEffect(() => {
+		if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading)
+			enableWeb3();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isAuthenticated, isWeb3Enabled]);
 
 	return (
 		<AuthContext.Provider

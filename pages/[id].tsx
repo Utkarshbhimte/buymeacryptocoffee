@@ -1,18 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { Menu, Popover } from "@headlessui/react";
-import { ArrowUpIcon, CheckIcon } from "@heroicons/react/solid";
 import { DuplicateIcon, LinkIcon } from "@heroicons/react/outline";
+import { ArrowUpIcon, CheckIcon } from "@heroicons/react/solid";
+import copy from "copy-to-clipboard";
 import { GetServerSideProps } from "next";
-import { db } from "../utils/firebaseClient";
-import { useUser } from "../utils/context";
-import { sendTransaction } from "../utils/crypto";
+import React, { useEffect, useState } from "react";
+import Blockies from "react-blockies";
+import { toast } from "react-toastify";
 import ProfileModal from "../components/ProfileModal";
 import { Transaction } from "../contracts";
 import { minimizeAddress, saveTransaction } from "../utils";
-import Logo from "../components/Logo";
-import copy from "copy-to-clipboard";
-import { toast } from "react-toastify";
-import Blockies from "react-blockies";
+import { useUser } from "../utils/context";
+import { sendTransaction } from "../utils/crypto";
+import { db } from "../utils/firebaseClient";
 
 declare let window: any;
 
@@ -64,7 +62,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 
 			setTransactionDetails(response);
 			toast.success(
-				<div className='flex items-center'>
+				<div className="flex items-center">
 					Transaction Successful!
 					<a
 						className="cursor-pointer ml-2 flex items-center justify-center rounded-full w-5 h-5 bg-cryptoblue"
@@ -75,8 +73,8 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 						<ArrowUpIcon className="w-3 h-3 rotate-45 text-white" />
 					</a>
 				</div>,
-				{ position: 'top-center', autoClose: 5000 }
-			)
+				{ position: "top-center", autoClose: 5000 }
+			);
 			setMessage("");
 			setPrice(0);
 
@@ -109,46 +107,6 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 	return (
 		<>
 			<div className="bg-gray-50 min-h-screen">
-				<header className="bg-white shadow">
-					<div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-						<Popover className="flex justify-between h-16">
-							<div className="flex px-2 lg:px-0">
-								<div className="flex-shrink-0 flex items-center">
-									<a href="#">
-										<Logo />
-									</a>
-								</div>
-							</div>
-							<div className="hidden lg:ml-4 lg:flex lg:items-center">
-								{/* Profile dropdown */}
-								<Menu
-									as="div"
-									className="ml-4 relative flex-shrink-0"
-								>
-									<div>
-										{currentWallet ? (
-											<button
-												type="button"
-												className="inline-flex items-center px-3 py-2 border border-cryptoblue text-sm leading-4 font-medium rounded-md shadow-sm text-cryptoblue hover:bg-gray-100"
-											>
-												Contact Us
-											</button>
-										) : (
-											<button
-												type="button"
-												onClick={() => connectWallet()}
-												className="inline-flex items-center px-3 py-2 border border-cryptoblue text-sm leading-4 font-medium rounded-md shadow-sm text-cryptoblue hover:bg-gray-100"
-											>
-												Connect
-											</button>
-										)}
-									</div>
-								</Menu>
-							</div>
-						</Popover>
-					</div>
-				</header>
-
 				<main className="py-10">
 					{/* Page header */}
 					<div className="max-w-7xl bg-white py-12 rounded-xl shadow-md mx-auto">
@@ -156,7 +114,12 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 							<div className="flex items-center space-x-5">
 								<div className="flex-shrink-0">
 									<div className="relative">
-										<Blockies seed={user?.address} size={9} scale={8} className='rounded-full'  />
+										<Blockies
+											seed={user?.address}
+											size={9}
+											scale={8}
+											className="rounded-full"
+										/>
 										{/* {user?.profileImage ? (
 											<img
 												className="h-16 w-16 rounded-full"
@@ -286,7 +249,18 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 															>
 																<div className="flex space-x-3">
 																	<div className="flex-shrink-0">
-																		<Blockies seed={transaction?.from} size={9} scale={8} className='rounded-full' /> 
+																		<Blockies
+																			seed={
+																				transaction?.from
+																			}
+																			size={
+																				9
+																			}
+																			scale={
+																				8
+																			}
+																			className="rounded-full"
+																		/>
 																	</div>
 																	<div>
 																		<div className="text-lg">
