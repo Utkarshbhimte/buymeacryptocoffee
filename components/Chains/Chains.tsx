@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AvaxLogo, PolygonLogo, BSCLogo, ETHLogo } from "./Logos";
-import { useChain } from "react-moralis";
+import { useChain, useMoralis } from "react-moralis";
 import classNames from "classnames";
 
 const styles = {
@@ -84,6 +84,7 @@ const menuItems: ChainItem[] = [
 
 const Chains = () => {
 	const { switchNetwork, chainId, chain } = useChain();
+	const { isAuthenticated } = useMoralis();
 	const [selected, setSelected] = useState<ChainItem | undefined>();
 
 	useEffect(() => {
@@ -96,9 +97,11 @@ const Chains = () => {
 		switchNetwork(key);
 	};
 
+	if (!isAuthenticated) return <div />;
+
 	return (
-		<div className="flex space-x-2 items-center">
-			<span className="text-gray-500 text-sm hidden md:visible">
+		<div className="flex space-x-4 items-center">
+			<span className="text-gray-500 text-sm hidden md:block">
 				Switch Chain:
 			</span>
 			{menuItems.map((item) => (
