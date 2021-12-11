@@ -16,8 +16,9 @@ export default async function handler(
   try {
     // get wallet name from query
     const name = req.query.name as string
+    const URL = "https://speedy-nodes-nyc.moralis.io/d35afcfb3d409232f26629cd/eth/mainnet"
 
-    const provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_MORALIS_SERVER_URL);
+    const provider = new ethers.providers.JsonRpcProvider(URL);
 
     const ensResponse = await validateAndResolveAddress(name, provider)
     res.status(200).json({ name: ensResponse?.name, address: ensResponse?.address })

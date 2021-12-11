@@ -1,16 +1,14 @@
-import { Fragment, useState } from "react";
-import { useMoralis } from "react-moralis";
-import { getEllipsisTxt } from "../helpers/formatters";
-import Blockie from "./Blockie";
-import Address from "./Address";
-import { getExplorer } from "../helpers/networks";
-import classNames from "classnames";
-
 import { Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
-import Loader from "./Loader";
+import classNames from "classnames";
+import { Fragment, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useMoralis } from "react-moralis";
 import { AuthenticateOptions } from "react-moralis/lib/hooks/core/useMoralis/_useMoralisAuth";
+import { getEllipsisTxt } from "../helpers/formatters";
+import { getExplorer } from "../helpers/networks";
+import Blockie from "./Blockie";
+import Loader from "./Loader";
 
 const styles = {
 	account: {
@@ -34,7 +32,7 @@ function Account() {
 		useMoralis();
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [loading, setLoading] = useState(false);
-
+	const [ensAddress, setEnsAddress] = useState<string | undefined>();
 	const handleAuth = async () => {
 		try {
 			setLoading(true);
@@ -55,6 +53,29 @@ function Account() {
 		}
 	};
 
+	const checkEns = async (currAccount: string) => {
+		const cachedEns = localStorage.getItem(`ensAddress-${currAccount}`);
+
+		if (cachedEns) {
+			setEnsAddress(cachedEns);
+			return;
+		}
+
+		const request = await fetch(`/api/resolve-wallet?name=${currAccount}`);
+		const res = await request.json();
+
+		setEnsAddress(res.name);
+
+		// saving this on local storage
+		localStorage.setItem(`ensAddress-${currAccount}`, res.name);
+	};
+
+	useEffect(() => {
+		if (account) {
+			checkEns(account);
+		}
+	}, [account]);
+
 	if (loading) {
 		return (
 			<div className=" bg-gray-200 rounded-lg px-2 py-3 w-48 flex justify-center">
@@ -68,7 +89,7 @@ function Account() {
 			<button
 				type="button"
 				onClick={handleAuth}
-				className="relative inline-flex items-center px-4 py-3 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500"
+				className="relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500"
 			>
 				Connect Wallet
 			</button>
@@ -81,7 +102,7 @@ function Account() {
 				<div>
 					<Menu.Button className="inline-flex justify-center items-center space-x-2 w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
 						<Blockie currentWallet scale={3} />
-						<p>{getEllipsisTxt(account, 6)}</p>
+						<p>{ensAddress || getEllipsisTxt(account, 6)}</p>
 						<ChevronDownIcon
 							className="-mr-1 ml-2 h-5 w-5"
 							aria-hidden="true"
