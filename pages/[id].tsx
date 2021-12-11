@@ -177,7 +177,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 										</div>
 									</div>
 								</div>
-								<div className="mt-8 border-b -mx-8" />
+								<div className="mt-8 border-b -mx-8 xs:hidden" />
 
 								{/* Comments*/}
 								<section aria-labelledby="notes-title">
