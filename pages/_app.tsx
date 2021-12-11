@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import ReactTooltip from "react-tooltip";
 import "tailwindcss/tailwind.css";
 import Account from "../components/Account";
+import Chains from "../components/Chains";
 import Logo from "../components/Logo";
 import { AuthWrapper } from "../utils/context";
 
@@ -47,7 +48,10 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 									</Link>
 								</div>
 							</div>
-							<Account />
+							<div className="flex space-x-6 items-center">
+								<Chains />
+								<Account />
+							</div>
 						</div>
 					</div>
 				</header>
