@@ -44,7 +44,9 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 							<div className="flex px-2 lg:px-0">
 								<div className="flex-shrink-0 flex items-center">
 									<Link href="/">
-										<Logo />
+										<span>
+											<Logo />
+										</span>
 									</Link>
 								</div>
 							</div>
