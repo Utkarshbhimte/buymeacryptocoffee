@@ -1,14 +1,14 @@
-import React from "react";
-import "tailwindcss/tailwind.css";
 import Head from "next/head";
-import { AuthWrapper } from "../utils/context";
+import Link from "next/link";
+import React from "react";
+import { MoralisProvider } from "react-moralis";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ReactTooltip from "react-tooltip";
-
-import { MoralisProvider } from "react-moralis";
+import "tailwindcss/tailwind.css";
+import Account from "../components/Account";
 import Logo from "../components/Logo";
-import Address from "../components/Address";
+import { AuthWrapper } from "../utils/context";
 
 const APP_ID = process.env.NEXT_PUBLIC_MORALIS_APPLICATION_ID;
 const SERVER_URL = process.env.NEXT_PUBLIC_MORALIS_SERVER_URL;
@@ -39,15 +39,15 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 				</Head>
 				<header className="bg-white shadow">
 					<div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-						<div className="flex item-center justify-between py-2">
+						<div className="flex items-center justify-between py-4">
 							<div className="flex px-2 lg:px-0">
 								<div className="flex-shrink-0 flex items-center">
-									<a href="#">
+									<Link href="/">
 										<Logo />
-									</a>
+									</Link>
 								</div>
 							</div>
-							<Address avatar="left" size={6} copyable />
+							<Account />
 						</div>
 					</div>
 				</header>

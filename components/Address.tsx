@@ -29,12 +29,21 @@ const Address: React.FC<AddressProps> = (props) => {
 
 	useEffect(() => {
 		const currAccount = props?.address || account;
-		setAddress(currAccount);
+		setAddressWithEns(currAccount);
 	}, [account, props]);
+
+	const setAddressWithEns = async (address: string) => {
+		// get ens name of the address
+		const ensResponse = await fetch("/api/resolve-wallet`").then((res) =>
+			res.json()
+		);
+
+		setAddress(ensResponse.name);
+	};
 
 	if (!address) return <span>Loading...</span>;
 
-	const Copy = () => (
+	const Copy = (props) => (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			width="26"
@@ -50,6 +59,7 @@ const Address: React.FC<AddressProps> = (props) => {
 				navigator.clipboard.writeText(address);
 				setIsClicked(true);
 			}}
+			{...props}
 		>
 			<path stroke="none" d="M0 0h24v24H0z" fill="none" />
 			<path d="M15 3v4a1 1 0 0 0 1 1h4" />
@@ -60,20 +70,29 @@ const Address: React.FC<AddressProps> = (props) => {
 	);
 
 	return (
-		<div className="flex items-center space-x-2 p-2 rounded-lg focus:bg-gray-200 hover:bg-gray-200">
-			{props.avatar === "left" && <Blockie address={address} size={7} />}
+		<div className="flex items-center space-x-2 p-2 rounded-lg focus:bg-gray-100 hover:bg-gray-100">
+			{address && props.avatar === "left" && (
+				<Blockie address={address} size={7} />
+			)}
 			<p className="mb-0">
 				{props.size ? getEllipsisTxt(address, props.size) : address}
 			</p>
-			{props.avatar === "right" && <Blockie address={address} size={7} />}
-			{props.copyable && (isClicked ? <Check /> : <Copy />)}
+			{address && props.avatar === "right" && (
+				<Blockie address={address} size={7} />
+			)}
+			{props.copyable &&
+				(isClicked ? (
+					<Check className="h-4 w-4" />
+				) : (
+					<Copy className="h-4 w-4" />
+				))}
 		</div>
 	);
 };
 
 export default Address;
 
-const Check = () => (
+const Check = (props) => (
 	<svg
 		width="24"
 		height="24"
@@ -83,6 +102,7 @@ const Check = () => (
 		fill="none"
 		strokeLinecap="round"
 		strokeLinejoin="round"
+		{...props}
 	>
 		<path stroke="none" d="M0 0h24v24H0z" fill="none" />
 		<path d="M5 12l5 5l10 -10" />

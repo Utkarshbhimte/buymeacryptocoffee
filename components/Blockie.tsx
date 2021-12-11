@@ -18,7 +18,7 @@ function Blockie(props) {
 					? account.toLowerCase()
 					: props.address.toLowerCase()
 			}
-			className="identicon"
+			className="rounded-lg"
 			{...props}
 		/>
 	);
