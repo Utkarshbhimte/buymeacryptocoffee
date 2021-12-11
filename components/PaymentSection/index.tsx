@@ -199,11 +199,11 @@ const PaymentSection = () => {
 									? "erc20"
 									: "native"
 							}
-							symbol={selectedTokenData.symbol}
-							decimals={selectedTokenData.decimals}
+							symbol={selectedTokenData?.symbol}
+							decimals={selectedTokenData?.decimals}
 							amount={price}
 							message={message}
-							contractAddress={selectedTokenData.tokenAddress}
+							contractAddress={selectedTokenData?.tokenAddress}
 						/>
 					</div>
 				</div>
