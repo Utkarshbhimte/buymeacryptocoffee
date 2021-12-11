@@ -157,7 +157,7 @@ const PaymentSection = () => {
 								/>
 							</div>
 							<div className="mt-2">
-								Balance: {selectedTokenData.balance ?? 0}
+								Balance: {selectedTokenData?.balance ?? 0}
 							</div>
 						</div>
 						<div>
@@ -195,7 +195,7 @@ const PaymentSection = () => {
 							disabled={disableDonateButton}
 							receiver={user?.address}
 							type={
-								selectedTokenData.tokenAddress
+								selectedTokenData?.tokenAddress
 									? "erc20"
 									: "native"
 							}
