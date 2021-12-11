@@ -6,7 +6,6 @@ import {
 	useNativeBalance,
 } from "react-moralis";
 import { useUser } from "../../utils/context";
-import CryptoSelect from "../CryptoSelect";
 import Select from "../Select";
 import PayButton from "./PayButton";
 
@@ -45,8 +44,6 @@ const PaymentSection = () => {
 		isLoading: isLoadingNative,
 		error: errorNative,
 	} = useNativeBalance();
-
-	console.log(chainId);
 
 	const fetchBalances = async () => {
 		if (!chainId) {

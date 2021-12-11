@@ -71,19 +71,6 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 		}
 	};
 
-	const initialWalletCheck = async () => {
-		try {
-			if (!(window as any).ethereum) {
-				return;
-			}
-
-			const wallet = await checkIfWalletIsConnected();
-			setCurrentWallet(wallet);
-		} catch (error) {
-			console.error(error);
-		}
-	};
-
 	useEffect(() => {
 		if (currentWallet) {
 			if (currentWallet.toLowerCase() === address.toLowerCase()) {
@@ -100,7 +87,7 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 				setCurrentWallet(accounts[0] ?? null);
 			});
 		}
-		initialWalletCheck();
+		// initialWalletCheck();
 	}, []);
 
 	useEffect(() => {
