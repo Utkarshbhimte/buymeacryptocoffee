@@ -1,4 +1,3 @@
-import Moralis from "moralis";
 import { useRouter } from "next/router";
 import React, { ReactText, useState } from "react";
 import {
@@ -78,10 +77,12 @@ const PaymentSection = () => {
 		cleanedERC20Tokens,
 	});
 
+	const nativeTokenName = nativeData?.formatted?.split(" ")[1] ?? "";
+
 	const cleanedNativeTokens = {
-		symbol: "ETH",
+		symbol: nativeTokenName,
 		balance: nativeData.formatted,
-		name: "ETH",
+		name: nativeTokenName,
 		decimals: 18,
 		tokenAddress: null,
 	};

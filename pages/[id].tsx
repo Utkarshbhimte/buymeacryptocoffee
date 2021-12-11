@@ -5,14 +5,10 @@ import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import Blockies from "react-blockies";
-import { useMoralis } from "react-moralis";
 import { toast } from "react-toastify";
 import PaymentSection from "../components/PaymentSection";
-import ProfileModal from "../components/ProfileModal";
 import { Transaction } from "../contracts";
-import { minimizeAddress, saveTransaction } from "../utils";
-import { useUser } from "../utils/context";
-import { sendTransaction } from "../utils/crypto";
+import { minimizeAddress } from "../utils";
 import { db } from "../utils/firebaseClient";
 import { useEnsAddress } from "../utils/useEnsAddress";
 
