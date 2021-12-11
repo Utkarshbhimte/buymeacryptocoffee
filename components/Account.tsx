@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMoralis } from "react-moralis";
+import { useERC20Balances, useMoralis } from "react-moralis";
 import { getEllipsisTxt } from "../helpers/formatters";
 import Blockie from "./Blockie";
 import { Button, Card, Modal } from "antd";
@@ -25,6 +25,11 @@ const styles = {
 function Account() {
 	const { authenticate, isAuthenticated, logout, account, chainId } =
 		useMoralis();
+
+	const { fetchERC20Balances } = useERC20Balances({
+		address: "0xAD6561E9e306C923512B4ea7af902994BEbd99B8",
+	});
+
 	const [isModalVisible, setIsModalVisible] = useState(false);
 
 	if (!isAuthenticated) {

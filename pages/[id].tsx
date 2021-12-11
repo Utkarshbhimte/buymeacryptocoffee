@@ -5,6 +5,7 @@ import { GetServerSideProps } from "next";
 import React, { useEffect, useState } from "react";
 import Blockies from "react-blockies";
 import { toast } from "react-toastify";
+import PaymentSection from "../components/PaymentSection";
 import ProfileModal from "../components/ProfileModal";
 import { Transaction } from "../contracts";
 import { minimizeAddress, saveTransaction } from "../utils";
@@ -392,6 +393,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 											</button>
 										</div>
 									</div>
+									<PaymentSection address={currentWallet} />
 									{/* ) : (
 										<div className="flex flex-col items-center h-full">
 											<WidgetComponent

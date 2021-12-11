@@ -16,7 +16,10 @@ const SERVER_URL = process.env.NEXT_PUBLIC_MORALIS_SERVER_URL;
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 	// const Provider =
 	return (
-		<MoralisProvider appId={APP_ID} serverUrl={SERVER_URL}>
+		<MoralisProvider
+			appId={"IrOz1yXuSvzSOLf4osllytXQkADgOXbiBfWUgeQi"}
+			serverUrl={"https://klkggmithift.usemoralis.com:2053/server"}
+		>
 			<AuthWrapper>
 				<Head key="main-head">
 					<link
