@@ -2,6 +2,7 @@ import { DuplicateIcon, LinkIcon } from "@heroicons/react/outline";
 import { ArrowUpIcon, CheckIcon } from "@heroicons/react/solid";
 import copy from "copy-to-clipboard";
 import { GetServerSideProps } from "next";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import Blockies from "react-blockies";
 import { toast } from "react-toastify";
@@ -12,6 +13,7 @@ import { minimizeAddress, saveTransaction } from "../utils";
 import { useUser } from "../utils/context";
 import { sendTransaction } from "../utils/crypto";
 import { db } from "../utils/firebaseClient";
+import { useEnsAddress } from "../utils/useEnsAddress";
 
 declare let window: any;
 
@@ -20,7 +22,10 @@ export interface ProfileProps {
 }
 
 const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
-	// edit modal state
+	const router = useRouter();
+	const currProfileAddress = router.query.id as string;
+
+	const currProfileEns = useEnsAddress(currProfileAddress);
 
 	const [editModalOpen, setEditModalOpen] = useState(false);
 
@@ -28,8 +33,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 	const [message, setMessage] = useState<string>("");
 	const [loading, setLoading] = useState<boolean>(false);
 
-	const { user, authenticated, currentWallet, connectWallet, setUser } =
-		useUser();
+	const { user, authenticated, currentWallet } = useUser();
 	// transaction data
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
 
@@ -37,10 +41,10 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 
 	const [isCopied, setIsCopied] = useState(false);
 
-	const handleCopyAddress = (address: string | undefined) => {
-		if (!address) return;
+	const handleCopyAddress = () => {
+		if (!currProfileAddress) return;
 		setIsCopied(true);
-		copy(address);
+		copy(currProfileAddress);
 		setTimeout(() => setIsCopied(false), 1500);
 	};
 
@@ -115,27 +119,45 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 										<div className="flex-shrink-0">
 											<div className="relative">
 												<Blockies
-													seed={user?.address}
+													seed={currProfileAddress}
 													size={9}
 													scale={8}
 													className="rounded-full"
 												/>
 											</div>
 										</div>
-										<div data-tip={user?.id}>
-											<h1 className="font-urbanist text-3xl xs:text-xl font-bold text-gray-900">
-												{!user ? (
-													<div className="animate-pulse h-12 w-48 bg-gray-300 rounded-md" />
-												) : (
-													user?.ens ??
+										<div className="group">
+											<h1 className="font-urbanist text-3xl font-bold text-gray-900 mb-1">
+												{/* <div className="animate-pulse h-12 w-48 bg-gray-300 rounded-md" /> */}
+												{currProfileEns ??
 													minimizeAddress(
-														user?.address
-													)
-												)}
+														currProfileAddress
+													)}
 											</h1>
-											{/* <p className="text-sm font-medium text-gray-500">
-													{user?.id}
-												</p> */}
+											{!!currProfileEns && (
+												<div
+													onClick={handleCopyAddress}
+													className="flex space-x-2 items-center"
+												>
+													<p className="text-xs font-medium text-gray-500 p-1 bg-gray-100 inline-block px-3 cursor-pointer hover:bg-indigo-100 transition duration-300 ease-in-out rounded-md">
+														{minimizeAddress(
+															currProfileAddress
+														)}
+													</p>
+													{/* <DuplicateIcon className="h-4 w-4 opacity-0 group-hover:opacity-100 transition ease-in-out duration-300 text-cryptopurple" /> */}
+													<div className="w-5 h-5 rounded-full bg-lightpurple text-cryptopurple flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition duration-300">
+														{isCopied ? (
+															<CheckIcon />
+														) : (
+															<DuplicateIcon
+																onClick={
+																	handleCopyAddress
+																}
+															/>
+														)}
+													</div>
+												</div>
+											)}
 										</div>
 									</div>
 									<div className="flex space-x-4">
@@ -161,20 +183,6 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 												/>
 											</svg>
 										</a>
-										<div className="w-12 h-12 rounded-full bg-lightpurple text-cryptopurple flex items-center justify-center">
-											{isCopied ? (
-												<CheckIcon className="w-6 h-6" />
-											) : (
-												<DuplicateIcon
-													className="cursor-pointer w-6 h-6"
-													onClick={() =>
-														handleCopyAddress(
-															user?.address
-														)
-													}
-												/>
-											)}
-										</div>
 									</div>
 								</div>
 								<div className="mt-8 border-b -mx-8 xs:hidden" />
@@ -393,10 +401,8 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 												) : (
 													<DuplicateIcon
 														className="cursor-pointer w-6 h-6"
-														onClick={() =>
-															handleCopyAddress(
-																user?.address
-															)
+														onClick={
+															handleCopyAddress
 														}
 													/>
 												)}
