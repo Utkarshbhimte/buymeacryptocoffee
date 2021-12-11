@@ -1,7 +1,8 @@
 import { ethers } from "ethers";
 import { signOut } from "next-auth/client";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useMoralis } from "react-moralis";
 import { toast } from "react-toastify";
 import { validateAndResolveAddress } from "../utils/crypto";
 
@@ -23,6 +24,7 @@ function classNames(...classes) {
 const Dashboard: React.FC = () => {
 	const [address, setAddress] = useState("");
 	const [loading, setLoading] = useState(false);
+	const { account } = useMoralis();
 
 	// const [session, loading] = useSession();
 	const router = useRouter();
@@ -88,6 +90,26 @@ const Dashboard: React.FC = () => {
 			setLoading(false);
 		}
 	};
+
+	const redirectToProfile = async (currAccount: string) => {
+		console.log(
+			"🚀 ~ file: index.tsx ~ line 95 ~ redirectToProfile ~ currAccount",
+			currAccount
+		);
+		const response = await fetch(
+			`/api/resolve-wallet?name=${currAccount}`
+		).then((res) => res.json());
+
+		const destination = response.name || response.address || currAccount;
+
+		router.push(`/${currAccount}`);
+	};
+
+	useEffect(() => {
+		if (account) {
+			redirectToProfile(account);
+		}
+	}, [account]);
 
 	return (
 		<div className="min-h-screen bg-white">
