@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import ReactTooltip from "react-tooltip";
 import "tailwindcss/tailwind.css";
 import Account from "../components/Account";
+import Address from "../components/Address";
 import Chains from "../components/Chains";
 import Logo from "../components/Logo";
 import { AuthWrapper } from "../utils/context";
