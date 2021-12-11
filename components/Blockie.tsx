@@ -9,7 +9,8 @@ import { useMoralis } from "react-moralis";
 
 function Blockie(props) {
 	const { account } = useMoralis();
-	if (!props.address && !account) return <span>Loading...</span>;
+	if (!props.address && !account)
+		return <span className="h-5 w-5 bg-gray-500 inline-block"></span>;
 
 	return (
 		<Blockies

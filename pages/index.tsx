@@ -92,24 +92,18 @@ const Dashboard: React.FC = () => {
 	};
 
 	const redirectToProfile = async (currAccount: string) => {
-		console.log(
-			"🚀 ~ file: index.tsx ~ line 95 ~ redirectToProfile ~ currAccount",
-			currAccount
-		);
-		const response = await fetch(
-			`/api/resolve-wallet?name=${currAccount}`
-		).then((res) => res.json());
-
-		const destination = response.name || response.address || currAccount;
-
 		router.push(`/${currAccount}`);
 	};
 
-	useEffect(() => {
-		if (account) {
-			redirectToProfile(account);
-		}
-	}, [account]);
+	// useEffect(() => {
+	// 	console.log(
+	// 		"🚀 ~ file: index.tsx ~ line 110 ~ useEffect ~ account",
+	// 		account
+	// 	);
+	// 	if (account) {
+	// 		redirectToProfile(account);
+	// 	}
+	// }, [account]);
 
 	return (
 		<div className="min-h-screen bg-white">
