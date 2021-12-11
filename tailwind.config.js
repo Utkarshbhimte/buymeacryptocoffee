@@ -25,6 +25,9 @@ module.exports = {
       cryptoblue: '#4065F6',
       faintblue: '#F2F5FF',
       twitterblue: '#1DA1F2',
+      cryptopurple: '#9366F9',
+      lightpurple: '#F6F2FF',
+      footerblack: '#16161A',
       'heading-color': 'var(--heading-color)'
     }
   },

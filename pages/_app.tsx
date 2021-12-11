@@ -38,7 +38,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 						rel="stylesheet"
 					></link>
 				</Head>
-				<header className="bg-white shadow">
+				<header className="bg-white py-7 shadow">
 					<div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
 						<div className="flex items-center justify-between py-4">
 							<div className="flex px-2 lg:px-0">
@@ -57,6 +57,9 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 				</header>
 
 				<Component {...pageProps} />
+				<footer className='bg-footerblack h-52'>
+					
+				</footer>
 				<ToastContainer />
 				<ReactTooltip effect="solid" />
 			</AuthWrapper>
