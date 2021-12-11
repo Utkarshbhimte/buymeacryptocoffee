@@ -10,6 +10,7 @@ import { getExplorer } from "../helpers/networks";
 import Blockie from "./Blockie";
 import Loader from "./Loader";
 import Link from "next/link";
+import { useEnsAddress } from "../utils/useEnsAddress";
 
 const styles = {
 	account: {
@@ -31,10 +32,10 @@ const styles = {
 function Account() {
 	const { authenticate, isAuthenticated, logout, account, chainId } =
 		useMoralis();
-
-	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const [ensAddress, setEnsAddress] = useState<string | undefined>();
+	// const [ensAddress, setEnsAddress] = useState<string | null>(null);
+	const ensAddress = useEnsAddress(account);
+
 	const handleAuth = async () => {
 		try {
 			setLoading(true);
@@ -54,29 +55,6 @@ function Account() {
 			setLoading(false);
 		}
 	};
-
-	const checkEns = async (currAccount: string) => {
-		const cachedEns = localStorage.getItem(`ensAddress-${currAccount}`);
-
-		if (cachedEns) {
-			setEnsAddress(cachedEns);
-			return;
-		}
-
-		const request = await fetch(`/api/resolve-wallet?name=${currAccount}`);
-		const res = await request.json();
-
-		setEnsAddress(res.name);
-
-		// saving this on local storage
-		localStorage.setItem(`ensAddress-${currAccount}`, res.name);
-	};
-
-	useEffect(() => {
-		if (account) {
-			checkEns(account);
-		}
-	}, [account]);
 
 	if (loading) {
 		return (
@@ -100,7 +78,7 @@ function Account() {
 
 	return (
 		<>
-			<Menu as="div" className="relative inline-block text-left">
+			<Menu as="div" className="relative inline-block text-left z-20">
 				<div>
 					<Menu.Button className="inline-flex justify-center items-center space-x-2 w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
 						<Blockie currentWallet scale={3} />
@@ -125,18 +103,18 @@ function Account() {
 						<div className="py-1">
 							<Menu.Item>
 								{({ active }) => (
-									<Link href={`/${account}`}>
-										<a
-											className={classNames(
-												active
-													? "bg-gray-100 text-gray-900"
-													: "text-gray-700",
-												"block px-4 py-2 text-sm"
-											)}
-										>
+									<a
+										className={classNames(
+											active
+												? "bg-gray-100 text-gray-900"
+												: "text-gray-700",
+											"block px-4 py-2 text-sm"
+										)}
+									>
+										<Link href={`/${account}`}>
 											Checkout your page
-										</a>
-									</Link>
+										</Link>
+									</a>
 								)}
 							</Menu.Item>
 							<Menu.Item>
@@ -161,10 +139,7 @@ function Account() {
 							<Menu.Item>
 								{({ active }) => (
 									<button
-										onClick={() => {
-											logout();
-											setIsModalVisible(false);
-										}}
+										onClick={logout}
 										type="submit"
 										className={classNames(
 											active
@@ -181,55 +156,6 @@ function Account() {
 					</Menu.Items>
 				</Transition>
 			</Menu>
-			{/* <Modal
-				visible={isModalVisible}
-				footer={null}
-				onCancel={() => setIsModalVisible(false)}
-				bodyStyle={{
-					padding: "15px",
-					fontSize: "17px",
-					fontWeight: 500,
-				}}
-				style={{ fontSize: "16px", fontWeight: 500 }}
-				width="400px"
-			>
-				Account
-				<Card
-					style={{
-						marginTop: "10px",
-						borderRadius: "1rem",
-					}}
-					bodyStyle={{ padding: "15px" }}
-				>
-					<Address avatar="left" size={6} copyable />
-					<div style={{ marginTop: "10px", padding: "0 10px" }}>
-						<a
-							href={`${getExplorer(chainId)}/address/${account}`}
-							target="_blank"
-							rel="noreferrer"
-						>
-							View on Explorer
-						</a>
-					</div>
-				</Card>
-				<Button
-					size="large"
-					type="primary"
-					style={{
-						width: "100%",
-						marginTop: "10px",
-						borderRadius: "0.5rem",
-						fontSize: "16px",
-						fontWeight: 500,
-					}}
-					onClick={() => {
-						logout();
-						setIsModalVisible(false);
-					}}
-				>
-					Disconnect Wallet
-				</Button>
-			</Modal> */}
 		</>
 	);
 }
