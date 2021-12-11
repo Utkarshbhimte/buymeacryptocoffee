@@ -1,19 +1,7 @@
-import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
-import { toast } from "react-toastify";
-import { getOrCreateUser } from ".";
-import { User } from "../contracts";
-import { checkIfWalletIsConnected, connectWallet } from "./crypto";
 
-interface IAuthContext {
-	readonly user: User | null;
-	readonly setUser: React.Dispatch<React.SetStateAction<User>>;
-	readonly connectWallet: () => Promise<void>;
-	readonly loading: boolean;
-	readonly authenticated: boolean;
-	readonly currentWallet: string | null;
-}
+interface IAuthContext {}
 
 const AuthContext = React.createContext<IAuthContext | null>(null);
 
@@ -21,99 +9,12 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 	const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading } =
 		useMoralis();
 
-	const [user, setUser] = React.useState<User | null>(null);
-	const [currentWallet, setCurrentWallet] = useState<string | null>(null);
-	const [loading, setLoading] = React.useState(false);
-
-	const [authenticated, setAuthenticated] = useState(false);
-
-	const router = useRouter();
-
-	const { id: routerAddress } = router.query;
-	const address = routerAddress?.toString() ?? "";
-
-	const handleConnectWallet = async () => {
-		try {
-			if (!(window as any).ethereum) {
-				toast.error("You don't have metamask install");
-				return;
-			}
-			setLoading(true);
-
-			const wallet = await connectWallet();
-			setCurrentWallet(wallet);
-		} catch (error) {
-			console.error(error);
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const fetchUpdateUser = async () => {
-		try {
-			if (!address) {
-				return;
-			}
-
-			if (!(window as any).ethereum) {
-				const response = await fetch(`/api?address=${address}`);
-				const fetchedUser: User = await response.json();
-
-				setUser(fetchedUser);
-				return;
-			}
-
-			const user = await getOrCreateUser(address);
-			setUser(user);
-		} catch (error) {
-			console.error(error);
-			setAuthenticated(false);
-		}
-	};
-
 	useEffect(() => {
-		if (currentWallet) {
-			if (currentWallet.toLowerCase() === address.toLowerCase()) {
-				setAuthenticated(true);
-			} else {
-				setAuthenticated(false);
-			}
-		}
-	}, [currentWallet]);
-
-	useEffect(() => {
-		if ((window as any).ethereum) {
-			(window as any).ethereum.on("accountsChanged", function (accounts) {
-				setCurrentWallet(accounts[0] ?? null);
-			});
-		}
-		// initialWalletCheck();
-	}, []);
-
-	useEffect(() => {
-		fetchUpdateUser();
-	}, [routerAddress]);
-
-	useEffect(() => {
-		if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading)
-			enableWeb3();
+		if (!isWeb3Enabled && !isWeb3EnableLoading) enableWeb3();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isAuthenticated, isWeb3Enabled]);
 
-	return (
-		<AuthContext.Provider
-			value={{
-				user,
-				setUser,
-				connectWallet: handleConnectWallet,
-				loading,
-				authenticated,
-				currentWallet,
-			}}
-		>
-			{children}
-		</AuthContext.Provider>
-	);
+	return <AuthContext.Provider value={{}}>{children}</AuthContext.Provider>;
 };
 
 export const useUser = () => {

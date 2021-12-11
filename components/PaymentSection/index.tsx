@@ -1,11 +1,13 @@
-import React, { ReactText, useEffect, useState } from "react";
+import Moralis from "moralis";
+import { useRouter } from "next/router";
+import React, { ReactText, useState } from "react";
 import {
 	useChain,
 	useERC20Balances,
 	useMoralis,
 	useNativeBalance,
 } from "react-moralis";
-import { useUser } from "../../utils/context";
+
 import Select from "../Select";
 import PayButton from "./PayButton";
 
@@ -18,15 +20,16 @@ interface Token {
 }
 
 const PaymentSection = () => {
+	const { account: address } = useMoralis();
+	const { chainId } = useChain();
+
+	const router = useRouter();
+	const profileAddress = router.query.id?.toString() ?? "";
+
 	const [price, setPrice] = useState(0);
 	const [message, setMessage] = useState("");
-	const { authenticated, user } = useUser();
-
-	const { account: address } = useMoralis();
 
 	const [selectedToken, setSelectedToken] = useState<string>();
-
-	const { chainId } = useChain();
 
 	const {
 		fetchERC20Balances,
@@ -71,6 +74,10 @@ const PaymentSection = () => {
 			};
 		}) ?? [];
 
+	console.log({
+		cleanedERC20Tokens,
+	});
+
 	const cleanedNativeTokens = {
 		symbol: "ETH",
 		balance: nativeData.formatted,
@@ -86,12 +93,11 @@ const PaymentSection = () => {
 		isLoadingNative ||
 		isFetchingERC20 ||
 		isFetchingNative ||
-		!price ||
-		authenticated;
+		!price;
 
-	const selectedTokenData = tokensArray.find(
-		(token) => token.name === selectedToken
-	);
+	const selectedTokenData =
+		tokensArray.find((token) => token.name === selectedToken) ??
+		cleanedNativeTokens;
 
 	return (
 		<section
@@ -116,17 +122,18 @@ const PaymentSection = () => {
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
-								className={`h-6 w-6 `}
-								fill="none"
+								aria-hidden="true"
+								role="img"
+								preserveAspectRatio="xMidYMid meet"
 								viewBox="0 0 24 24"
-								stroke="currentColor"
+								className="h-6 w-6 fill-current"
 							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-								/>
+								<g fill="none">
+									<path
+										d="M11.995 4a8 8 0 1 0 7.735 10h-2.081a6 6 0 1 1-5.654-8a5.92 5.92 0 0 1 4.223 1.78L13 11h7V4l-2.351 2.35A7.965 7.965 0 0 0 11.995 4z"
+										fill="currentColor"
+									></path>
+								</g>
 							</svg>
 						</span>
 					</div>
@@ -139,7 +146,11 @@ const PaymentSection = () => {
 										label: token.name,
 									}))}
 									onChange={(e) => setSelectedToken(e)}
-									value={selectedToken}
+									value={
+										!!selectedToken
+											? selectedToken
+											: cleanedNativeTokens.name
+									}
 								/>
 							</div>
 							<div className="mt-2">
@@ -179,7 +190,7 @@ const PaymentSection = () => {
 					<div className="mx-6 my-4">
 						<PayButton
 							disabled={disableDonateButton}
-							receiver={user?.address}
+							receiver={profileAddress}
 							type={
 								selectedTokenData?.tokenAddress
 									? "erc20"

@@ -5,6 +5,7 @@ import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import Blockies from "react-blockies";
+import { useMoralis } from "react-moralis";
 import { toast } from "react-toastify";
 import PaymentSection from "../components/PaymentSection";
 import ProfileModal from "../components/ProfileModal";
@@ -27,18 +28,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 
 	const currProfileEns = useEnsAddress(currProfileAddress);
 
-	const [editModalOpen, setEditModalOpen] = useState(false);
-
-	const [price, setPrice] = useState<number>(0);
-	const [message, setMessage] = useState<string>("");
-	const [loading, setLoading] = useState<boolean>(false);
-
-	const { user, authenticated, currentWallet } = useUser();
-	// transaction data
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
-
-	const [transactionDetails, setTransactionDetails] = useState(null);
-
 	const [isCopied, setIsCopied] = useState(false);
 
 	const handleCopyAddress = () => {
@@ -48,62 +38,9 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 		setTimeout(() => setIsCopied(false), 1500);
 	};
 
-	const handleSendTransaction = async () => {
-		try {
-			if (!user?.address) {
-				throw new Error("No user address found");
-			}
-
-			setLoading(true);
-			const response = await sendTransaction(
-				user.address,
-				message,
-				price.toString()
-			);
-
-			setTransactionDetails(response);
-			toast.success(
-				<div className="flex items-center">
-					Transaction Successful!
-					<a
-						className="cursor-pointer ml-2 flex items-center justify-center rounded-full w-5 h-5 bg-cryptoblue"
-						href={`https://etherscan.io/tx/${response?.hash}`}
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						<ArrowUpIcon className="w-3 h-3 rotate-45 text-white" />
-					</a>
-				</div>,
-				{ position: "top-center", autoClose: 5000 }
-			);
-			setMessage("");
-			setPrice(0);
-
-			const transaction: Transaction = {
-				...new Transaction(),
-				to: user.address,
-				from: currentWallet,
-				id: response.hash,
-				amount: price,
-				message,
-			};
-
-			console.log({ transaction });
-			await saveTransaction(transaction);
-		} catch (error) {
-			console.error(error);
-			toast.error(error, { position: "top-center" });
-		} finally {
-			setLoading(false);
-		}
-	};
-
 	useEffect(() => {
 		setTransactions(allTransactions);
 	}, [allTransactions]);
-
-	const disableDonateButton =
-		loading || !price || authenticated || !(window as any).ethereum;
 
 	return (
 		<>
@@ -163,7 +100,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 									<div className="flex space-x-4">
 										<a
 											className="w-12 h-12 rounded-full bg-lightpurple flex items-center justify-center"
-											href={`https://twitter.com/intent/tweet?text=Support%20this%20creator%20https://app.buymeacryptocoffee.xyz/${user?.address}`}
+											href={`https://twitter.com/intent/tweet?text=Support%20this%20creator%20https://app.buymeacryptocoffee.xyz/${currProfileAddress}`}
 											target="_blank"
 											rel="noreferrer noopener"
 										>
@@ -310,7 +247,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 													</button>
 													<a
 														className="flex items-center border border-twitterblue text-twitterblue px-5 py-2 rounded-lg"
-														href={`https://twitter.com/intent/tweet?text=Support%20this%20creator%20https://app.buymeacryptocoffee.xyz/${user?.address}`}
+														href={`https://twitter.com/intent/tweet?text=Support%20this%20creator%20https://app.buymeacryptocoffee.xyz/${currProfileAddress}`}
 														target="_blank"
 														rel="noreferrer noopener"
 													>
@@ -349,33 +286,29 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 											<div className="flex-shrink-0">
 												<div className="relative">
 													<Blockies
-														seed={user?.address}
+														seed={
+															currProfileAddress
+														}
 														size={9}
 														scale={8}
 														className="rounded-full"
 													/>
 												</div>
 											</div>
-											<div data-tip={user?.id}>
+											<div data-tip={currProfileAddress}>
 												<h1 className="font-urbanist text-3xl xs:text-xl font-bold text-gray-900">
-													{!user ? (
-														<div className="animate-pulse h-12 w-48 bg-gray-300 rounded-md" />
-													) : (
-														user?.ens ??
-														minimizeAddress(
-															user?.address
-														)
-													)}
+													{!currProfileEns
+														? currProfileEns
+														: minimizeAddress(
+																currProfileAddress
+														  )}
 												</h1>
-												{/* <p className="text-sm font-medium text-gray-500">
-														{user?.id}
-													</p> */}
 											</div>
 										</div>
 										<div className="flex space-x-4">
 											<a
 												className="w-12 h-12 rounded-full bg-lightpurple flex items-center justify-center"
-												href={`https://twitter.com/intent/tweet?text=Support%20this%20creator%20https://app.buymeacryptocoffee.xyz/${user?.address}`}
+												href={`https://twitter.com/intent/tweet?text=Support%20this%20creator%20https://app.buymeacryptocoffee.xyz/${currProfileAddress}`}
 												target="_blank"
 												rel="noreferrer noopener"
 											>
@@ -416,11 +349,6 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 					</div>
 				</main>
 			</div>
-			<ProfileModal
-				open={editModalOpen}
-				onClose={() => setEditModalOpen(false)}
-				userAddress={user?.id}
-			/>
 		</>
 	);
 };
@@ -430,7 +358,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
 	const transactionsResponse = await db
 		.collection("transactions")
-		.where("to", "==", userAddress)
+		.where("to", "==", userAddress.toString().toLowerCase())
 		.get();
 
 	const transactions: Transaction[] = transactionsResponse.docs.map((doc) => {

@@ -37,6 +37,13 @@ const PayButton: React.FC<IPayButton> = ({
 		contractAddress,
 	});
 
+	console.log({
+		amount: txAmount,
+		receiver,
+		type,
+		contractAddress,
+	});
+
 	const { account } = useMoralis();
 
 	useEffect(() => {
@@ -47,8 +54,8 @@ const PayButton: React.FC<IPayButton> = ({
 		try {
 			const transaction: Transaction = {
 				...new Transaction(),
-				to: receiver,
-				from: account,
+				to: receiver.toLowerCase(),
+				from: account.toLowerCase(),
 				id: tx.transactionHash,
 				amount,
 				message,
@@ -83,7 +90,7 @@ const PayButton: React.FC<IPayButton> = ({
 				}`}
 			>
 				{!isFetching ? (
-					`Donate now ( ${amount} ${symbol} )`
+					`Donate now ${!!symbol ? `( ${amount} ${symbol} )` : ""} `
 				) : (
 					<svg
 						className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
