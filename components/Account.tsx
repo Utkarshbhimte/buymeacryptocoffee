@@ -132,7 +132,7 @@ function Account() {
 											"block px-4 py-2 text-sm"
 										)}
 									>
-										View on Explorer
+										View on Etherscan
 									</a>
 								)}
 							</Menu.Item>
