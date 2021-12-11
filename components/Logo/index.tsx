@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
-import cryptocoffee from "../../assets/cryptocoffee.png";
-import cryptocoffeewhite from "../../assets/cryptocoffeewhite.png";
+import cryptocoffeewhite from "../../assets/cryptocoffeewhite.svg";
+import cryptocoffee from "../../assets/cryptocoffee.svg";
 
 const Logo: React.FC<{ isWhite?: boolean }> = ({ isWhite = false }) => {
 	return (
