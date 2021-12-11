@@ -20,14 +20,14 @@ function classNames(...classes) {
 }
 
 interface IOptionProps {
-	readonly key: ReactText;
+	readonly key: string;
 	readonly label: string | ReactNode;
 }
 
 interface ISelectProps {
 	readonly options: IOptionProps[];
 	readonly onChange: (value: string) => void;
-	readonly value: ReactText;
+	readonly value: string;
 	readonly placeholder?: string;
 }
 
@@ -40,7 +40,10 @@ const Select: React.FC<ISelectProps> = ({
 	const selectedValue = options.find((option) => option.key === value);
 
 	return (
-		<Listbox value={value} onChange={onChange}>
+		<Listbox
+			value={selectedValue}
+			onChange={(option) => onChange(option.key)}
+		>
 			{({ open }) => (
 				<>
 					<div className="mt-1 relative">

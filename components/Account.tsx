@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-import { useState } from "react";
-import { useERC20Balances, useMoralis } from "react-moralis";
-=======
 import { Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import classNames from "classnames";
@@ -9,7 +5,6 @@ import { Fragment, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useMoralis } from "react-moralis";
 import { AuthenticateOptions } from "react-moralis/lib/hooks/core/useMoralis/_useMoralisAuth";
->>>>>>> d3fc0ce152b2c7712d86acecd70f43a61aeba418
 import { getEllipsisTxt } from "../helpers/formatters";
 import { getExplorer } from "../helpers/networks";
 import Blockie from "./Blockie";
@@ -36,10 +31,6 @@ const styles = {
 function Account() {
 	const { authenticate, isAuthenticated, logout, account, chainId } =
 		useMoralis();
-
-	const { fetchERC20Balances } = useERC20Balances({
-		address: "0xAD6561E9e306C923512B4ea7af902994BEbd99B8",
-	});
 
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [loading, setLoading] = useState(false);

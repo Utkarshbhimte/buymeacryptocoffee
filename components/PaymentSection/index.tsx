@@ -1,5 +1,10 @@
 import React, { ReactText, useEffect, useState } from "react";
-import { useChain, useERC20Balances, useNativeBalance } from "react-moralis";
+import {
+	useChain,
+	useERC20Balances,
+	useMoralis,
+	useNativeBalance,
+} from "react-moralis";
 import { useUser } from "../../utils/context";
 import CryptoSelect from "../CryptoSelect";
 import Select from "../Select";
@@ -13,12 +18,13 @@ interface Token {
 	readonly tokenAddress: string | null;
 }
 
-const PaymentSection = ({ authenticated }: { authenticated: boolean }) => {
+const PaymentSection = () => {
 	const [price, setPrice] = useState(0);
 	const [message, setMessage] = useState("");
-	const { currentWallet: address, user } = useUser();
+	const { authenticated, user } = useUser();
 
-	// store token balance with name state
+	const { account: address } = useMoralis();
+
 	const [tokenBalance, setTokenBalance] = useState<Token[]>([]);
 	const [selectedToken, setSelectedToken] = useState<string>();
 
@@ -39,6 +45,8 @@ const PaymentSection = ({ authenticated }: { authenticated: boolean }) => {
 		isLoading: isLoadingNative,
 		error: errorNative,
 	} = useNativeBalance();
+
+	console.log(chainId);
 
 	const fetchBalances = async () => {
 		if (!chainId) {
@@ -88,7 +96,7 @@ const PaymentSection = ({ authenticated }: { authenticated: boolean }) => {
 
 	useEffect(() => {
 		fetchBalances();
-	}, [chainId]);
+	}, [chainId, address]);
 
 	const disableDonateButton =
 		isLoadingERC20 ||
@@ -96,12 +104,13 @@ const PaymentSection = ({ authenticated }: { authenticated: boolean }) => {
 		isFetchingERC20 ||
 		isFetchingNative ||
 		!price ||
-		authenticated ||
-		!(window as any).ethereum;
+		authenticated;
 
 	const selectedTokenBalance = tokenBalance.find(
 		(token) => token.name === selectedToken
 	)?.balance;
+
+	console.log(address);
 
 	return (
 		<section
@@ -127,10 +136,23 @@ const PaymentSection = ({ authenticated }: { authenticated: boolean }) => {
 								/>
 							</div>
 							<div className="mt-2">
-								Balance: {selectedTokenBalance}
+								Balance: {selectedTokenBalance ?? 0}
 							</div>
 						</div>
-						<div>0.0ETH</div>
+						<div>
+							<input
+								type="number"
+								name="amount"
+								id="amount"
+								min="0"
+								value={price}
+								onChange={(e) =>
+									setPrice(Number(e.target.value))
+								}
+								className="shadow-sm block sm:text-sm border-none rounded-md w-24 text-right"
+								placeholder="0.0"
+							/>
+						</div>
 					</div>
 
 					<div className="font-urbanist mt-4 mx-6">
@@ -149,9 +171,11 @@ const PaymentSection = ({ authenticated }: { authenticated: boolean }) => {
 
 					<div className="mx-6 my-4">
 						<PayButton
+							disabled={disableDonateButton}
 							receiver={user?.address}
 							type="native"
-							amount={0.05}
+							amount={price}
+							message={message}
 						/>
 					</div>
 				</div>
