@@ -10,39 +10,49 @@ interface IProfileModal {
 	readonly userAddress: string;
 }
 
-const ProfileModal: React.FC<IProfileModal> = ({ open, onClose, userAddress }) => {
+const ProfileModal: React.FC<IProfileModal> = ({
+	open,
+	onClose,
+	userAddress,
+}) => {
+	const { setUser, user } = useUser();
 
-	const { setUser, user } = useUser()
-	
-	const [name, setName] = useState(user?.name ?? '');
-	const [description, setDescription] = useState(user?.description ?? '');
+	const [name, setName] = useState(user?.name ?? "");
+	const [description, setDescription] = useState(user?.description ?? "");
 	const [image, setImage] = useState<File>();
 	const [coverImageFile, setCoverImageFile] = useState<File>();
-	
+
 	useEffect(() => {
 		if (user) {
 			setName(user.name);
 			setDescription(user.description);
 		}
-	}, [user])
+	}, [user]);
 	const handleProfileUpdate = async () => {
-		if(!name || !description || !userAddress) {
+		if (!name || !description || !userAddress) {
 			return;
 		}
 		try {
-			
-			const profileResponse = image && await storage.ref(`profiles/${user.id}`).put(image)
-			const coverImageResponse = coverImageFile && await storage.ref(`cover-images/${user.id}`).put(coverImageFile)
+			const profileResponse =
+				image && (await storage.ref(`profiles/${user.id}`).put(image));
+			const coverImageResponse =
+				coverImageFile &&
+				(await storage
+					.ref(`cover-images/${user.id}`)
+					.put(coverImageFile));
 
-			const profileImage = profileResponse && await profileResponse.ref.getDownloadURL()
-			const coverImage = coverImageResponse && await coverImageResponse.ref.getDownloadURL()
+			const profileImage =
+				profileResponse && (await profileResponse.ref.getDownloadURL());
+			const coverImage =
+				coverImageResponse &&
+				(await coverImageResponse.ref.getDownloadURL());
 
 			console.log({
 				name,
 				description,
 				profileImage: profileImage ?? user.profileImage,
-				coverImage: coverImage ?? user.coverImage
-			})
+				coverImage: coverImage ?? user.coverImage,
+			});
 
 			await db
 				.doc(`${firestoreCollections.USERS}/${userAddress}`)
@@ -50,19 +60,18 @@ const ProfileModal: React.FC<IProfileModal> = ({ open, onClose, userAddress }) =
 					name,
 					description,
 					profileImage: profileImage ?? user.profileImage,
-					coverImage: coverImage ?? user.coverImage
+					coverImage: coverImage ?? user.coverImage,
 				});
 
 			const updatedUser = await getUser(userAddress);
 
 			setUser({
 				...updatedUser,
-				id: userAddress
+				id: userAddress,
 			});
 
 			onClose();
-
-		} catch(error) {
+		} catch (error) {
 			console.error(error);
 		}
 	};
@@ -80,12 +89,13 @@ const ProfileModal: React.FC<IProfileModal> = ({ open, onClose, userAddress }) =
 				<div className="space-y-8 divide-y divide-gray-200">
 					<div>
 						<div className="sm:col-span-6">
-							<label
-								className="block text-sm font-medium text-gray-700"
-							>
+							<label className="block text-sm font-medium text-gray-700">
 								Photo
 							</label>
-							<label htmlFor='profile-upload' className="mt-1 flex items-center">
+							<label
+								htmlFor="profile-upload"
+								className="mt-1 flex items-center"
+							>
 								<span className="h-12 w-12 rounded-full overflow-hidden bg-gray-100">
 									<svg
 										className="h-full w-full text-gray-300"
@@ -100,11 +110,11 @@ const ProfileModal: React.FC<IProfileModal> = ({ open, onClose, userAddress }) =
 									name="profile-upload"
 									type="file"
 									className="sr-only"
-									onChange={e => setImage(e.target.files[0])}
+									onChange={(e) =>
+										setImage(e.target.files[0])
+									}
 								/>
-								<div
-									className="cursor-pointer ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-								>
+								<div className="cursor-pointer ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cryptopurple">
 									Change
 								</div>
 							</label>
@@ -125,8 +135,10 @@ const ProfileModal: React.FC<IProfileModal> = ({ open, onClose, userAddress }) =
 										id="username"
 										autoComplete="username"
 										value={name}
-										onChange={(e) => setName(e.target.value)}
-										className="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-none rounded-r-md sm:text-sm border-gray-300"
+										onChange={(e) =>
+											setName(e.target.value)
+										}
+										className="flex-1 focus:ring-cryptopurple focus:border-cryptopurple block w-full min-w-0 rounded-none rounded-r-md sm:text-sm border-gray-300"
 									/>
 								</div>
 							</div>
@@ -144,8 +156,10 @@ const ProfileModal: React.FC<IProfileModal> = ({ open, onClose, userAddress }) =
 										name="about"
 										rows={3}
 										value={description}
-										onChange={(e) => setDescription(e.target.value)}
-										className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md"
+										onChange={(e) =>
+											setDescription(e.target.value)
+										}
+										className="shadow-sm focus:ring-cryptopurple focus:border-cryptopurple block w-full sm:text-sm border border-gray-300 rounded-md"
 										defaultValue={""}
 									/>
 								</div>
@@ -180,7 +194,7 @@ const ProfileModal: React.FC<IProfileModal> = ({ open, onClose, userAddress }) =
 										<div className="flex text-sm text-gray-600">
 											<label
 												htmlFor="cover-image-upload"
-												className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
+												className="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-cryptopurple focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-cryptopurple"
 											>
 												<span>Upload a file</span>
 												<input
@@ -188,7 +202,11 @@ const ProfileModal: React.FC<IProfileModal> = ({ open, onClose, userAddress }) =
 													name="cover-image-upload"
 													type="file"
 													className="sr-only"
-													onChange={e => setCoverImageFile(e.target.files[0])}
+													onChange={(e) =>
+														setCoverImageFile(
+															e.target.files[0]
+														)
+													}
 												/>
 											</label>
 											<p className="pl-1">

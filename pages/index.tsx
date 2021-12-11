@@ -109,32 +109,34 @@ const Dashboard: React.FC = () => {
 		<div className="min-h-screen bg-white">
 			<div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
 				<div className="flex space-x-4 items-center min-h-screen font-urbanist">
-					<div className="flex-1">
+					<div className="flex-1 px-4 md:px-0">
 						<h1 className=" text-5xl font-bold mb-4">
 							Let your audience buy you a Crypto Coffee
 						</h1>
-						<p className="mb-12">
+						<p className="mb-8">
 							BuyMeACryptoCoffee is a fun way to get rid of the
 							messy wallet addresses and use simple and easy to
 							share links
 						</p>
 						<div>
 							<form
-								className="flex flex-col space-y-2"
+								className="flex space-x-2"
 								onSubmit={handleRedirect}
 							>
 								<input
 									id="address"
-									className="form-input block w-full sm:text-sm sm:leading-5"
+									className="shadow-sm focus:ring-cryptopurple focus:border-cryptopurple block w-full sm:text-sm rounded-md border border-gray-400 px-4"
 									placeholder="0x..."
 									value={address}
 									onChange={(e) => setAddress(e.target.value)}
 								/>
-								<button>Checkout any page</button>
+								<button className="flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 whitespace-nowrap">
+									Checkout page
+								</button>
 							</form>
 						</div>
 					</div>
-					<div className="flex-1"></div>
+					<div className="hidden md:block flex-1"></div>
 				</div>
 			</div>
 		</div>

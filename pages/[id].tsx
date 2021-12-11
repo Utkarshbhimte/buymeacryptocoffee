@@ -110,7 +110,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 			<div className="bg-gray-50 min-h-screen">
 				<main className="relative w-full mx-auto">
 					{/* Page header */}
-					<div className="w-full bg-cryptopurple sticky h-80" />
+					<div className="w-full bg-cryptopurple h-80" />
 					<div className="max-w-6xl mx-auto rounded-xl py-12">
 						<div className="-translate-y-80 z-10 mx-auto grid grid-cols-1 gap-6 sm:px-6 xs:mx-4 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
 							<div className="space-y-6 p-8 rounded-lg bg-white shadow-md lg:col-start-1 lg:col-span-2">

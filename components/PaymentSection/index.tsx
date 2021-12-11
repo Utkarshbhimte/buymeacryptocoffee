@@ -6,7 +6,6 @@ import {
 	useNativeBalance,
 } from "react-moralis";
 import { useUser } from "../../utils/context";
-import CryptoSelect from "../CryptoSelect";
 import Select from "../Select";
 import PayButton from "./PayButton";
 
