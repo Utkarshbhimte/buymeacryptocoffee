@@ -1,3 +1,4 @@
+import Moralis from "moralis";
 import { useRouter } from "next/router";
 import React, { ReactText, useState } from "react";
 import {
@@ -63,15 +64,16 @@ const PaymentSection = () => {
 	};
 
 	const cleanedERC20Tokens: Token[] =
-		data?.map((token) => {
-			return {
-				name: token.name,
-				symbol: token.symbol,
-				balance: token.balance,
-				decimals: Number(token.decimals),
-				tokenAddress: token.token_address,
-			};
-		}) ?? [];
+		data?.map((token) => ({
+			name: token.name,
+			symbol: token.symbol,
+			balance: Moralis.Units.FromWei(
+				token.balance,
+				Number(token.decimals)
+			),
+			decimals: Number(token.decimals),
+			tokenAddress: token.token_address,
+		})) ?? [];
 
 	console.log({
 		cleanedERC20Tokens,
