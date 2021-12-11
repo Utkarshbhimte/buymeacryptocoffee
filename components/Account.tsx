@@ -31,9 +31,8 @@ const styles = {
 function Account() {
 	const { authenticate, isAuthenticated, logout, account, chainId } =
 		useMoralis();
-	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [loading, setLoading] = useState(false);
-	const [ensAddress, setEnsAddress] = useState<string | undefined>();
+	const [ensAddress, setEnsAddress] = useState<string | null>(null);
 	const handleAuth = async () => {
 		try {
 			setLoading(true);
@@ -99,7 +98,7 @@ function Account() {
 
 	return (
 		<>
-			<Menu as="div" className="relative inline-block text-left">
+			<Menu as="div" className="relative inline-block text-left z-20">
 				<div>
 					<Menu.Button className="inline-flex justify-center items-center space-x-2 w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
 						<Blockie currentWallet scale={3} />
@@ -160,10 +159,7 @@ function Account() {
 							<Menu.Item>
 								{({ active }) => (
 									<button
-										onClick={() => {
-											logout();
-											setIsModalVisible(false);
-										}}
+										onClick={logout}
 										type="submit"
 										className={classNames(
 											active

@@ -60,7 +60,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 				</header>
 
 				<Component {...pageProps} />
-				<footer className="bg-footerblack w-full absolute bottom-0 h-52 flex flex-col items-center justify-center">
+				<footer className="bg-footerblack w-full py-24 flex flex-col items-center justify-center">
 					<Logo isWhite />
 					<span className="font-urbanist text-white text-base">
 						Makers:
