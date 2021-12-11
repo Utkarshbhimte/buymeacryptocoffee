@@ -12,6 +12,7 @@ interface IPayButton {
 	readonly contractAddress?: string;
 	readonly disabled?: boolean;
 	readonly message?: string;
+	readonly symbol: string;
 }
 
 const PayButton: React.FC<IPayButton> = ({
@@ -22,6 +23,7 @@ const PayButton: React.FC<IPayButton> = ({
 	decimals,
 	disabled,
 	message,
+	symbol,
 }) => {
 	const txAmount =
 		type === "native"
@@ -36,12 +38,6 @@ const PayButton: React.FC<IPayButton> = ({
 	});
 
 	const { account } = useMoralis();
-
-	console.log({
-		error,
-		isFetching,
-		data,
-	});
 
 	useEffect(() => {
 		Moralis.Web3.enableWeb3();
@@ -66,8 +62,7 @@ const PayButton: React.FC<IPayButton> = ({
 	};
 
 	useEffect(() => {
-		console.log({ data });
-		if (!isFetching && !error && !!data) {
+		if (!!data) {
 			console.log(
 				"Transaction is successful, saving to DB and redirecting to home page"
 			);
@@ -87,7 +82,7 @@ const PayButton: React.FC<IPayButton> = ({
 						: " hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 "
 				}`}
 			>
-				Donate now ( {amount} ETH )
+				Donate now ( {amount} {symbol} )
 			</button>
 			{error && (
 				<div className="text-red-500 text-sm mt-3">{error.message}</div>
