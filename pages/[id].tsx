@@ -335,7 +335,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 								aria-labelledby="timeline-title"
 								className="lg:col-start-3 lg:col-span-1 xs:row-span-full"
 							>
-								<div className="bg-white border border-gray-200 sm:rounded-lg">
+								<div className="bg-white border border-gray-200 sm:rounded-lg xs:rounded-lg">
 									<div className="hidden p-6 justify-between items-center xs:flex">
 										<div className="flex items-center space-x-5">
 											<div className="flex-shrink-0">
