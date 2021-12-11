@@ -24,8 +24,9 @@ const PaymentSection = () => {
 
 	const { account: address } = useMoralis();
 
-	const [tokenBalance, setTokenBalance] = useState<Token[]>([]);
 	const [selectedToken, setSelectedToken] = useState<string>();
+
+	const { chainId } = useChain();
 
 	const {
 		fetchERC20Balances,
@@ -34,8 +35,6 @@ const PaymentSection = () => {
 		isLoading: isLoadingERC20,
 		error,
 	} = useERC20Balances();
-
-	const { chainId } = useChain();
 
 	const {
 		getBalances,
@@ -46,54 +45,41 @@ const PaymentSection = () => {
 	} = useNativeBalance();
 
 	const fetchBalances = async () => {
-		if (!chainId) {
-			return;
-		}
-
-		const chain = chainId as any;
-
+		console.log("Console log 1");
 		await getBalances({
 			params: {
 				address,
-				chain: chain,
+				chain: chainId as any,
 			},
 		});
 		await fetchERC20Balances({
 			params: {
 				address,
-				chain: chain,
+				chain: chainId as any,
 			},
 		});
-
-		const cleanedERC20Tokens: Token[] =
-			data?.map((token) => {
-				return {
-					name: token.name,
-					symbol: token.symbol,
-					balance: token.balance,
-					decimals: Number(token.decimals),
-					tokenAddress: token.token_address,
-				};
-			}) ?? [];
-
-		const cleanedNativeTokens = {
-			symbol: "ETH",
-			balance: nativeData.formatted,
-			name: "ETH",
-			decimals: 18,
-			tokenAddress: null,
-		};
-
-		setSelectedToken(cleanedNativeTokens.name);
-
-		setTokenBalance([...cleanedERC20Tokens, cleanedNativeTokens]);
 	};
 
-	console.log([...tokenBalance]);
+	const cleanedERC20Tokens: Token[] =
+		data?.map((token) => {
+			return {
+				name: token.name,
+				symbol: token.symbol,
+				balance: token.balance,
+				decimals: Number(token.decimals),
+				tokenAddress: token.token_address,
+			};
+		}) ?? [];
 
-	useEffect(() => {
-		fetchBalances();
-	}, [chainId, address]);
+	const cleanedNativeTokens = {
+		symbol: "ETH",
+		balance: nativeData.formatted,
+		name: "ETH",
+		decimals: 18,
+		tokenAddress: null,
+	};
+
+	const tokensArray = [...cleanedERC20Tokens, cleanedNativeTokens];
 
 	const disableDonateButton =
 		isLoadingERC20 ||
@@ -103,7 +89,7 @@ const PaymentSection = () => {
 		!price ||
 		authenticated;
 
-	const selectedTokenData = tokenBalance.find(
+	const selectedTokenData = tokensArray.find(
 		(token) => token.name === selectedToken
 	);
 
@@ -117,17 +103,20 @@ const PaymentSection = () => {
 				<div className="h-full">
 					<div className="font-urbanist font-bold px-6 py-4 text-lg border-b border-gray-200 flex items-center justify-between">
 						Support the Creator 🤝
-						<span onClick={fetchBalances}>
+						<span
+							className={`p-2 rounded-lg  ${
+								isFetchingERC20 ||
+								isLoadingERC20 ||
+								isFetchingNative ||
+								isLoadingNative
+									? " animate-spin "
+									: " hover:bg-indigo-100 cursor-pointer "
+							}`}
+							onClick={fetchBalances}
+						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
-								className={`h-6 w-6 ${
-									isFetchingERC20 ||
-									isLoadingERC20 ||
-									isFetchingNative ||
-									isLoadingNative
-										? " animate-spin "
-										: ""
-								}`}
+								className={`h-6 w-6 `}
 								fill="none"
 								viewBox="0 0 24 24"
 								stroke="currentColor"
@@ -145,7 +134,7 @@ const PaymentSection = () => {
 						<div className="flex flex-col">
 							<div className="w-24">
 								<Select
-									options={tokenBalance.map((token) => ({
+									options={tokensArray.map((token) => ({
 										key: token.name,
 										label: token.name,
 									}))}
