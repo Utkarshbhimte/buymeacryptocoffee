@@ -98,7 +98,9 @@ const Chains = () => {
 
 	return (
 		<div className="flex space-x-2 items-center">
-			<span className="text-gray-500 text-sm">Switch Chain:</span>
+			<span className="text-gray-500 text-sm hidden md:visible">
+				Switch Chain:
+			</span>
 			{menuItems.map((item) => (
 				<button
 					key={item.key}
