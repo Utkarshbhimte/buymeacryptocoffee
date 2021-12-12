@@ -99,11 +99,11 @@ const PaymentSection = () => {
 
 	// fetch tokens data for plugin, need to add plugin in moralis
 	const getData = async () => {
-		const tokenMetadata = await Moralis.Web3API.token.getTokenMetadata({
-			chain: chainId as any,
-			addresses: [address],
-		});
-		console.log({ tokenMetadata });
+		// const tokenMetadata = await Moralis.Web3API.token.getTokenMetadata({
+		// 	chain: chainId as any,
+		// 	addresses: [address],
+		// });
+		// console.log({ tokenMetadata });
 	};
 
 	useEffect(() => {
