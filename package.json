@@ -20,6 +20,7 @@
 		"moralis": "^0.0.154",
 		"multicoin-address-validator": "^0.5.2",
 		"next": "latest",
+		"nextjs-progressbar": "^0.0.13",
 		"qrcode": "^1.4.4",
 		"react": "^17.0.2",
 		"react-blockies": "^1.4.1",

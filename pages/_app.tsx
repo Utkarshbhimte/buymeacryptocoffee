@@ -10,6 +10,7 @@ import Account from "../components/Account";
 import Chains from "../components/Chains";
 import Logo from "../components/Logo";
 import { AuthWrapper } from "../utils/context";
+import NextNProgress from "nextjs-progressbar";
 
 const APP_ID = "IrOz1yXuSvzSOLf4osllytXQkADgOXbiBfWUgeQi"; //process.env.NEXT_PUBLIC_MORALIS_APPLICATION_ID;
 const SERVER_URL = "https://klkggmithift.usemoralis.com:2053/server"; //process.env.NEXT_PUBLIC_MORALIS_SERVER_URL;
@@ -19,10 +20,17 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 	return (
 		<MoralisProvider appId={APP_ID} serverUrl={SERVER_URL}>
 			<AuthWrapper>
+				<NextNProgress height={7} color="#9366F9" />
 				<Head key="main-head">
 					<title>BuyMeACryptoCoffee</title>
-					<meta property="image" content="https://pbs.twimg.com/profile_banners/1469725846164303873/1639247134/1500x500" />
-					<meta name="description" content="Move on from traditional currency, and easily get support from your audience in Cryptocurrency." />
+					<meta
+						property="image"
+						content="https://pbs.twimg.com/profile_banners/1469725846164303873/1639247134/1500x500"
+					/>
+					<meta
+						name="description"
+						content="Move on from traditional currency, and easily get support from your audience in Cryptocurrency."
+					/>
 					<link
 						rel="preconnect"
 						href="https://fonts.googleapis.com"

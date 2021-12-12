@@ -2,7 +2,7 @@ import { DuplicateIcon, LinkIcon } from "@heroicons/react/outline";
 import { ArrowUpIcon, CheckIcon } from "@heroicons/react/solid";
 import copy from "copy-to-clipboard";
 import { ethers } from "ethers";
-import { GetServerSideProps } from "next";
+import { GetServerSideProps, GetStaticProps } from "next";
 import React, { useEffect, useState } from "react";
 import Blockies from "react-blockies";
 import { useMoralis } from "react-moralis";
@@ -462,7 +462,7 @@ const Profile: React.FC<ProfileProps> = ({
 	);
 };
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getStaticProps: GetStaticProps = async (context) => {
 	const userAddress = context.params.id;
 
 	const mainnetEndpoint =
@@ -473,8 +473,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 		userAddress.toString(),
 		provider
 	);
-
-	console.log(address.toString().toLowerCase(), name);
 
 	const transactionsResponse = await db
 		.collection("transactions")
@@ -490,6 +488,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 	});
 
 	return {
+		revalidate: 60,
 		props: {
 			transactions,
 			profileAddress: address,
@@ -498,5 +497,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 		},
 	};
 };
+
+export async function getStaticPaths() {
+	return { paths: [], fallback: "blocking" };
+}
 
 export default Profile;
