@@ -11,8 +11,8 @@ export const fetchEnsAddress = async (currAccount: string) => {
 	const res = await request.json();
 
 	if (res.name) {
-		return res.name;
 		localStorage.setItem(`ensAddress-${currAccount}`, res.name);
+		return res.name;
 	}
 };
 
