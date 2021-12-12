@@ -107,7 +107,7 @@ const PaymentSection = () => {
 			aria-labelledby="timeline-title"
 			className="lg:col-start-3 lg:col-span-1"
 		>
-			<div className="bg-white border border-gray-200 sm:rounded-lg">
+			<div className="bg-white border border-gray-200 rounded-lg">
 				{/* {!widget ? ( */}
 				<div className="h-full">
 					<div className="font-urbanist font-bold px-6 py-4 text-lg border-b border-gray-200 flex items-center justify-between">
