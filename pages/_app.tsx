@@ -21,6 +21,8 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 			<AuthWrapper>
 				<Head key="main-head">
 					<title>BuyMeACryptoCoffee</title>
+					<meta property="image" content="/meta-background.jpeg" />
+					<meta name="description" content="Let your audience support you with cryptocurrency through our creator pages." />
 					<link
 						rel="preconnect"
 						href="https://fonts.googleapis.com"
