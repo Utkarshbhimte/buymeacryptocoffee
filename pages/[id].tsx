@@ -408,7 +408,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 	const transactionsResponse = await db
 		.collection("transactions")
 		.where("to", "==", userAddress.toString().toLowerCase())
-		.where('status', '==', 'success')
+		.where("status", "==", "success")
 		.get();
 
 	const transactions: Transaction[] = transactionsResponse.docs.map((doc) => {
