@@ -1,6 +1,6 @@
 import Moralis from "moralis";
 import React, { useEffect } from "react";
-import { useMoralis, useWeb3Transfer } from "react-moralis";
+import { useChain, useMoralis, useWeb3Transfer } from "react-moralis";
 import { Transaction } from "../../contracts";
 import { saveTransaction } from "../../utils";
 
@@ -37,6 +37,8 @@ const PayButton: React.FC<IPayButton> = ({
 		contractAddress,
 	});
 
+	const { chainId } = useChain();
+
 	console.log({
 		amount: txAmount,
 		receiver,
@@ -59,6 +61,8 @@ const PayButton: React.FC<IPayButton> = ({
 				id: tx.transactionHash,
 				amount,
 				message,
+				formattedAmount: `${amount} ${symbol}`,
+				chain: chainId,
 			};
 
 			console.log({ transaction });

@@ -24,4 +24,6 @@ export class Transaction {
 	message: string = "";
 	cronStatus: "pending" | "success" = "pending";
 	status: "success" | "failure" | "" = "";
+	chain: string = "";
+	formattedAmount: string = "";
 }

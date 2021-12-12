@@ -1,14 +1,17 @@
 import { DuplicateIcon, LinkIcon } from "@heroicons/react/outline";
 import { ArrowUpIcon, CheckIcon } from "@heroicons/react/solid";
 import copy from "copy-to-clipboard";
+import { ethers } from "ethers";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import Blockies from "react-blockies";
+import { useMoralis } from "react-moralis";
 import { toast } from "react-toastify";
 import PaymentSection from "../components/PaymentSection";
 import { Transaction } from "../contracts";
 import { minimizeAddress } from "../utils";
+import { validateAndResolveAddress } from "../utils/crypto";
 import { db } from "../utils/firebaseClient";
 import { useEnsAddress } from "../utils/useEnsAddress";
 
@@ -16,14 +19,18 @@ declare let window: any;
 
 export interface ProfileProps {
 	transactions: Transaction[];
+	profileAddress: string;
 }
 
-const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
+const Profile: React.FC<ProfileProps> = ({
+	transactions: allTransactions,
+	profileAddress,
+}) => {
 	const router = useRouter();
 	const currProfileAddress = router.query.id as string;
 
 	const currProfileEns = useEnsAddress(currProfileAddress);
-
+	const { account } = useMoralis();
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
 	const [isCopied, setIsCopied] = useState(false);
 
@@ -74,7 +81,7 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 												>
 													<p className="text-xs font-medium text-gray-500 p-1 bg-gray-100 inline-block px-3 cursor-pointer hover:bg-indigo-100 transition duration-300 ease-in-out rounded-md">
 														{minimizeAddress(
-															currProfileAddress
+															profileAddress
 														)}
 													</p>
 													{/* <DuplicateIcon className="h-4 w-4 opacity-0 group-hover:opacity-100 transition ease-in-out duration-300 text-cryptopurple" /> */}
@@ -168,9 +175,12 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 																					transaction?.from
 																				}
 																			>
-																				{`${minimizeAddress(
-																					transaction?.from
-																				)} `}
+																				{transaction?.from.toLowerCase() ===
+																				account?.toLowerCase()
+																					? "You "
+																					: `${minimizeAddress(
+																							transaction?.from
+																					  )} `}
 																			</span>
 																			bought
 																			you
@@ -352,9 +362,18 @@ const Profile: React.FC<ProfileProps> = ({ transactions: allTransactions }) => {
 export const getServerSideProps: GetServerSideProps = async (context) => {
 	const userAddress = context.params.id;
 
+	const mainnetEndpoint =
+		"https://speedy-nodes-nyc.moralis.io/d35afcfb3d409232f26629cd/eth/mainnet";
+	const provider = new ethers.providers.JsonRpcProvider(mainnetEndpoint);
+
+	const { address } = await validateAndResolveAddress(
+		userAddress.toString(),
+		provider
+	);
+
 	const transactionsResponse = await db
 		.collection("transactions")
-		.where("to", "==", userAddress.toString().toLowerCase())
+		.where("to", "==", address.toLowerCase())
 		.get();
 
 	const transactions: Transaction[] = transactionsResponse.docs.map((doc) => {
@@ -368,6 +387,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 	return {
 		props: {
 			transactions,
+			profileAddress: address,
 		},
 	};
 };
