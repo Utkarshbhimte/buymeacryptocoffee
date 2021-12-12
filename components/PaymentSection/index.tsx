@@ -1,12 +1,13 @@
 import Moralis from "moralis";
 import { useRouter } from "next/router";
-import React, { ReactText, useState } from "react";
+import React, { ReactText, useEffect, useState } from "react";
 import {
 	useChain,
 	useERC20Balances,
 	useMoralis,
 	useNativeBalance,
 } from "react-moralis";
+import { chainLogo, tokenMetadata } from "../../utils/tokens";
 
 import Select from "../Select";
 import PayButton from "./PayButton";
@@ -17,6 +18,7 @@ interface Token {
 	readonly balance: ReactText;
 	readonly decimals: number;
 	readonly tokenAddress: string | null;
+	readonly logo?: string;
 }
 
 const PaymentSection = () => {
@@ -62,6 +64,15 @@ const PaymentSection = () => {
 			},
 		});
 	};
+	const nativeTokenName = nativeData?.formatted?.split(" ")[1] ?? "";
+	const cleanedNativeTokens = {
+		symbol: nativeTokenName,
+		balance: nativeData.formatted,
+		name: nativeTokenName,
+		decimals: 18,
+		tokenAddress: null,
+		logo: tokenMetadata[nativeTokenName]?.logoURI,
+	};
 
 	const cleanedERC20Tokens: Token[] =
 		data?.map((token) => ({
@@ -72,24 +83,27 @@ const PaymentSection = () => {
 				Number(token.decimals)
 			),
 			decimals: Number(token.decimals),
-			tokenAddress: token.token_address,
+			tokenAddress:
+				tokenMetadata[token.symbol]?.address ?? token.token_address,
+			logo:
+				token.logo ??
+				tokenMetadata[token.symbol]?.logoURI ??
+				chainLogo[nativeTokenName],
 		})) ?? [];
 
-	console.log({
-		cleanedERC20Tokens,
-	});
+	// fetch tokens data for plugin, need to add plugin in moralis
 
-	const nativeTokenName = nativeData?.formatted?.split(" ")[1] ?? "";
+	// useEffect(() => {
+	// 	console.log("this-->", Moralis?.["Plugins"]);
+	// 	if (!Moralis?.["Plugins"]?.["oneInch"]) return null;
+	// 	Moralis.Plugins.oneInch
+	// 		.getSupportedTokens({ chain: chainId })
+	// 		.then((tokens) => {
+	// 			console.log({ tokens });
+	// 		});
+	// }, []);
 
-	const cleanedNativeTokens = {
-		symbol: nativeTokenName,
-		balance: nativeData.formatted,
-		name: nativeTokenName,
-		decimals: 18,
-		tokenAddress: null,
-	};
-
-	const tokensArray = [...cleanedERC20Tokens, cleanedNativeTokens];
+	const tokensArray: Token[] = [...cleanedERC20Tokens, cleanedNativeTokens];
 
 	const disableDonateButton =
 		isLoadingERC20 ||
@@ -142,11 +156,23 @@ const PaymentSection = () => {
 					</div>
 					<div className="flex font-urbanist font-normal items-center justify-between border rounded-md p-3 mt-6 mx-6">
 						<div className="flex flex-col">
-							<div className="w-24">
+							<div className="w-32">
 								<Select
 									options={tokensArray.map((token) => ({
 										key: token.name,
-										label: token.name,
+										label: (
+											<div className="flex items-center">
+												{token.logo && (
+													<img
+														src={token.logo}
+														className="h-6 w-6 mr-1"
+													/>
+												)}
+												<span className="text-sm font-semibold">
+													{token.name}
+												</span>
+											</div>
+										),
 									}))}
 									onChange={(e) => setSelectedToken(e)}
 									value={
