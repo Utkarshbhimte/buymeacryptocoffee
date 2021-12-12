@@ -14,6 +14,7 @@
 		"@types/react-blockies": "^1.4.1",
 		"@walletconnect/web3-provider": "^1.6.6",
 		"antd": "^4.17.3",
+		"cors": "^2.8.5",
 		"ethers": "^5.5.1",
 		"firebase": "^8.10.0",
 		"moralis": "^0.0.154",
