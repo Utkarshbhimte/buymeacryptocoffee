@@ -20,6 +20,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 		<MoralisProvider appId={APP_ID} serverUrl={SERVER_URL}>
 			<AuthWrapper>
 				<Head key="main-head">
+					<title>BuyMeACryptoCoffee</title>
 					<link
 						rel="preconnect"
 						href="https://fonts.googleapis.com"
