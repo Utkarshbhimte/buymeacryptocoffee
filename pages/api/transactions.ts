@@ -56,7 +56,9 @@ const initialData = async (req: NextApiRequest, res: NextApiResponse) => {
 
 		Promise.all(promises);
 
-		res.status(200);
+		res.status(200).json({
+			success: true
+		});
 	} catch (error) {
 		return res.status(error.status || 500).json({
 			message: error.message,
