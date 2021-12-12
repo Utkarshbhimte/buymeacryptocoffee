@@ -5,8 +5,8 @@ import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { toast } from "react-toastify";
 import { validateAndResolveAddress } from "../utils/crypto";
-import Image from 'next/image'
-import illustration from '../assets/illustration.png'
+import Image from "next/image";
+import illustration from "../assets/illustration.png";
 import { LinkIcon } from "@heroicons/react/outline";
 
 declare let window: any;
@@ -17,31 +17,31 @@ const makerData = [
 		address: "0xbhaisaab.eth",
 		image: "https://pbs.twimg.com/profile_images/1284769236305338368/1QMpU-YP_400x400.jpg",
 		twitterUrl: "https://twitter.com/BhimteBhaisaab",
-		description: "building @worthinnft hanging out @buildbystl, @developer_dao"
+		description:
+			"building @worthinnft hanging out @buildbystl, @developer_dao",
 	},
 	{
 		name: "Ajinkya",
 		address: "0xCF193782f2eBC069ae05eC0Ef955E4B042D000Dd",
 		image: "https://pbs.twimg.com/profile_images/1379068290643886084/_uPr_3jj_400x400.jpg",
 		twitterUrl: "https://twitter.com/CreakFoder",
-		description: "Frontend Developer"
+		description: "Frontend Developer",
 	},
 	{
-		name: 'Abhishek',
+		name: "Abhishek",
 		address: "0xAD6561E9e306C923512B4ea7af902994BEbd99B8",
 		image: "https://pbs.twimg.com/profile_images/1111908635494543360/P3M1am5F_400x400.jpg",
 		twitterUrl: "https://twitter.com/abhikumar_98",
-		description: "Frontend Developer @zomentum, building @nocodeletters"
+		description: "Frontend Developer @zomentum, building @nocodeletters",
 	},
 	{
-		name: 'Akhil',
+		name: "Akhil",
 		address: "0xab14023979a34b4abb17abd099a1de1dc452011a",
 		image: "https://pbs.twimg.com/profile_images/1434216740729155585/X_jLGctP_400x400.jpg",
 		twitterUrl: "https://twitter.com/akhil_bvs",
-		description: "Design @DrumworksHQ | Alumnus @10KDesigners"
+		description: "Design @DrumworksHQ | Alumnus @10KDesigners",
 	},
-]
-
+];
 
 const Dashboard: React.FC = () => {
 	const [address, setAddress] = useState("");
@@ -92,12 +92,6 @@ const Dashboard: React.FC = () => {
 				return;
 			}
 
-			console.log({
-				userAddress,
-				name,
-				address,
-			});
-
 			if (name) {
 				router.push(`/${name}`);
 				return;
@@ -128,16 +122,18 @@ const Dashboard: React.FC = () => {
 
 	return (
 		<div className="min-h-screen">
-			<div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-				<div className="flex space-x-4 items-center min-h-screen font-urbanist">
+			<div className="h-154 bg-lightpurple">
+				<div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 flex h-full bg-lightpurple space-x-4 items-center font-urbanist">
 					<div className="flex-1 px-4 md:px-0">
 						<h1 className=" text-5xl font-bold mb-4">
-							Let your audience buy you a Crypto Coffee
+							Let your audience buy you a{" "}
+							<span className="text-cryptopurple">
+								Crypto Coffee ✨
+							</span>
 						</h1>
 						<p className="mb-8">
-							BuyMeACryptoCoffee is a fun way to get rid of the
-							messy wallet addresses and use simple and easy to
-							share links
+							Let your audience support you with cryptocurrency
+							through our creator pages.
 						</p>
 						<div>
 							<form
@@ -147,12 +143,12 @@ const Dashboard: React.FC = () => {
 								<input
 									id="address"
 									className="shadow-sm focus:ring-cryptopurple focus:border-cryptopurple block w-full sm:text-sm rounded-md border border-gray-400 px-4"
-									placeholder="0x..."
+									placeholder="Search by : Eg 0x1ed3... or destination.eth"
 									value={address}
 									onChange={(e) => setAddress(e.target.value)}
 								/>
-								<button className="flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 whitespace-nowrap">
-									Checkout page
+								<button className="flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cryptopurple whitespace-nowrap">
+									Search Creator
 								</button>
 							</form>
 						</div>
@@ -162,20 +158,30 @@ const Dashboard: React.FC = () => {
 					</div>
 				</div>
 			</div>
-			<div className="max-w-7xl font-urbanist mb-6 mx-auto px-2 sm:px-4 lg:px-8">
-				<h2 className='text-4xl font-extrabold mb-4'>Support Makers, Today!</h2>
+			<div className="max-w-7xl font-urbanist mt-16 mb-32 mx-auto px-2 sm:px-4 lg:px-8">
+				<h2 className="text-4xl font-extrabold mb-4">
+					<span className="text-cryptopurple">Support Makers,</span>{" "}
+					Today!
+				</h2>
 				{/* <span className='w-20 text-base'>
 					Some of the most talented creators in the world accept cryptocurrency through 
 					our cryptocoffee pages. Go support them!
 				</span> */}
-				<div className='flex justify-center mt-16 mx-auto space-x-24'>
-					{makerData.map((maker => (
-						<div className='flex flex-col items-center justify-center'>
-							<img src={maker.image} className='rounded-full w-28 h-28' />
-							<span className='text-lg font-extrabold mt-4'>{maker.name}</span>
-							<span className='text-center mt-2'>{maker.description}</span>
+				<div className="flex justify-center mt-16 mx-auto space-x-24 sm:flex-col sm:space-x-0 sm:space-y-12">
+					{makerData.map((maker) => (
+						<div className="flex flex-1/4 flex-col items-center justify-center">
+							<img
+								src={maker.image}
+								className="rounded-full w-28 h-28"
+							/>
+							<span className="text-lg font-extrabold mt-4">
+								{maker.name}
+							</span>
+							<span className="text-center mt-2">
+								{maker.description}
+							</span>
 							<div className="flex space-x-4 mt-4">
-								<a 
+								<a
 									className="w-12 h-12 rounded-full bg-lightpurple text-cryptopurple flex items-center justify-center"
 									href={`https://app.buymeacryptocoffee.xyz/${maker.address}`}
 									target="_blank"
@@ -207,7 +213,7 @@ const Dashboard: React.FC = () => {
 								</a>
 							</div>
 						</div>
-					)))}
+					))}
 				</div>
 			</div>
 		</div>

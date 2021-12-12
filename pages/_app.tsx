@@ -7,7 +7,6 @@ import "react-toastify/dist/ReactToastify.css";
 import ReactTooltip from "react-tooltip";
 import "tailwindcss/tailwind.css";
 import Account from "../components/Account";
-import Address from "../components/Address";
 import Chains from "../components/Chains";
 import Logo from "../components/Logo";
 import { AuthWrapper } from "../utils/context";
@@ -21,6 +20,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 		<MoralisProvider appId={APP_ID} serverUrl={SERVER_URL}>
 			<AuthWrapper>
 				<Head key="main-head">
+					<title>BuyMeACryptoCoffee</title>
 					<link
 						rel="preconnect"
 						href="https://fonts.googleapis.com"
@@ -38,10 +38,35 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 						href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700;800&display=swap"
 						rel="stylesheet"
 					></link>
+					<link
+						rel="apple-touch-icon"
+						sizes="60x60"
+						href="/apple-touch-icon.png"
+					/>
+					<link
+						rel="icon"
+						type="image/png"
+						sizes="32x32"
+						href="/favicon-32x32.png"
+					/>
+					<link
+						rel="icon"
+						type="image/png"
+						sizes="16x16"
+						href="/favicon-16x16.png"
+					/>
+					<link rel="manifest" href="/site.webmanifest" />
+					<link
+						rel="mask-icon"
+						href="/safari-pinned-tab.svg"
+						color="#5bbad5"
+					/>
+					<meta name="msapplication-TileColor" content="#da532c" />
+					<meta name="theme-color" content="#ffffff"></meta>
 				</Head>
-				<header className="bg-white shadow">
+				<header className="bg-white drop-shadow-md">
 					<div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
-						<div className="flex items-center justify-between py-4">
+						<div className="flex items-center justify-between py-5">
 							<div className="flex px-2 lg:px-0">
 								<div className="flex-shrink-0 flex items-center">
 									<Link href="/">
@@ -60,7 +85,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 				</header>
 
 				<Component {...pageProps} />
-				<footer className="bg-footerblack w-full py-24 flex flex-col items-center justify-center">
+				<footer className="bg-footerblack space-y-4 w-full py-24 flex flex-col items-center justify-center">
 					<Logo isWhite />
 					<span className="font-urbanist text-white text-base">
 						Makers:

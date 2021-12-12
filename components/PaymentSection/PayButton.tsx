@@ -5,6 +5,7 @@ import { useChain, useMoralis, useWeb3Transfer } from "react-moralis";
 import { toast } from "react-toastify";
 import { Transaction } from "../../contracts";
 import { saveTransaction } from "../../utils";
+import { fetchEnsAddress } from "../../utils/useEnsAddress";
 
 interface IPayButton {
 	readonly amount: number;
@@ -40,14 +41,6 @@ const PayButton: React.FC<IPayButton> = ({
 	});
 
 	const { chainId } = useChain();
-
-	console.log({
-		amount: txAmount,
-		receiver,
-		type,
-		contractAddress,
-	});
-
 	const { account } = useMoralis();
 
 	useEffect(() => {
@@ -65,15 +58,13 @@ const PayButton: React.FC<IPayButton> = ({
 				message,
 				formattedAmount: `${amount} ${symbol}`,
 				chain: chainId,
+				fromEns: await fetchEnsAddress(account),
+				tokenDecimals: decimals || null,
 			};
 
-			console.log({ transaction });
 			await saveTransaction(transaction);
-			const transactionURL = chainId
-				? chainId === "0x1"
-					? `https://etherscan.io/tx/${transaction?.id}`
-					: `https://polygonscan.com/tx/${transaction?.id}`
-				: `https://etherscan.io/tx/${transaction?.id}`;
+
+			// const transactionURL = getTxnUrl(transaction.id, transaction.chain);
 
 			toast.success(
 				<div className="flex items-center justify-between">
