@@ -12,6 +12,7 @@ module.exports = {
 			screens: {
 				xs: { max: "425px" },
 				sm: { max: "768px" },
+				'max-lg': { max: "1024px" }
 			},
 			animation: {
 				"animate-alt-spin": "spin 1s linear infinite reverse",

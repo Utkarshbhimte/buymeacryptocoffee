@@ -169,53 +169,61 @@ const PaymentSection = ({ profileAddress }) => {
 						</span>
 					</div>
 					<div className="px-6 py-4">
-						<div className="flex font-urbanist font-normal items-center justify-between rounded-md space-x-4">
-							<div className="flex flex-col flex-1 w-44">
-								<Select
-									options={tokensArray.map((token) => ({
-										key: token.name,
-										label: (
-											<div className="flex items-center space-x-2">
-												{token.logo && (
-													<img
-														src={token.logo}
-														className="h-6 w-6"
-													/>
-												)}
-												<span className="text-sm font-semibold">
-													{token.name}
-												</span>
-											</div>
-										),
-									}))}
-									onChange={(e) => setSelectedToken(e)}
-									value={
-										!!selectedToken
-											? selectedToken
-											: cleanedNativeTokens.name
-									}
-									placeholder="0.0"
-								/>
-								<div className="mt-2 text-xs">
-									Balance: {selectedTokenData?.balance ?? 0}
+						<div className="font-urbanist font-normal rounded-md space-x-4">
+							<div className='flex items-center justify-between'>
+								<div className="flex flex-col flex-1 w-44">
+									<Select
+										options={tokensArray.map((token) => ({
+											key: token.name,
+											label: (
+												<div className="flex items-center space-x-2">
+													{token.logo && (
+														<img
+															src={token.logo}
+															className="h-6 w-6"
+														/>
+													)}
+													<span className="text-sm font-semibold">
+														{token.name}
+													</span>
+												</div>
+											),
+										}))}
+										onChange={(e) => setSelectedToken(e)}
+										value={
+											!!selectedToken
+												? selectedToken
+												: cleanedNativeTokens.name
+										}
+										placeholder="0.0"
+									/>
+								</div>
+								<div>
+									<input
+										type="number"
+										name="amount"
+										id="amount"
+										min="0"
+										value={price}
+										onChange={(e) =>
+											setPrice(Number(e.target.value))
+										}
+										style={{
+											appearance: "none",
+										}}
+										className="block text-2xl font-bold border-none rounded-md w-24 text-right focus:ring-0 shadow-none focus:bg-gray-100 hover:bg-gray-100 cursor-pointer transition duration-300 ease-in-out"
+										placeholder="0.0"
+									/>
 								</div>
 							</div>
-							<div>
-								<input
-									type="number"
-									name="amount"
-									id="amount"
-									min="0"
-									value={price}
-									onChange={(e) =>
-										setPrice(Number(e.target.value))
-									}
-									style={{
-										appearance: "none",
-									}}
-									className="block text-2xl font-bold border-none rounded-md w-24 text-right focus:ring-0 shadow-none focus:bg-gray-100 hover:bg-gray-100 cursor-pointer transition duration-300 ease-in-out"
-									placeholder="0.0"
-								/>
+							<div className="mt-2 text-xs">
+								Balance: {selectedTokenData?.balance ?? 0}
+								<button 
+									className='px-1 ml-2 border border-cryptopurple bg-lightpurple text-cryptopurple rounded-lg'
+									onClick={handleMax}
+								>
+									max
+								</button>
 							</div>
 						</div>
 
