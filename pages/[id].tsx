@@ -22,24 +22,23 @@ declare let window: any;
 export interface ProfileProps {
 	transactions: Transaction[];
 	profileAddress: string;
+	ens?: string;
 }
 
 const Profile: React.FC<ProfileProps> = ({
 	transactions: allTransactions,
 	profileAddress,
+	ens,
 }) => {
-	const router = useRouter();
-	const currProfileAddress = router.query.id as string;
-
-	const currProfileEns = useEnsAddress(currProfileAddress);
+	const currProfileEns = useEnsAddress(profileAddress) || ens;
 	const { account } = useMoralis();
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
 	const [isCopied, setIsCopied] = useState(false);
 
 	const handleCopyAddress = () => {
-		if (!currProfileAddress) return;
+		if (!profileAddress) return;
 		setIsCopied(true);
-		copy(currProfileAddress);
+		copy(profileAddress);
 		setTimeout(() => setIsCopied(false), 1500);
 	};
 
@@ -48,7 +47,7 @@ const Profile: React.FC<ProfileProps> = ({
 	}, [allTransactions]);
 
 	const twitterIntent = `
-		You%20can%20support%20by%20donating%20some%20CryptoCoffee%20(%E2%98%95%EF%B8%8F)%20here%20%E2%80%94%0Ahttps://buymeacryptocoffee.xyz/${currProfileAddress}%0ACreate%20your%20own%20page%20%40buycryptocoffee
+		You%20can%20support%20by%20donating%20some%20CryptoCoffee%20(%E2%98%95%EF%B8%8F)%20here%20%E2%80%94%0Ahttps://buymeacryptocoffee.xyz/${profileAddress}%0ACreate%20your%20own%20page%20%40buycryptocoffee
 	`;
 
 	return (
@@ -57,13 +56,13 @@ const Profile: React.FC<ProfileProps> = ({
 				{/* Page header */}
 				<div className="w-full bg-cryptopurple h-64" />
 				<div className="max-w-6xl mx-auto rounded-xl py-12 ">
-					<div className="-mt-64 mx-auto grid grid-cols-1 gap-6 sm:px-6 xs:mx-4 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
-						<div className="space-y-6 p-8 rounded-lg bg-white shadow-md lg:col-start-1 lg:col-span-2 border border-gray-300">
+					<div className="-mt-64 mx-auto grid grid-cols-1 gap-6 sm:px-6 xs:mx-4 xs:px-0 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
+						<div className="space-y-6 p-8 xs:p-4 rounded-lg bg-white shadow-md lg:col-start-1 lg:col-span-2 border border-gray-300">
 							<div className="flex justify-between items-center xs:hidden">
 								<div className="flex items-center space-x-5">
 									<div className="flex-shrink-0">
 										<Blockies
-											seed={currProfileAddress}
+											seed={profileAddress}
 											size={9}
 											scale={8}
 											className="rounded-full"
@@ -73,9 +72,7 @@ const Profile: React.FC<ProfileProps> = ({
 										<h1 className="font-urbanist text-3xl font-bold text-gray-900 mb-1">
 											{/* <div className="animate-pulse h-12 w-48 bg-gray-300 rounded-md" /> */}
 											{currProfileEns ??
-												minimizeAddress(
-													currProfileAddress
-												)}
+												minimizeAddress(profileAddress)}
 										</h1>
 										{!!currProfileEns && (
 											<div
@@ -106,7 +103,7 @@ const Profile: React.FC<ProfileProps> = ({
 								<div className="flex space-x-4">
 									<a
 										className="w-12 h-12 rounded-full bg-lightpurple flex items-center justify-center"
-										href={`https://twitter.com/intent/tweet?text=Support%20this%20creator%20https://app.buymeacryptocoffee.xyz/${currProfileAddress}`}
+										href={`https://twitter.com/intent/tweet?text=Support%20this%20creator%20https://app.buymeacryptocoffee.xyz/${profileAddress}`}
 										target="_blank"
 										rel="noreferrer noopener"
 									>
@@ -278,7 +275,7 @@ const Profile: React.FC<ProfileProps> = ({
 												</button>
 												<a
 													className="flex items-center border border-twitterblue text-twitterblue px-5 py-2 rounded-lg"
-													href={`https://twitter.com/intent/tweet?text=Support%20this%20creator%20https://app.buymeacryptocoffee.xyz/${currProfileAddress}`}
+													href={`https://twitter.com/intent/tweet?text=Support%20this%20creator%20https://app.buymeacryptocoffee.xyz/${profileAddress}`}
 													target="_blank"
 													rel="noreferrer noopener"
 												>
@@ -316,18 +313,18 @@ const Profile: React.FC<ProfileProps> = ({
 									<div className="flex items-center space-x-5">
 										<div className="flex-shrink-0">
 											<Blockies
-												seed={currProfileAddress}
+												seed={profileAddress}
 												size={9}
 												scale={8}
 												className="rounded-full"
 											/>
 										</div>
-										<div data-tip={currProfileAddress}>
+										<div data-tip={profileAddress}>
 											<h1 className="font-urbanist text-3xl xs:text-xl font-bold text-gray-900">
 												{!currProfileEns
 													? currProfileEns
 													: minimizeAddress(
-															currProfileAddress
+															profileAddress
 													  )}
 											</h1>
 										</div>
@@ -386,7 +383,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 		"https://speedy-nodes-nyc.moralis.io/d35afcfb3d409232f26629cd/eth/mainnet";
 	const provider = new ethers.providers.JsonRpcProvider(mainnetEndpoint);
 
-	const { address } = await validateAndResolveAddress(
+	const { address, name } = await validateAndResolveAddress(
 		userAddress.toString(),
 		provider
 	);
@@ -409,6 +406,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 		props: {
 			transactions,
 			profileAddress: address,
+			ens: name,
 		},
 	};
 };
