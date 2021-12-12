@@ -45,6 +45,10 @@ const Profile: React.FC<ProfileProps> = ({
 		setTransactions(allTransactions);
 	}, [allTransactions]);
 
+	const twitterIntent = `
+		You%20can%20support%20by%20donating%20some%20CryptoCoffee%20(%E2%98%95%EF%B8%8F)%20here%20%E2%80%94%0Ahttps://buymeacryptocoffee.xyz/${currProfileAddress}%0ACreate%20your%20own%20page%20%40buycryptocoffee
+	`
+
 	return (
 		<>
 			<div className="bg-gray-50 min-h-screen">
@@ -103,7 +107,7 @@ const Profile: React.FC<ProfileProps> = ({
 									<div className="flex space-x-4">
 										<a
 											className="w-12 h-12 rounded-full bg-lightpurple flex items-center justify-center"
-											href={`https://twitter.com/intent/tweet?text=Support%20this%20creator%20https://app.buymeacryptocoffee.xyz/${currProfileAddress}`}
+											href={`https://twitter.com/intent/tweet?text=${twitterIntent}`}
 											target="_blank"
 											rel="noreferrer noopener"
 										>
@@ -281,7 +285,7 @@ const Profile: React.FC<ProfileProps> = ({
 													</button>
 													<a
 														className="flex items-center border border-twitterblue text-twitterblue px-5 py-2 rounded-lg"
-														href={`https://twitter.com/intent/tweet?text=Support%20this%20creator%20https://app.buymeacryptocoffee.xyz/${currProfileAddress}`}
+														href={`https://twitter.com/intent/tweet?text=${twitterIntent}`}
 														target="_blank"
 														rel="noreferrer noopener"
 													>
@@ -342,7 +346,7 @@ const Profile: React.FC<ProfileProps> = ({
 										<div className="flex space-x-4">
 											<a
 												className="w-12 h-12 rounded-full bg-lightpurple flex items-center justify-center"
-												href={`https://twitter.com/intent/tweet?text=Support%20this%20creator%20https://app.buymeacryptocoffee.xyz/${currProfileAddress}`}
+												href={`https://twitter.com/intent/tweet?text=${twitterIntent}`}
 												target="_blank"
 												rel="noreferrer noopener"
 											>
@@ -403,12 +407,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
 	const transactionsResponse = await db
 		.collection("transactions")
-<<<<<<< HEAD
-		.where("to", "==", address.toLowerCase())
-=======
 		.where("to", "==", userAddress.toString().toLowerCase())
 		.where('status', '==', 'success')
->>>>>>> c078489fa65cd20cd7b5c149123373d02ba19713
 		.get();
 
 	const transactions: Transaction[] = transactionsResponse.docs.map((doc) => {
