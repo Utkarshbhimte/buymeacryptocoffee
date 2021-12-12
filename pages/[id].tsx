@@ -56,14 +56,14 @@ const Profile: React.FC<ProfileProps> = ({
 					{/* Page header */}
 					<div className="w-full bg-cryptopurple h-80" />
 					<div className="max-w-6xl mx-auto rounded-xl py-12">
-						<div className="-translate-y-80 z-10 mx-auto grid grid-cols-1 gap-6 sm:px-6 xs:mx-4 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
-							<div className="space-y-6 p-8 rounded-lg bg-white shadow-md lg:col-start-1 lg:col-span-2">
+						<div className="-translate-y-80 z-10 mx-auto grid grid-cols-1 gap-6 sm:px-6 xs:mx-4 xs:px-0 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
+							<div className="space-y-6 p-8 xs:p-4 rounded-lg bg-white shadow-md lg:col-start-1 lg:col-span-2">
 								<div className="flex justify-between items-center xs:hidden">
 									<div className="flex items-center space-x-5">
 										<div className="flex-shrink-0">
 											<div className="relative">
 												<Blockies
-													seed={currProfileAddress}
+													seed={profileAddress}
 													size={9}
 													scale={8}
 													className="rounded-full"
@@ -345,7 +345,7 @@ const Profile: React.FC<ProfileProps> = ({
 										</div>
 										<div className="flex space-x-4">
 											<a
-												className="w-12 h-12 rounded-full bg-lightpurple flex items-center justify-center"
+												className="w-12 h-12 xs:w-10 xs:h-10 rounded-full bg-lightpurple flex items-center justify-center"
 												href={`https://twitter.com/intent/tweet?text=${twitterIntent}`}
 												target="_blank"
 												rel="noreferrer noopener"
@@ -366,7 +366,7 @@ const Profile: React.FC<ProfileProps> = ({
 													/>
 												</svg>
 											</a>
-											<div className="w-12 h-12 rounded-full bg-lightpurple text-cryptopurple flex items-center justify-center">
+											<div className="w-12 h-12 xs:w-10 xs:h-10 rounded-full bg-lightpurple text-cryptopurple flex items-center justify-center">
 												{isCopied ? (
 													<CheckIcon className="w-6 h-6" />
 												) : (
@@ -407,7 +407,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
 	const transactionsResponse = await db
 		.collection("transactions")
-		.where("to", "==", userAddress.toString().toLowerCase())
+		.where("to", "==", address.toString().toLowerCase())
 		.where("status", "==", "success")
 		.get();
 

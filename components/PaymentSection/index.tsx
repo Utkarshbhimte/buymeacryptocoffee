@@ -129,6 +129,10 @@ const PaymentSection = ({ profileAddress }) => {
 		tokensArray.find((token) => token.name === selectedToken) ??
 		cleanedNativeTokens;
 
+	const handleMax = () => {
+		setPrice(Number((selectedTokenData.balance as string)?.split(" ")[0] ?? 0))
+	}
+
 	return (
 		<section
 			aria-labelledby="timeline-title"
@@ -167,51 +171,59 @@ const PaymentSection = ({ profileAddress }) => {
 							</svg>
 						</span>
 					</div>
-					<div className="flex font-urbanist font-normal items-center justify-between border rounded-md p-3 mt-6 mx-6">
-						<div className="flex flex-col">
-							<div className="w-32">
-								<Select
-									options={tokensArray.map((token) => ({
-										key: token.name,
-										label: (
-											<div className="flex items-center">
-												{token.logo && (
-													<img
-														src={token.logo}
-														className="h-6 w-6 mr-1"
-													/>
-												)}
-												<span className="text-sm font-semibold">
-													{token.name}
-												</span>
-											</div>
-										),
-									}))}
-									onChange={(e) => setSelectedToken(e)}
-									value={
-										!!selectedToken
-											? selectedToken
-											: cleanedNativeTokens.name
+					<div className="font-urbanist font-normal border rounded-md p-3 mt-6 mx-6">
+						<div className='flex items-center justify-between'>
+							<div className="flex flex-col">
+								<div className="w-32">
+									<Select
+										options={tokensArray.map((token) => ({
+											key: token.name,
+											label: (
+												<div className="flex items-center">
+													{token.logo && (
+														<img
+															src={token.logo}
+															className="h-6 w-6 mr-1"
+														/>
+													)}
+													<span className="text-sm font-semibold">
+														{token.name}
+													</span>
+												</div>
+											),
+										}))}
+										onChange={(e) => setSelectedToken(e)}
+										value={
+											!!selectedToken
+												? selectedToken
+												: cleanedNativeTokens.name
+										}
+									/>
+								</div>
+							</div>
+							<div className='mt-4'>
+								<input
+									type="number"
+									name="amount"
+									id="amount"
+									min="0"
+									value={price}
+									onChange={(e) =>
+										setPrice(Number(e.target.value))
 									}
+									className="shadow-sm block sm:text-sm border-none rounded-md w-24 text-right"
+									placeholder="0.0"
 								/>
 							</div>
-							<div className="mt-2">
-								Balance: {selectedTokenData?.balance ?? 0}
-							</div>
 						</div>
-						<div>
-							<input
-								type="number"
-								name="amount"
-								id="amount"
-								min="0"
-								value={price}
-								onChange={(e) =>
-									setPrice(Number(e.target.value))
-								}
-								className="shadow-sm block sm:text-sm border-none rounded-md w-24 text-right"
-								placeholder="0.0"
-							/>
+						<div className="mt-2 w-full">
+							Balance: {selectedTokenData?.balance ?? 0} 
+							<button 
+								className='px-1 ml-2 border border-cryptopurple bg-lightpurple text-cryptopurple rounded-lg'
+								onClick={handleMax}
+							>
+								max
+							</button>
 						</div>
 					</div>
 
