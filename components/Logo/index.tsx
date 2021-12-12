@@ -6,8 +6,8 @@ import cryptocoffee from "../../assets/cryptocoffee.svg";
 const Logo: React.FC<{ isWhite?: boolean }> = ({ isWhite = false }) => {
 	return (
 		<Image
-			height={70}
-			width={100}
+			height={34}
+			width={87}
 			src={isWhite ? cryptocoffeewhite : cryptocoffee}
 		/>
 	);

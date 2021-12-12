@@ -1,10 +1,28 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { Transaction } from "../../contracts";
 import { db, firestoreCollections } from "../../utils/firebaseClient";
+import Cors from 'cors'
+
+const cors = Cors({
+	methods: ['GET', 'HEAD'],
+})
+
+function runMiddleware(req, res, fn) {
+	return new Promise((resolve, reject) => {
+	  fn(req, res, (result) => {
+		if (result instanceof Error) {
+		  return reject(result)
+		}
+  
+		return resolve(result)
+	  })
+	})
+  }
 
 const initialData = async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
 		// fetch all transaction from firebase with cronStatus of pending
+		await runMiddleware(req, res, cors)
 
 		const response = await db
 			.collection(firestoreCollections.TRANSACTIONS)
@@ -38,7 +56,9 @@ const initialData = async (req: NextApiRequest, res: NextApiResponse) => {
 
 		Promise.all(promises);
 
-		res.status(200);
+		res.status(200).json({
+			success: true
+		});
 	} catch (error) {
 		return res.status(error.status || 500).json({
 			message: error.message,

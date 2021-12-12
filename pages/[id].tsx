@@ -314,7 +314,7 @@ const Profile: React.FC<ProfileProps> = ({
 								aria-labelledby="timeline-title"
 								className="lg:col-start-3 lg:col-span-1 xs:row-span-full"
 							>
-								<div className="bg-white border border-gray-200 sm:rounded-lg xs:rounded-lg">
+								<div className="bg-white border border-gray-200 rounded-lg">
 									<div className="hidden p-6 justify-between items-center xs:flex">
 										<div className="flex items-center space-x-5">
 											<div className="flex-shrink-0">
@@ -403,7 +403,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
 	const transactionsResponse = await db
 		.collection("transactions")
+<<<<<<< HEAD
 		.where("to", "==", address.toLowerCase())
+=======
+		.where("to", "==", userAddress.toString().toLowerCase())
+		.where('status', '==', 'success')
+>>>>>>> c078489fa65cd20cd7b5c149123373d02ba19713
 		.get();
 
 	const transactions: Transaction[] = transactionsResponse.docs.map((doc) => {
