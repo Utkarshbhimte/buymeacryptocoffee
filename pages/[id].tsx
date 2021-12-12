@@ -3,7 +3,6 @@ import { ArrowUpIcon, CheckIcon } from "@heroicons/react/solid";
 import copy from "copy-to-clipboard";
 import { ethers } from "ethers";
 import { GetServerSideProps } from "next";
-import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import Blockies from "react-blockies";
 import { useMoralis } from "react-moralis";
@@ -13,9 +12,8 @@ import { Transaction } from "../contracts";
 import { minimizeAddress } from "../utils";
 import { validateAndResolveAddress } from "../utils/crypto";
 import { db } from "../utils/firebaseClient";
-import { useEnsAddress } from "../utils/useEnsAddress";
-import Moralis from "moralis";
 import { getTxnUrl } from "../utils/getTxnUrl";
+import { useEnsAddress } from "../utils/useEnsAddress";
 
 declare let window: any;
 
@@ -43,7 +41,13 @@ const Profile: React.FC<ProfileProps> = ({
 	};
 
 	useEffect(() => {
-		setTransactions(allTransactions);
+		const sortedTransactions = allTransactions.sort((a, b) => {
+			return b.timestamp - a.timestamp;
+		});
+
+		console.log({ sortedTransactions });
+
+		setTransactions(sortedTransactions);
 	}, [allTransactions]);
 
 	const twitterIntent = `
@@ -182,9 +186,12 @@ const Profile: React.FC<ProfileProps> = ({
 																				{transaction?.from.toLowerCase() ===
 																				account?.toLowerCase()
 																					? "You "
-																					: `${minimizeAddress(
-																							transaction?.from
-																					  )} `}
+																					: `${
+																							transaction.fromEns ||
+																							minimizeAddress(
+																								transaction?.from
+																							)
+																					  } `}
 																			</span>
 																			bought
 																			a
@@ -385,10 +392,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 		provider
 	);
 
+	console.log(address.toString().toLowerCase(), name);
+
 	const transactionsResponse = await db
 		.collection("transactions")
 		.where("to", "==", address.toString().toLowerCase())
-		.where("status", "==", "success")
 		.get();
 
 	const transactions: Transaction[] = transactionsResponse.docs.map((doc) => {
