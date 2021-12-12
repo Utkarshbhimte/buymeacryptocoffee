@@ -103,7 +103,7 @@ const Profile: React.FC<ProfileProps> = ({
 								<div className="flex space-x-4">
 									<a
 										className="w-12 h-12 rounded-full bg-lightpurple flex items-center justify-center"
-										href={`https://twitter.com/intent/tweet?text=Support%20this%20creator%20https://app.buymeacryptocoffee.xyz/${profileAddress}`}
+										href={`https://twitter.com/intent/tweet?text=${twitterIntent}`}
 										target="_blank"
 										rel="noreferrer noopener"
 									>
@@ -275,7 +275,7 @@ const Profile: React.FC<ProfileProps> = ({
 												</button>
 												<a
 													className="flex items-center border border-twitterblue text-twitterblue px-5 py-2 rounded-lg"
-													href={`https://twitter.com/intent/tweet?text=Support%20this%20creator%20https://app.buymeacryptocoffee.xyz/${profileAddress}`}
+													href={`https://twitter.com/intent/tweet?text=${twitterIntent}`}
 													target="_blank"
 													rel="noreferrer noopener"
 												>
