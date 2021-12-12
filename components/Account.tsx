@@ -3,7 +3,7 @@ import { ChevronDownIcon } from "@heroicons/react/solid";
 import classNames from "classnames";
 import { Fragment, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useMoralis } from "react-moralis";
+import { useChain, useMoralis } from "react-moralis";
 import { AuthenticateOptions } from "react-moralis/lib/hooks/core/useMoralis/_useMoralisAuth";
 import { getEllipsisTxt } from "../helpers/formatters";
 import { getExplorer } from "../helpers/networks";
@@ -15,6 +15,7 @@ import { useEnsAddress } from "../utils/useEnsAddress";
 function Account() {
 	const { authenticate, isAuthenticated, logout, account, chainId } =
 		useMoralis();
+	const { switchNetwork } = useChain();
 	const [loading, setLoading] = useState(false);
 	const { name: ensAddress, avatar } = useEnsAddress(account);
 
@@ -102,6 +103,48 @@ function Account() {
 									</a>
 								)}
 							</Menu.Item>
+							<div className="block md:hidden">
+								{chainId == "0x1" && (
+									<Menu.Item>
+										{({ active }) => (
+											<a
+												onClick={() =>
+													switchNetwork("0x89")
+												}
+												className={classNames(
+													active
+														? "bg-gray-100 text-gray-900"
+														: "text-gray-700",
+													"block px-4 py-2 text-sm"
+												)}
+											>
+												Switch to Polygon
+											</a>
+										)}
+									</Menu.Item>
+								)}
+
+								{chainId !== "0x1" && (
+									<Menu.Item>
+										{({ active }) => (
+											<a
+												onClick={() =>
+													switchNetwork("0x1")
+												}
+												className={classNames(
+													active
+														? "bg-gray-100 text-gray-900"
+														: "text-gray-700",
+													"block px-4 py-2 text-sm"
+												)}
+											>
+												Switch to Ethereum
+											</a>
+										)}
+									</Menu.Item>
+								)}
+							</div>
+
 							<Menu.Item>
 								{({ active }) => (
 									<a

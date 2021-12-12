@@ -100,10 +100,8 @@ const Chains = () => {
 	if (!isAuthenticated) return <div />;
 
 	return (
-		<div className="flex space-x-4 items-center">
-			<span className="text-gray-500 text-sm hidden md:block">
-				Switch Chain:
-			</span>
+		<div className="space-x-4 items-center hidden md:flex">
+			<span className="text-gray-500 text-sm">Switch Chain:</span>
 			{menuItems.map((item) => (
 				<button
 					key={item.key}
