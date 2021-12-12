@@ -117,12 +117,16 @@ export const sendTransaction = async (
 	return tx;
 };
 
+
+export interface ENSResponse {
+	address?: string | null; name?: string | null; avatar?: string | null
+}
 export const validateAndResolveAddress = async (
 	userAddress: string,
 	provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider
-): Promise<{ address?: string | null; name?: string | null } | undefined> => {
+): Promise<ENSResponse | undefined> => {
 	try {
-		let address, name;
+		let address, name, avatar;
 
 		if (userAddress.includes(".")) {
 			const ensResolver = await provider.resolveName(userAddress);
@@ -143,7 +147,12 @@ export const validateAndResolveAddress = async (
 
 			address = userAddress;
 		}
-		return { address, name };
+
+		if (name) {
+			avatar = await provider.getAvatar(name);
+		}
+
+		return { address, name, avatar };
 	} catch (error) {
 		console.error(error);
 		return {};

@@ -21,14 +21,19 @@ export interface ProfileProps {
 	transactions: Transaction[];
 	profileAddress: string;
 	ens?: string;
+	avatar?: string;
 }
 
 const Profile: React.FC<ProfileProps> = ({
 	transactions: allTransactions,
 	profileAddress,
 	ens,
+	avatar: defaultAvatar,
 }) => {
-	const currProfileEns = useEnsAddress(profileAddress) || ens;
+	const { name: currProfileEns, avatar } = useEnsAddress(profileAddress) || {
+		currProfileEns: ens,
+		avatar: defaultAvatar,
+	};
 	const { account } = useMoralis();
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
 	const [isCopied, setIsCopied] = useState(false);
@@ -65,12 +70,21 @@ const Profile: React.FC<ProfileProps> = ({
 							<div className="flex justify-between items-center sm:hidden">
 								<div className="flex items-center space-x-5">
 									<div className="flex-shrink-0">
-										<Blockies
-											seed={profileAddress}
-											size={9}
-											scale={8}
-											className="rounded-full"
-										/>
+										{avatar && (
+											<img
+												src={avatar}
+												alt={profileAddress}
+												className="h-16 w-16 rounded-full"
+											/>
+										)}
+										{!avatar && (
+											<Blockies
+												seed={profileAddress}
+												size={9}
+												scale={8}
+												className="rounded-full"
+											/>
+										)}
 									</div>
 									<div className="group">
 										<h1 className="font-urbanist text-3xl font-bold text-gray-900 mb-1">
@@ -163,18 +177,31 @@ const Profile: React.FC<ProfileProps> = ({
 															>
 																<div className="flex space-x-3">
 																	<div className="flex-shrink-0">
-																		<Blockies
-																			seed={
-																				transaction?.from
-																			}
-																			size={
-																				8
-																			}
-																			scale={
-																				6
-																			}
-																			className="rounded-full"
-																		/>
+																		{!!transaction.senderAvatar && (
+																			<img
+																				className="h-12 w-12 rounded-full"
+																				src={
+																					transaction.senderAvatar
+																				}
+																				alt={
+																					transaction.from
+																				}
+																			/>
+																		)}
+																		{!transaction.senderAvatar && (
+																			<Blockies
+																				seed={
+																					transaction?.from
+																				}
+																				size={
+																					8
+																				}
+																				scale={
+																					6
+																				}
+																				className="rounded-full"
+																			/>
+																		)}
 																	</div>
 																	<div>
 																		<div className="text-lg">
@@ -329,7 +356,9 @@ const Profile: React.FC<ProfileProps> = ({
 										<div data-tip={profileAddress}>
 											<h1 className="font-urbanist text-3xl xs:text-xl font-bold text-gray-900">
 												{currProfileEns ??
-													minimizeAddress(profileAddress)}
+													minimizeAddress(
+														profileAddress
+													)}
 											</h1>
 										</div>
 									</div>
@@ -387,7 +416,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 		"https://speedy-nodes-nyc.moralis.io/d35afcfb3d409232f26629cd/eth/mainnet";
 	const provider = new ethers.providers.JsonRpcProvider(mainnetEndpoint);
 
-	const { address, name } = await validateAndResolveAddress(
+	const { address, name, avatar } = await validateAndResolveAddress(
 		userAddress.toString(),
 		provider
 	);
@@ -412,6 +441,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 			transactions,
 			profileAddress: address,
 			ens: name,
+			avatar,
 		},
 	};
 };

@@ -48,6 +48,7 @@ const PayButton: React.FC<IPayButton> = ({
 	}, []);
 
 	const saveTransactionToDB = async (tx: any) => {
+		const walletMeta = await fetchEnsAddress(account);
 		try {
 			const transaction: Transaction = {
 				...new Transaction(),
@@ -58,7 +59,8 @@ const PayButton: React.FC<IPayButton> = ({
 				message,
 				formattedAmount: `${amount} ${symbol}`,
 				chain: chainId,
-				fromEns: await fetchEnsAddress(account),
+				fromEns: walletMeta.name,
+				senderAvatar: walletMeta.avatar,
 				tokenDecimals: decimals || null,
 			};
 
