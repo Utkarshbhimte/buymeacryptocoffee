@@ -59,10 +59,10 @@ const Profile: React.FC<ProfileProps> = ({
 			<div className="bg-gray-50 min-h-screen">
 				{/* Page header */}
 				<div className="w-full bg-cryptopurple h-64" />
-				<div className="max-w-6xl mx-auto rounded-xl py-12 ">
+				<div className="max-w-6xl max-lg:mx-6 mx-auto rounded-xl py-12 ">
 					<div className="-mt-64 mx-auto grid grid-cols-1 gap-6 sm:px-6 xs:mx-4 xs:px-0 lg:max-w-7xl lg:grid-flow-col-dense lg:grid-cols-3">
 						<div className="space-y-6 p-8 xs:p-4 rounded-lg bg-white shadow-md lg:col-start-1 lg:col-span-2 border border-gray-300">
-							<div className="flex justify-between items-center xs:hidden">
+							<div className="flex justify-between items-center sm:hidden">
 								<div className="flex items-center space-x-5">
 									<div className="flex-shrink-0">
 										<Blockies
@@ -313,10 +313,10 @@ const Profile: React.FC<ProfileProps> = ({
 
 						<section
 							aria-labelledby="timeline-title"
-							className="lg:col-start-3 lg:col-span-1 xs:row-span-full"
+							className="lg:col-start-3 lg:col-span-1 sm:row-span-full"
 						>
 							<div className="bg-white border border-gray-200 rounded-lg">
-								<div className="hidden p-6 justify-between items-center xs:flex">
+								<div className="hidden p-6 justify-between items-center sm:flex">
 									<div className="flex items-center space-x-5">
 										<div className="flex-shrink-0">
 											<Blockies
@@ -328,47 +328,44 @@ const Profile: React.FC<ProfileProps> = ({
 										</div>
 										<div data-tip={profileAddress}>
 											<h1 className="font-urbanist text-3xl xs:text-xl font-bold text-gray-900">
-												{!currProfileEns
-													? currProfileEns
-													: minimizeAddress(
-															profileAddress
-													  )}{" "}
+												{currProfileEns ??
+													minimizeAddress(profileAddress)}
 											</h1>
 										</div>
 									</div>
-									<div className="flex space-x-4">
-										<a
-											className="w-12 h-12 rounded-full bg-lightpurple flex items-center justify-center"
-											href={`https://twitter.com/intent/tweet?text=${twitterIntent}`}
-											target="_blank"
-											rel="noreferrer noopener"
+								</div>
+								<div className="hidden sm:flex space-x-4 px-6">
+									<a
+										className="w-12 h-12 rounded-full bg-lightpurple flex items-center justify-center"
+										href={`https://twitter.com/intent/tweet?text=${twitterIntent}`}
+										target="_blank"
+										rel="noreferrer noopener"
+									>
+										<svg
+											width="22"
+											height="18"
+											viewBox="0 0 22 18"
+											fill="none"
+											xmlns="http://www.w3.org/2000/svg"
 										>
-											<svg
-												width="22"
-												height="18"
-												viewBox="0 0 22 18"
-												fill="none"
-												xmlns="http://www.w3.org/2000/svg"
-											>
-												<path
-													d="M21 1.01001C20 1.50001 19.02 1.69901 18 2.00001C16.879 0.735013 15.217 0.665013 13.62 1.26301C12.023 1.86101 10.977 3.32301 11 5.00001V6.00001C7.755 6.08301 4.865 4.60501 3 2.00001C3 2.00001 -1.182 9.43301 7 13C5.128 14.247 3.261 15.088 1 15C4.308 16.803 7.913 17.423 11.034 16.517C14.614 15.477 17.556 12.794 18.685 8.77501C19.0218 7.55268 19.189 6.28987 19.182 5.02201C19.18 4.77301 20.692 2.25001 21 1.00901V1.01001Z"
-													stroke="#9366F9"
-													strokeWidth="1.5"
-													strokeLinecap="round"
-													strokeLinejoin="round"
-												/>
-											</svg>
-										</a>
-										<div className="w-12 h-12 rounded-full bg-lightpurple text-cryptopurple flex items-center justify-center">
-											{isCopied ? (
-												<CheckIcon className="w-6 h-6" />
-											) : (
-												<DuplicateIcon
-													className="cursor-pointer w-6 h-6"
-													onClick={handleCopyAddress}
-												/>
-											)}
-										</div>
+											<path
+												d="M21 1.01001C20 1.50001 19.02 1.69901 18 2.00001C16.879 0.735013 15.217 0.665013 13.62 1.26301C12.023 1.86101 10.977 3.32301 11 5.00001V6.00001C7.755 6.08301 4.865 4.60501 3 2.00001C3 2.00001 -1.182 9.43301 7 13C5.128 14.247 3.261 15.088 1 15C4.308 16.803 7.913 17.423 11.034 16.517C14.614 15.477 17.556 12.794 18.685 8.77501C19.0218 7.55268 19.189 6.28987 19.182 5.02201C19.18 4.77301 20.692 2.25001 21 1.00901V1.01001Z"
+												stroke="#9366F9"
+												strokeWidth="1.5"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+											/>
+										</svg>
+									</a>
+									<div className="w-12 h-12 rounded-full bg-lightpurple text-cryptopurple flex items-center justify-center">
+										{isCopied ? (
+											<CheckIcon className="w-6 h-6" />
+										) : (
+											<DuplicateIcon
+												className="cursor-pointer w-6 h-6"
+												onClick={handleCopyAddress}
+											/>
+										)}
 									</div>
 								</div>
 								<PaymentSection

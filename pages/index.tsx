@@ -126,14 +126,14 @@ const Dashboard: React.FC = () => {
 				<div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 flex h-full bg-lightpurple space-x-4 items-center font-urbanist">
 					<div className="flex-1 px-4 md:px-0">
 						<h1 className=" text-5xl font-bold mb-4">
-							Let your audience buy you a{" "}
+							Get Support from your audience in{" "}
 							<span className="text-cryptopurple">
-								Crypto Coffee ✨
+								Crypto ✨
 							</span>
 						</h1>
 						<p className="mb-8">
-							Let your audience support you with cryptocurrency
-							through our creator pages.
+						Move on from traditional currency, and easily get 
+						<span className='font-semibold'> support from your audience in Cryptocurrency.</span>
 						</p>
 						<div>
 							<form
