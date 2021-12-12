@@ -1,6 +1,8 @@
+import { ArrowUpIcon } from "@heroicons/react/solid";
 import Moralis from "moralis";
 import React, { useEffect } from "react";
 import { useChain, useMoralis, useWeb3Transfer } from "react-moralis";
+import { toast } from "react-toastify";
 import { Transaction } from "../../contracts";
 import { saveTransaction } from "../../utils";
 
@@ -67,6 +69,26 @@ const PayButton: React.FC<IPayButton> = ({
 
 			console.log({ transaction });
 			await saveTransaction(transaction);
+			const transactionURL = chainId
+				? chainId === "0x1"
+					? `https://etherscan.io/tx/${transaction?.id}`
+					: `https://polygonscan.com/tx/${transaction?.id}`
+				: `https://etherscan.io/tx/${transaction?.id}`;
+
+			toast.success(
+				<div className="flex items-center justify-between">
+					<span>Transaction Successful!</span>
+					<a
+						className="cursor-pointer absolute flex items-center justify-center rounded-full w-6 h-6 bg-cryptoblue right-4"
+						href={"#"}
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<ArrowUpIcon className="w-4 h-4 rotate-45 text-white" />
+					</a>
+				</div>,
+				{ closeButton: false, position: "top-center" }
+			);
 		} catch (error) {
 			console.error(error);
 		}

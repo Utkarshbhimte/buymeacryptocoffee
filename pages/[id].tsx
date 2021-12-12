@@ -148,75 +148,103 @@ const Profile: React.FC<ProfileProps> = ({
 														(
 															transaction,
 															index
-														) => (
-															<li
-																key={index}
-																className="relative p-4 bg-lightpurple rounded-xl border border-cryptopurple"
-															>
-																<div className="flex space-x-3">
-																	<div className="flex-shrink-0">
-																		<Blockies
-																			seed={
-																				transaction?.from
-																			}
-																			size={
-																				8
-																			}
-																			scale={
-																				6
-																			}
-																			className="rounded-full"
-																		/>
-																	</div>
-																	<div>
-																		<div className="text-lg">
-																			<span
-																				data-tip={
+														) => {
+															const transactionURL =
+																transaction.chain
+																	? transaction.chain ===
+																	  "0x1"
+																		? `https://etherscan.io/tx/${transaction?.id}`
+																		: `https://polygonscan.com/tx/${transaction?.id}`
+																	: `https://etherscan.io/tx/${transaction?.id}`;
+
+															return (
+																<li
+																	key={index}
+																	className="relative p-4 bg-lightpurple rounded-xl border border-cryptopurple"
+																>
+																	<div className="flex space-x-3">
+																		<div className="flex-shrink-0">
+																			<Blockies
+																				seed={
 																					transaction?.from
 																				}
-																			>
-																				{transaction?.from.toLowerCase() ===
-																				account?.toLowerCase()
-																					? "You "
-																					: `${minimizeAddress(
-																							transaction?.from
-																					  )} `}
-																			</span>
-																			bought
-																			you
-																			a
-																			CryptoCoffee🎉
-																		</div>
-																		<div className="inline-block mr-1 font-urbanist font-semibold text-base">
-																			{`${transaction?.amount}`}
-																		</div>
-																		Ξ
-																	</div>
-																</div>
-																{!!transaction
-																	?.message
-																	.length && (
-																	<>
-																		<div className="w-0 ml-5 mt-6 border-8 border-transparent border-b-8 border-b-white" />
-																		<div className="bg-white rounded-md w-max p-4 text-base text-gray-700">
-																			<p>
-																				{
-																					transaction.message
+																				size={
+																					8
 																				}
-																			</p>
+																				scale={
+																					6
+																				}
+																				className="rounded-full"
+																			/>
 																		</div>
-																	</>
-																)}
-																<a
-																	className="cursor-pointer absolute flex items-center justify-center rounded-full w-6 h-6 bg-cryptoblue right-4 bottom-4"
-																	href={`https://etherscan.io/tx/${transaction?.id}`}
-																	target="_blank"
-																	rel="noopener noreferrer"
-																>
-																	<ArrowUpIcon className="w-4 h-4 rotate-45 text-white" />
-																</a>
-															</li>
-														)
+																		<div>
+																			<div className="text-lg">
+																				<span
+																					data-tip={
+																						transaction?.from
+																					}
+																				>
+																					{transaction?.from.toLowerCase() ===
+																					account?.toLowerCase()
+																						? "You "
+																						: `${minimizeAddress(
+																								transaction?.from
+																						  )} `}
+																				</span>
+																				bought
+																				you
+																				a
+																				CryptoCoffee🎉
+																			</div>
+																			<div className="inline-block mr-1 font-urbanist font-semibold text-base">
+																				$
+																				{
+																					!!transaction.formattedAmount ? (
+																						transaction.formattedAmount
+																					) : (
+																						<span>
+																							{
+																								transaction?.amount
+																							}
+																							<span className="font-normal mx-2">
+																								Ξ
+																							</span>
+																						</span>
+																					)
+																					// <span className="mx-2 font-normal">
+																					// 	Ξ
+																					// </span>
+																				}
+																			</div>
+																		</div>
+																	</div>
+																	{!!transaction
+																		?.message
+																		.length && (
+																		<>
+																			<div className="w-0 ml-5 mt-6 border-8 border-transparent border-b-8 border-b-white" />
+																			<div className="bg-white rounded-md w-max p-4 text-base text-gray-700">
+																				<p>
+																					{
+																						transaction.message
+																					}
+																				</p>
+																			</div>
+																		</>
+																	)}
+																	<a
+																		className="cursor-pointer absolute flex items-center justify-center rounded-full w-6 h-6 bg-cryptoblue right-4 bottom-4"
+																		href={
+																			transactionURL
+																		}
+																		target="_blank"
+																		rel="noopener noreferrer"
+																	>
+																		<ArrowUpIcon className="w-4 h-4 rotate-45 text-white" />
+																	</a>
+																</li>
+															);
+														}
 													)}
 												</ul>
 											</div>
@@ -348,7 +376,9 @@ const Profile: React.FC<ProfileProps> = ({
 											</div>
 										</div>
 									</div>
-									<PaymentSection />
+									<PaymentSection
+										profileAddress={profileAddress}
+									/>
 								</div>
 							</section>
 						</div>

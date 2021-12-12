@@ -22,7 +22,7 @@ interface Token {
 	readonly logo?: string;
 }
 
-const PaymentSection = () => {
+const PaymentSection = ({ profileAddress }) => {
 	const { account: address } = useMoralis();
 	const { chainId } = useChain();
 	const { data: tokenMetadataData } = useOneInchTokens({
@@ -32,7 +32,6 @@ const PaymentSection = () => {
 	console.log(tokenMetadataData);
 
 	const router = useRouter();
-	const profileAddress = router.query.id?.toString() ?? "";
 
 	const [price, setPrice] = useState(0);
 	const [message, setMessage] = useState("");
