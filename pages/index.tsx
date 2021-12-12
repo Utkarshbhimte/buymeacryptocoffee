@@ -135,9 +135,8 @@ const Dashboard: React.FC = () => {
 							Let your audience buy you a <span className='text-cryptopurple'>Crypto Coffee ✨</span>
 						</h1>
 						<p className="mb-8">
-							BuyMeACryptoCoffee is a fun way to get rid of the
-							messy wallet addresses and use simple and easy to
-							share links
+							Let your audience support you with cryptocurrency 
+							through our creator pages.
 						</p>
 						<div>
 							<form
