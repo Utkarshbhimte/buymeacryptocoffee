@@ -42,7 +42,11 @@ const Profile: React.FC<ProfileProps> = ({
 	};
 
 	useEffect(() => {
-		setTransactions(allTransactions);
+		const sortedTransactions = allTransactions.sort((a, b) => {
+			return b.timestamp - a.timestamp;
+		});
+
+		setTransactions(sortedTransactions);
 	}, [allTransactions]);
 
 	return (
@@ -197,7 +201,6 @@ const Profile: React.FC<ProfileProps> = ({
 																				CryptoCoffee🎉
 																			</div>
 																			<div className="inline-block mr-1 font-urbanist font-semibold text-base">
-																				$
 																				{
 																					!!transaction.formattedAmount ? (
 																						transaction.formattedAmount
