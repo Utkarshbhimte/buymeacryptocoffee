@@ -132,7 +132,7 @@ function Account() {
 											"block px-4 py-2 text-sm"
 										)}
 									>
-										View on Etherscan
+										{chainId === '0x1' ? 'View on Etherscan' : 'View on PolygonScan'}
 									</a>
 								)}
 							</Menu.Item>
