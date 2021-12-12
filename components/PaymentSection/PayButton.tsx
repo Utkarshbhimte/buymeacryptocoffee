@@ -5,7 +5,7 @@ import { useChain, useMoralis, useWeb3Transfer } from "react-moralis";
 import { toast } from "react-toastify";
 import { Transaction } from "../../contracts";
 import { saveTransaction } from "../../utils";
-import { getTxnUrl } from "../../utils/getTxnUrl";
+import { fetchEnsAddress } from "../../utils/useEnsAddress";
 
 interface IPayButton {
 	readonly amount: number;
@@ -58,8 +58,8 @@ const PayButton: React.FC<IPayButton> = ({
 				message,
 				formattedAmount: `${amount} ${symbol}`,
 				chain: chainId,
-				// fromEns: account,
-				tokenDecimals: tx.decimals,
+				fromEns: await fetchEnsAddress(account),
+				tokenDecimals: decimals || null,
 			};
 
 			await saveTransaction(transaction);
