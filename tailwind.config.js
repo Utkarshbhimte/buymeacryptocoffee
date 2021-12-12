@@ -16,6 +16,9 @@ module.exports = {
 				"animate-alt-spin": "spin 1s linear infinite reverse",
 				"spin-slow": "spin 3s linear infinite",
 			},
+			height: {
+				'175': '44rem',
+			}
 		},
 		fontFamily: {
 			sora: ["'Sora'"],
