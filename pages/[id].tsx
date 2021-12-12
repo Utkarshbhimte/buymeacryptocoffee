@@ -47,6 +47,10 @@ const Profile: React.FC<ProfileProps> = ({
 		setTransactions(allTransactions);
 	}, [allTransactions]);
 
+	const twitterIntent = `
+		You%20can%20support%20by%20donating%20some%20CryptoCoffee%20(%E2%98%95%EF%B8%8F)%20here%20%E2%80%94%0Ahttps://buymeacryptocoffee.xyz/${currProfileAddress}%0ACreate%20your%20own%20page%20%40buycryptocoffee
+	`;
+
 	return (
 		<>
 			<div className="bg-gray-50 min-h-screen">
@@ -331,7 +335,7 @@ const Profile: React.FC<ProfileProps> = ({
 									<div className="flex space-x-4">
 										<a
 											className="w-12 h-12 rounded-full bg-lightpurple flex items-center justify-center"
-											href={`https://twitter.com/intent/tweet?text=Support%20this%20creator%20https://app.buymeacryptocoffee.xyz/${currProfileAddress}`}
+											href={`https://twitter.com/intent/tweet?text=${twitterIntent}`}
 											target="_blank"
 											rel="noreferrer noopener"
 										>
@@ -389,7 +393,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
 	const transactionsResponse = await db
 		.collection("transactions")
-		.where("to", "==", userAddress.toString().toLowerCase())
+		.where("to", "==", address.toString().toLowerCase())
 		.where("status", "==", "success")
 		.get();
 

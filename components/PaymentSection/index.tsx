@@ -51,7 +51,6 @@ const PaymentSection = ({ profileAddress }) => {
 	} = useNativeBalance();
 
 	const fetchBalances = async () => {
-		console.log("Console log 1");
 		await getBalances({
 			params: {
 				address,
@@ -125,6 +124,12 @@ const PaymentSection = ({ profileAddress }) => {
 		tokensArray.find((token) => token.name === selectedToken) ??
 		cleanedNativeTokens;
 
+	const handleMax = () => {
+		setPrice(
+			Number((selectedTokenData.balance as string)?.split(" ")[0] ?? 0)
+		);
+	};
+
 	return (
 		<section
 			aria-labelledby="timeline-title"
@@ -189,6 +194,7 @@ const PaymentSection = ({ profileAddress }) => {
 											? selectedToken
 											: cleanedNativeTokens.name
 									}
+									placeholder="0.0"
 								/>
 								<div className="mt-2 text-xs">
 									Balance: {selectedTokenData?.balance ?? 0}
