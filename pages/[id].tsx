@@ -45,6 +45,8 @@ const Profile: React.FC<ProfileProps> = ({
 			return b.timestamp - a.timestamp;
 		});
 
+		console.log({ sortedTransactions });
+
 		setTransactions(sortedTransactions);
 	}, [allTransactions]);
 
@@ -393,10 +395,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 		provider
 	);
 
+	console.log(address.toString().toLowerCase(), name);
+
 	const transactionsResponse = await db
 		.collection("transactions")
 		.where("to", "==", address.toString().toLowerCase())
-		.where("status", "==", "success")
 		.get();
 
 	const transactions: Transaction[] = transactionsResponse.docs.map((doc) => {
