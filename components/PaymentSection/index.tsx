@@ -6,6 +6,7 @@ import {
 	useERC20Balances,
 	useMoralis,
 	useNativeBalance,
+	useOneInchTokens,
 } from "react-moralis";
 import { chainLogo, tokenMetadata } from "../../utils/tokens";
 
@@ -24,6 +25,11 @@ interface Token {
 const PaymentSection = () => {
 	const { account: address } = useMoralis();
 	const { chainId } = useChain();
+	const { data: tokenMetadataData } = useOneInchTokens({
+		chain: chainId,
+	});
+
+	console.log(tokenMetadataData);
 
 	const router = useRouter();
 	const profileAddress = router.query.id?.toString() ?? "";
@@ -92,16 +98,24 @@ const PaymentSection = () => {
 		})) ?? [];
 
 	// fetch tokens data for plugin, need to add plugin in moralis
+	const getData = async () => {
+		const tokenMetadata = await Moralis.Web3API.token.getTokenMetadata({
+			chain: chainId as any,
+			addresses: [address],
+		});
+		console.log({ tokenMetadata });
+	};
 
-	// useEffect(() => {
-	// 	console.log("this-->", Moralis?.["Plugins"]);
-	// 	if (!Moralis?.["Plugins"]?.["oneInch"]) return null;
-	// 	Moralis.Plugins.oneInch
-	// 		.getSupportedTokens({ chain: chainId })
-	// 		.then((tokens) => {
-	// 			console.log({ tokens });
-	// 		});
-	// }, []);
+	useEffect(() => {
+		getData();
+		// console.log("this-->", Moralis?.["Plugins"]);
+		// if (!Moralis?.["Plugins"]?.["oneInch"]) return null;
+		// Moralis.Plugins.oneInch
+		// 	.getSupportedTokens({ chain: chainId })
+		// 	.then((tokens) => {
+		// 		console.log({ tokens });
+		// 	});
+	}, []);
 
 	const tokensArray: Token[] = [...cleanedERC20Tokens, cleanedNativeTokens];
 
