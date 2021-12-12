@@ -9,15 +9,15 @@ const cors = Cors({
 
 function runMiddleware(req, res, fn) {
 	return new Promise((resolve, reject) => {
-	  fn(req, res, (result) => {
-		if (result instanceof Error) {
-		  return reject(result)
-		}
-  
-		return resolve(result)
-	  })
+		fn(req, res, (result) => {
+			if (result instanceof Error) {
+				return reject(result)
+			}
+
+			return resolve(result)
+		})
 	})
-  }
+}
 
 const initialData = async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
@@ -45,8 +45,6 @@ const initialData = async (req: NextApiRequest, res: NextApiResponse) => {
 
 			const etherscanResponse = await fetch(etherscanApiUrl);
 			const etherscanData = await etherscanResponse.json();
-
-			console.log(etherscanData);
 
 			await db.doc(`${firestoreCollections.TRANSACTIONS}/${id}`).update({
 				cronStatus: "success",

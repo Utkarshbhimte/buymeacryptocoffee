@@ -47,7 +47,7 @@ const Select: React.FC<ISelectProps> = ({
 			{({ open }) => (
 				<>
 					<div className="mt-1 relative">
-						<Listbox.Button className="bg-white relative w-full shadow-md rounded-md pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-cryptopurple focus:border-cryptopurple sm:text-sm">
+						<Listbox.Button className="bg-white relative w-full border border-gray-200 rounded-md pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-cryptopurple focus:border-cryptopurple sm:text-sm">
 							<span className="block truncate">
 								{selectedValue?.label ?? (
 									<span>

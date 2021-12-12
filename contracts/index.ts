@@ -17,6 +17,7 @@ export class User {
 
 export class Transaction {
 	from: string = "";
+	fromEns: string | null = null;
 	to: string = "";
 	amount: number = 0;
 	timestamp: number = new Date().getTime();
@@ -26,4 +27,5 @@ export class Transaction {
 	status: "success" | "failure" | "" = "";
 	chain: string = "";
 	formattedAmount: string = "";
+	tokenDecimals: number = 0;
 }

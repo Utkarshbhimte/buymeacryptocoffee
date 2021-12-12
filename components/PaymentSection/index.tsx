@@ -29,10 +29,6 @@ const PaymentSection = ({ profileAddress }) => {
 		chain: chainId,
 	});
 
-	console.log(tokenMetadataData);
-
-	const router = useRouter();
-
 	const [price, setPrice] = useState(0);
 	const [message, setMessage] = useState("");
 
@@ -134,7 +130,7 @@ const PaymentSection = ({ profileAddress }) => {
 			aria-labelledby="timeline-title"
 			className="lg:col-start-3 lg:col-span-1"
 		>
-			<div className="bg-white border border-gray-200 rounded-lg">
+			<div className="bg-white rounded-lg shadow-md">
 				{/* {!widget ? ( */}
 				<div className="h-full">
 					<div className="font-urbanist font-bold px-6 py-4 text-lg border-b border-gray-200 flex items-center justify-between">
@@ -167,18 +163,18 @@ const PaymentSection = ({ profileAddress }) => {
 							</svg>
 						</span>
 					</div>
-					<div className="flex font-urbanist font-normal items-center justify-between border rounded-md p-3 mt-6 mx-6">
-						<div className="flex flex-col">
-							<div className="w-32">
+					<div className="px-6 py-4">
+						<div className="flex font-urbanist font-normal items-center justify-between rounded-md space-x-4">
+							<div className="flex flex-col flex-1 w-44">
 								<Select
 									options={tokensArray.map((token) => ({
 										key: token.name,
 										label: (
-											<div className="flex items-center">
+											<div className="flex items-center space-x-2">
 												{token.logo && (
 													<img
 														src={token.logo}
-														className="h-6 w-6 mr-1"
+														className="h-6 w-6"
 													/>
 												)}
 												<span className="text-sm font-semibold">
@@ -194,56 +190,61 @@ const PaymentSection = ({ profileAddress }) => {
 											: cleanedNativeTokens.name
 									}
 								/>
+								<div className="mt-2 text-xs">
+									Balance: {selectedTokenData?.balance ?? 0}
+								</div>
 							</div>
-							<div className="mt-2">
-								Balance: {selectedTokenData?.balance ?? 0}
+							<div>
+								<input
+									type="number"
+									name="amount"
+									id="amount"
+									min="0"
+									value={price}
+									onChange={(e) =>
+										setPrice(Number(e.target.value))
+									}
+									style={{
+										appearance: "none",
+									}}
+									className="block text-2xl font-bold border-none rounded-md w-24 text-right focus:ring-0 shadow-none focus:bg-gray-100 hover:bg-gray-100 cursor-pointer transition duration-300 ease-in-out"
+									placeholder="0.0"
+								/>
 							</div>
 						</div>
-						<div>
-							<input
-								type="number"
-								name="amount"
-								id="amount"
-								min="0"
-								value={price}
-								onChange={(e) =>
-									setPrice(Number(e.target.value))
+
+						<div className="font-urbanist mt-4">
+							<div className="mt-1">
+								<textarea
+									value={message}
+									onChange={(e) => setMessage(e.target.value)}
+									rows={4}
+									name="comment"
+									id="comment"
+									placeholder="Add your comment (Optional)"
+									className="shadow-sm block w-full sm:text-sm border-gray-300 rounded-md"
+								/>
+							</div>
+						</div>
+
+						<div className="mt-4">
+							<PayButton
+								disabled={disableDonateButton}
+								receiver={profileAddress}
+								type={
+									selectedTokenData?.tokenAddress
+										? "erc20"
+										: "native"
 								}
-								className="shadow-sm block sm:text-sm border-none rounded-md w-24 text-right"
-								placeholder="0.0"
+								symbol={selectedTokenData?.symbol}
+								decimals={selectedTokenData?.decimals}
+								amount={price}
+								message={message}
+								contractAddress={
+									selectedTokenData?.tokenAddress
+								}
 							/>
 						</div>
-					</div>
-
-					<div className="font-urbanist mt-4 mx-6">
-						<div className="mt-1">
-							<textarea
-								value={message}
-								onChange={(e) => setMessage(e.target.value)}
-								rows={4}
-								name="comment"
-								id="comment"
-								placeholder="Add your comment (Optional)"
-								className="shadow-sm block w-full sm:text-sm border-gray-300 rounded-md"
-							/>
-						</div>
-					</div>
-
-					<div className="mx-6 my-4">
-						<PayButton
-							disabled={disableDonateButton}
-							receiver={profileAddress}
-							type={
-								selectedTokenData?.tokenAddress
-									? "erc20"
-									: "native"
-							}
-							symbol={selectedTokenData?.symbol}
-							decimals={selectedTokenData?.decimals}
-							amount={price}
-							message={message}
-							contractAddress={selectedTokenData?.tokenAddress}
-						/>
 					</div>
 				</div>
 			</div>
