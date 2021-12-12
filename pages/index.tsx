@@ -128,7 +128,7 @@ const Dashboard: React.FC = () => {
 
 	return (
 		<div className="min-h-screen">
-			<div className="h-175 bg-lightpurple">
+			<div className="h-154 bg-lightpurple">
 				<div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 flex h-full bg-lightpurple space-x-4 items-center font-urbanist">
 					<div className="flex-1 px-4 md:px-0">
 						<h1 className=" text-5xl font-bold mb-4">
@@ -151,7 +151,7 @@ const Dashboard: React.FC = () => {
 									onChange={(e) => setAddress(e.target.value)}
 								/>
 								<button className="flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cryptopurple whitespace-nowrap">
-									Checkout page
+									Search Creator
 								</button>
 							</form>
 						</div>
@@ -167,9 +167,9 @@ const Dashboard: React.FC = () => {
 					Some of the most talented creators in the world accept cryptocurrency through 
 					our cryptocoffee pages. Go support them!
 				</span> */}
-				<div className='flex justify-center mt-16 mx-auto space-x-24'>
+				<div className='flex justify-center mt-16 mx-auto space-x-24 sm:flex-col sm:space-x-0 sm:space-y-12'>
 					{makerData.map((maker => (
-						<div className='flex flex-col items-center justify-center'>
+						<div className='flex flex-1/4 flex-col items-center justify-center'>
 							<img src={maker.image} className='rounded-full w-28 h-28' />
 							<span className='text-lg font-extrabold mt-4'>{maker.name}</span>
 							<span className='text-center mt-2'>{maker.description}</span>

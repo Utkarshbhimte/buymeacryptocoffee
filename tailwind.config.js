@@ -11,13 +11,14 @@ module.exports = {
 		extend: {
 			screens: {
 				xs: { max: "425px" },
+				sm: { max: "768px" },
 			},
 			animation: {
 				"animate-alt-spin": "spin 1s linear infinite reverse",
 				"spin-slow": "spin 3s linear infinite",
 			},
 			height: {
-				'175': '44rem',
+				'154': '38rem',
 			}
 		},
 		fontFamily: {
