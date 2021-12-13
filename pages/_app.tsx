@@ -20,9 +20,10 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 		<MoralisProvider appId={APP_ID} serverUrl={SERVER_URL}>
 			<AuthWrapper>
 				<Head key="main-head">
-					<title>BuyMeACryptoCoffee</title>
-					<meta property="image" content="https://pbs.twimg.com/profile_banners/1469725846164303873/1639247134/1500x500" />
-					<meta name="description" content="Move on from traditional currency, and easily get support from your audience in Cryptocurrency." />
+					<title>Get your audience support with crypto!</title>
+					<meta property="og:image" content="/meta-background.png" />
+					<meta property="twitter:image" content="/meta-background.png" />
+					<meta name="description" content="With BuyMeACryptoCoffee your audience can support you with cryptocurrency" />
 					<link
 						rel="preconnect"
 						href="https://fonts.googleapis.com"
