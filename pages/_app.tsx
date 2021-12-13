@@ -22,8 +22,8 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 		<MoralisProvider appId={APP_ID} serverUrl={SERVER_URL}>
 			<AuthWrapper>
 				<NextNProgress height={7} color="#9366F9" />
+				<MetaHead />
 				<Head key="main-head">
-					<MetaHead />
 					<link
 						rel="preconnect"
 						href="https://fonts.googleapis.com"
