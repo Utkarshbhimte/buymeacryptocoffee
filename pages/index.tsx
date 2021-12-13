@@ -66,28 +66,14 @@ const CtaButton = () => {
 			}
 
 			await authenticate(options);
+
+			router.push(`/${account}`)
 		} catch (error) {
 			console.error(error);
 			setLoading(false);
 			toast.error(error.message);
 		}
 	};
-
-	useEffect(() => {
-		if (account) {
-			console.log(
-				"🚀 ~ file: index.tsx ~ line 78 ~ useEffect ~ account",
-				account
-			);
-			router.push(`/${account}`);
-		} else {
-			setLoading(false);
-		}
-	}, [account]);
-
-	if (account) {
-		router.push(`/${account}`);
-	}
 
 	if (loading) {
 		return (
