@@ -1,29 +1,36 @@
 import { useEffect, useState } from "react";
+import { ENSResponse } from "./crypto";
 
-export const fetchEnsAddress = async (currAccount: string) => {
+export const fetchEnsAddress = async (currAccount: string): Promise<ENSResponse> => {
 	const cachedEns = localStorage.getItem(`ensAddress-${currAccount}`);
 
 	if (cachedEns) {
-		return cachedEns;
+		try {
+			const data = JSON.parse(cachedEns);
+			return data
+		} catch (e) {
+			localStorage.removeItem(`ensAddress-${currAccount}`)
+		}
 	}
 
 	const request = await fetch(`/api/resolve-wallet?name=${currAccount}`);
-	const res = await request.json();
+	const res: ENSResponse = await request.json();
 
 	if (res.name) {
-		return res.name;
-		localStorage.setItem(`ensAddress-${currAccount}`, res.name);
+		localStorage.setItem(`ensAddress-${currAccount}`, JSON.stringify(res));
+		return res;
 	}
 };
 
-export const useEnsAddress = (account: string) => {
-	const [ensAddress, setEnsAddress] = useState<string | null>(null);
+export const useEnsAddress = (account: string): ENSResponse => {
+	// const [ensAddress, setEnsAddress] = useState<string | null>(null);
+	const [ensMeta, setEnsMeta] = useState<ENSResponse>({ address: null, name: null, avatar: null });
 
 	const getEnsAddress = async (currAccount: string) => {
-		const name = await fetchEnsAddress(currAccount);
+		const response = await fetchEnsAddress(currAccount);
 
-		if (name) {
-			setEnsAddress(name);
+		if (response) {
+			setEnsMeta(response);
 		}
 	}
 
@@ -32,5 +39,5 @@ export const useEnsAddress = (account: string) => {
 		account && getEnsAddress(account);
 	}, [account]);
 
-	return ensAddress;
+	return ensMeta;
 };

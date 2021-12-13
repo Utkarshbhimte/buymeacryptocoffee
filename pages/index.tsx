@@ -1,13 +1,16 @@
-import { ethers } from "ethers";
-import { signOut } from "next-auth/client";
+import { LinkIcon } from "@heroicons/react/outline";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
+import { AuthenticateOptions } from "react-moralis/lib/hooks/core/useMoralis/_useMoralisAuth";
 import { toast } from "react-toastify";
-import { validateAndResolveAddress } from "../utils/crypto";
-import Image from "next/image";
 import illustration from "../assets/illustration.png";
-import { LinkIcon } from "@heroicons/react/outline";
+import Loader from "../components/Loader";
+import { useEnsAddress } from "../utils/useEnsAddress";
+import Link from "next/link";
+import { ethers } from "ethers";
+import { validateAndResolveAddress } from "../utils/crypto";
 
 declare let window: any;
 
@@ -43,9 +46,83 @@ const makerData = [
 	},
 ];
 
+const CtaButton = () => {
+	const { authenticate, isAuthenticated, logout, account, chainId } =
+		useMoralis();
+
+	const router = useRouter();
+	const [loading, setLoading] = useState(false);
+	const { name: ensAddress, avatar } = useEnsAddress(account);
+
+	const handleAuth = async () => {
+		try {
+			setLoading(true);
+			const options: AuthenticateOptions = {
+				signingMessage: "Hello World!",
+			};
+
+			if (!(window as any).ethereum) {
+				options.provider = "walletconnect";
+			}
+
+			await authenticate(options);
+		} catch (error) {
+			console.error(error);
+			setLoading(false);
+			toast.error(error.message);
+		}
+	};
+
+	useEffect(() => {
+		if (account) {
+			console.log(
+				"🚀 ~ file: index.tsx ~ line 78 ~ useEffect ~ account",
+				account
+			);
+			router.push(`/${account}`);
+		} else {
+			setLoading(false);
+		}
+	}, [account]);
+
+	if (account) {
+		router.push(`/${account}`);
+	}
+
+	if (loading) {
+		return (
+			<div className=" bg-gray-200 rounded-lg px-2 py-3 w-48 flex justify-center">
+				<Loader />
+			</div>
+		);
+	}
+
+	if (!isAuthenticated) {
+		return (
+			<button
+				type="button"
+				onClick={handleAuth}
+				className="relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-cryptopurple hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cryptopurple"
+			>
+				Start today
+			</button>
+		);
+	}
+
+	return (
+		<Link href={`/${account}`}>
+			<button
+				type="button"
+				className="relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-cryptopurple hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cryptopurple"
+			>
+				Go to your wall
+			</button>
+		</Link>
+	);
+};
+
 const Dashboard: React.FC = () => {
 	const [address, setAddress] = useState("");
-	const [loading, setLoading] = useState(false);
 
 	// const [session, loading] = useSession();
 	const router = useRouter();
@@ -62,53 +139,53 @@ const Dashboard: React.FC = () => {
 	// 	return <Loader />;
 	// }
 
-	const handleRedirect = async (e) => {
-		try {
-			e.preventDefault();
-			if (!address.length) return;
+	// const handleRedirect = async (e) => {
+	// 	try {
+	// 		e.preventDefault();
+	// 		if (!address.length) return;
 
-			setLoading(true);
+	// 		setLoading(true);
 
-			const mainnetEndpoint =
-				"https://speedy-nodes-nyc.moralis.io/d35afcfb3d409232f26629cd/eth/mainnet";
-			const rpcProvider = new ethers.providers.JsonRpcProvider(
-				mainnetEndpoint
-			);
+	// 		const mainnetEndpoint =
+	// 			"https://speedy-nodes-nyc.moralis.io/d35afcfb3d409232f26629cd/eth/mainnet";
+	// 		const rpcProvider = new ethers.providers.JsonRpcProvider(
+	// 			mainnetEndpoint
+	// 		);
 
-			const provider = !(window as any).ethereum
-				? rpcProvider
-				: new ethers.providers.Web3Provider(window.ethereum);
-			const validatedAddress = await validateAndResolveAddress(
-				address,
-				provider
-			);
-			const { name, address: userAddress } = validatedAddress;
+	// 		const provider = !(window as any).ethereum
+	// 			? rpcProvider
+	// 			: new ethers.providers.Web3Provider(window.ethereum);
+	// 		const validatedAddress = await validateAndResolveAddress(
+	// 			address,
+	// 			provider
+	// 		);
+	// 		const { name, address: userAddress } = validatedAddress;
 
-			if (!userAddress) {
-				toast.error("Please enter valid ens or address", {
-					position: "top-center",
-				});
-				setLoading(false);
-				return;
-			}
+	// 		if (!userAddress) {
+	// 			toast.error("Please enter valid ens or address", {
+	// 				position: "top-center",
+	// 			});
+	// 			setLoading(false);
+	// 			return;
+	// 		}
 
-			if (name) {
-				router.push(`/${name}`);
-				return;
-			}
+	// 		if (name) {
+	// 			router.push(`/${name}`);
+	// 			return;
+	// 		}
 
-			router.push(`/${userAddress}`);
-		} catch (error) {
-			console.error(error);
-			toast.error("Something went wrong");
-		} finally {
-			setLoading(false);
-		}
-	};
+	// 		router.push(`/${userAddress}`);
+	// 	} catch (error) {
+	// 		console.error(error);
+	// 		toast.error("Something went wrong");
+	// 	} finally {
+	// 		setLoading(false);
+	// 	}
+	// };
 
-	const redirectToProfile = async (currAccount: string) => {
-		router.push(`/${currAccount}`);
-	};
+	// const redirectToProfile = async (currAccount: string) => {
+	// 	router.push(`/${currAccount}`);
+	// };
 
 	// useEffect(() => {
 	// 	console.log(
@@ -126,16 +203,18 @@ const Dashboard: React.FC = () => {
 				<div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 flex h-full bg-lightpurple space-x-4 items-center font-urbanist">
 					<div className="flex-1 px-4 md:px-0">
 						<h1 className=" text-5xl font-bold mb-4">
-							Get Support from your audience in{" "}
-							<span className="text-cryptopurple">
-								Crypto ✨
-							</span>
+							Get your audience support with{" "}
+							<span className="text-cryptopurple">Crypto ✨</span>
 						</h1>
 						<p className="mb-8">
-						Move on from traditional currency, and easily get 
-						<span className='font-semibold'> support from your audience in Cryptocurrency.</span>
+							With BuyMeACryptoCoffee your audience can
+							<span className="font-semibold">
+								{" "}
+								support you with cryptocurrency
+							</span>
 						</p>
-						<div>
+						<CtaButton />
+						{/* <div>
 							<form
 								className="flex space-x-2"
 								onSubmit={handleRedirect}
@@ -151,7 +230,7 @@ const Dashboard: React.FC = () => {
 									Search Creator
 								</button>
 							</form>
-						</div>
+						</div> */}
 					</div>
 					<div className="md:block xs:hidden flex-1">
 						<Image src={illustration} />

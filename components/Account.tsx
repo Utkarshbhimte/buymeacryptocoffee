@@ -3,7 +3,7 @@ import { ChevronDownIcon } from "@heroicons/react/solid";
 import classNames from "classnames";
 import { Fragment, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useMoralis } from "react-moralis";
+import { useChain, useMoralis } from "react-moralis";
 import { AuthenticateOptions } from "react-moralis/lib/hooks/core/useMoralis/_useMoralisAuth";
 import { getEllipsisTxt } from "../helpers/formatters";
 import { getExplorer } from "../helpers/networks";
@@ -12,29 +12,12 @@ import Loader from "./Loader";
 import Link from "next/link";
 import { useEnsAddress } from "../utils/useEnsAddress";
 
-const styles = {
-	account: {
-		height: "42px",
-		padding: "0 15px",
-		display: "flex",
-		justifyContent: "center",
-		alignItems: "center",
-		width: "fit-content",
-		borderRadius: "12px",
-		backgroundColor: "rgb(244, 244, 244)",
-		cursor: "pointer",
-	},
-	text: {
-		color: "#21BF96",
-	},
-};
-
 function Account() {
 	const { authenticate, isAuthenticated, logout, account, chainId } =
 		useMoralis();
+	const { switchNetwork } = useChain();
 	const [loading, setLoading] = useState(false);
-	// const [ensAddress, setEnsAddress] = useState<string | null>(null);
-	const ensAddress = useEnsAddress(account);
+	const { name: ensAddress, avatar } = useEnsAddress(account);
 
 	const handleAuth = async () => {
 		try {
@@ -81,7 +64,10 @@ function Account() {
 			<Menu as="div" className="relative inline-block text-left z-40">
 				<div>
 					<Menu.Button className="inline-flex justify-center items-center space-x-2 w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-cryptopurple">
-						<Blockie currentWallet scale={3} />
+						{!!avatar && (
+							<img src={avatar} className="h-6 w-6 rounded-lg" />
+						)}
+						{!avatar && <Blockie currentWallet scale={3} />}
 						<p>{ensAddress || getEllipsisTxt(account, 6)}</p>
 						<ChevronDownIcon
 							className="-mr-1 ml-2 h-5 w-5"
@@ -117,6 +103,48 @@ function Account() {
 									</a>
 								)}
 							</Menu.Item>
+							<div className="block md:hidden">
+								{chainId == "0x1" && (
+									<Menu.Item>
+										{({ active }) => (
+											<a
+												onClick={() =>
+													switchNetwork("0x89")
+												}
+												className={classNames(
+													active
+														? "bg-gray-100 text-gray-900"
+														: "text-gray-700",
+													"block px-4 py-2 text-sm"
+												)}
+											>
+												Switch to Polygon
+											</a>
+										)}
+									</Menu.Item>
+								)}
+
+								{chainId !== "0x1" && (
+									<Menu.Item>
+										{({ active }) => (
+											<a
+												onClick={() =>
+													switchNetwork("0x1")
+												}
+												className={classNames(
+													active
+														? "bg-gray-100 text-gray-900"
+														: "text-gray-700",
+													"block px-4 py-2 text-sm"
+												)}
+											>
+												Switch to Ethereum
+											</a>
+										)}
+									</Menu.Item>
+								)}
+							</div>
+
 							<Menu.Item>
 								{({ active }) => (
 									<a
@@ -132,7 +160,9 @@ function Account() {
 											"block px-4 py-2 text-sm"
 										)}
 									>
-										{chainId === '0x1' ? 'View on Etherscan' : 'View on PolygonScan'}
+										{chainId === "0x1"
+											? "View on Etherscan"
+											: "View on PolygonScan"}
 									</a>
 								)}
 							</Menu.Item>

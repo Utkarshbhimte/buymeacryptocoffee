@@ -28,4 +28,5 @@ export class Transaction {
 	chain: string = "";
 	formattedAmount: string = "";
 	tokenDecimals: number = 0;
+	senderAvatar?: string = null;
 }
