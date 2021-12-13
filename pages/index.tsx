@@ -198,6 +198,7 @@ const Dashboard: React.FC = () => {
 								support you with cryptocurrency
 							</span>
 						</p>
+						<a href="https://www.producthunt.com/posts/buymeacryptocoffee?utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-buymeacryptocoffee" target="_blank"><img className='mb-6' src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=322788&theme=light&period=daily" alt="BuyMeACryptoCoffee - Get your audience support with crypto | Product Hunt" style={{width: 250, height: 54}} width="250" height="54" /></a>
 						<CtaButton />
 						{/* <div>
 							<form
