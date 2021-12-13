@@ -63,6 +63,7 @@ const MetaHead: React.FC<MetaHeadProps> = ({ title, description, url }) => {
                 href="/safari-pinned-tab.svg"
                 color="#5bbad5"
             />
+            <link rel="image_src" href="/mstile-150x150.png" />
             <meta name="msapplication-TileColor" content="#da532c" />
             <meta name="theme-color" content="#ffffff"></meta>
         </Head>
