@@ -264,7 +264,7 @@ const Dashboard: React.FC = () => {
 								<div className="flex space-x-4 mt-4">
 									<a
 										className="w-12 h-12 rounded-full bg-lightpurple border-cryptopurple border text-cryptopurple flex items-center justify-center"
-										href={`https://app.buymeacryptocoffee.xyz/${maker.address}`}
+										href={`https://buymeacryptocoffee.xyz/${maker.address}`}
 										target="_blank"
 										rel="noreferrer noopener"
 									>
