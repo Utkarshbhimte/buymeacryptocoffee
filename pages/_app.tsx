@@ -11,6 +11,7 @@ import Chains from "../components/Chains";
 import Logo from "../components/Logo";
 import { AuthWrapper } from "../utils/context";
 import NextNProgress from "nextjs-progressbar";
+import MetaHead from "../components/MetaHead";
 
 const APP_ID = "IrOz1yXuSvzSOLf4osllytXQkADgOXbiBfWUgeQi"; //process.env.NEXT_PUBLIC_MORALIS_APPLICATION_ID;
 const SERVER_URL = "https://klkggmithift.usemoralis.com:2053/server"; //process.env.NEXT_PUBLIC_MORALIS_SERVER_URL;
@@ -22,10 +23,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 			<AuthWrapper>
 				<NextNProgress height={7} color="#9366F9" />
 				<Head key="main-head">
-					<title>Get your audience support with crypto!</title>
-					<meta property="og:image" content="/meta-background.png" />
-					<meta property="twitter:image" content="/meta-background.png" />
-					<meta name="description" content="With BuyMeACryptoCoffee your audience can support you with cryptocurrency" />
+					<MetaHead />
 					<link
 						rel="preconnect"
 						href="https://fonts.googleapis.com"
@@ -43,31 +41,6 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 						href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700;800&display=swap"
 						rel="stylesheet"
 					></link>
-					<link
-						rel="apple-touch-icon"
-						sizes="60x60"
-						href="/apple-touch-icon.png"
-					/>
-					<link
-						rel="icon"
-						type="image/png"
-						sizes="32x32"
-						href="/favicon-32x32.png"
-					/>
-					<link
-						rel="icon"
-						type="image/png"
-						sizes="16x16"
-						href="/favicon-16x16.png"
-					/>
-					<link rel="manifest" href="/site.webmanifest" />
-					<link
-						rel="mask-icon"
-						href="/safari-pinned-tab.svg"
-						color="#5bbad5"
-					/>
-					<meta name="msapplication-TileColor" content="#da532c" />
-					<meta name="theme-color" content="#ffffff"></meta>
 				</Head>
 				<header className="bg-white drop-shadow-md">
 					<div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
