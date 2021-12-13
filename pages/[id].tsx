@@ -493,7 +493,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 			transactions,
 			profileAddress: address,
 			ens: name,
-			avatar,
+			avatar: avatar ?? '',
 		},
 	};
 };
