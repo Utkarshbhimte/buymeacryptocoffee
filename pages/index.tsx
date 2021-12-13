@@ -47,18 +47,24 @@ const makerData = [
 ];
 
 const CtaButton = () => {
-	const { authenticate, isAuthenticated, logout, account, chainId } =
+	const { authenticate, isAuthenticated, account } =
 		useMoralis();
 
 	const router = useRouter();
 	const [loading, setLoading] = useState(false);
-	const { name: ensAddress, avatar } = useEnsAddress(account);
 
 	const handleAuth = async () => {
 		try {
 			setLoading(true);
 			const options: AuthenticateOptions = {
-				signingMessage: "Hello World!",
+				signingMessage: `
+					Get your audience support with crypto! \n
+					With BuyMeACryptoCoffee your audience can support you with cryptocurrency. \n
+					How does it work?\n
+					- Supporter connects their Wallet on Crypto Coffee
+					- They enter their favorite creator’s wallet address and donate crypto.
+					- Creators can create their own crypto coffee page and share with their audience too
+				`,
 			};
 
 			if (!(window as any).ethereum) {
@@ -67,11 +73,13 @@ const CtaButton = () => {
 
 			await authenticate(options);
 
-			router.push(`/${account}`)
+			!!account?.length && router.push(`/${account}`)
 		} catch (error) {
 			console.error(error);
 			setLoading(false);
 			toast.error(error.message);
+		} finally {
+			setLoading(false)
 		}
 	};
 

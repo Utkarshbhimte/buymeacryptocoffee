@@ -23,7 +23,14 @@ function Account() {
 		try {
 			setLoading(true);
 			const options: AuthenticateOptions = {
-				signingMessage: "Hello World!",
+				signingMessage: `
+					Get your audience support with crypto!\n
+					With BuyMeACryptoCoffee your audience can support you with cryptocurrency.\n
+					How does it work?\n
+					- Supporter connects their Wallet on Crypto Coffee
+					- They enter their favorite creator’s wallet address and donate crypto.
+					- Creators can create their own crypto coffee page and share with their audience too
+				`,
 			};
 
 			if (!(window as any).ethereum) {
