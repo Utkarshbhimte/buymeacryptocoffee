@@ -37,7 +37,7 @@ const MetaHead: React.FC<MetaHeadProps> = ({ title, description, url }) => {
             <meta name="twitter:description" content={description} />
             <meta
                 name="twitter:image"
-                content="/meta-background.png"
+                content="https://www.buymeacryptocoffee.xyz/meta-background.png"
             />
             <meta name="twitter:url" content={url} />
             <link
