@@ -59,8 +59,8 @@ const PayButton: React.FC<IPayButton> = ({
 				message,
 				formattedAmount: `${amount} ${symbol}`,
 				chain: chainId,
-				fromEns: walletMeta.name,
-				senderAvatar: walletMeta.avatar,
+				fromEns: walletMeta?.name ?? null,
+				senderAvatar: walletMeta?.avatar ?? null,
 				tokenDecimals: decimals || null,
 			};
 

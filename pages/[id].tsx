@@ -3,6 +3,7 @@ import { ArrowUpIcon, CheckIcon } from "@heroicons/react/solid";
 import copy from "copy-to-clipboard";
 import { ethers } from "ethers";
 import { GetServerSideProps, GetStaticProps } from "next";
+import { useCollection } from 'react-firebase-hooks/firestore';
 import React, { useEffect, useState } from "react";
 import Blockies from "react-blockies";
 import { useMoralis } from "react-moralis";
@@ -35,6 +36,9 @@ const Profile: React.FC<ProfileProps> = ({
 		avatar: defaultAvatar,
 	};
 	const { account } = useMoralis();
+	const [snapshot, loading, error] = useCollection(
+		db.collection('transactions').where("to", "==", profileAddress.toString().toLowerCase())
+	)
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
 	const [isCopied, setIsCopied] = useState(false);
 
@@ -45,15 +49,23 @@ const Profile: React.FC<ProfileProps> = ({
 		setTimeout(() => setIsCopied(false), 1500);
 	};
 
-	useEffect(() => {
-		const sortedTransactions = allTransactions.sort((a, b) => {
+	const handleTransactionChange = (transactions: Transaction[]) => { 
+		const sortedTransactions = transactions.sort((a, b) => {
 			return b.timestamp - a.timestamp;
 		});
 
-		console.log({ sortedTransactions });
-
 		setTransactions(sortedTransactions);
+	}
+
+	useEffect(() => {
+		handleTransactionChange(allTransactions);
 	}, [allTransactions]);
+
+	useEffect(() => {
+		if (snapshot) {
+			handleTransactionChange(snapshot.docs.map(doc => ({...doc.data() as Transaction, id: doc.id})));
+		}
+	}, [snapshot]);
 
 	const twitterIntent = `
 		You%20can%20support%20by%20donating%20some%20CryptoCoffee%20(%E2%98%95%EF%B8%8F)%20here%20%E2%80%94%0Ahttps://buymeacryptocoffee.xyz/${profileAddress}%0ACreate%20your%20own%20page%20%40buycryptocoffee
