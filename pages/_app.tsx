@@ -13,8 +13,8 @@ import { AuthWrapper } from "../utils/context";
 import NextNProgress from "nextjs-progressbar";
 import MetaHead from "../components/MetaHead";
 
-const APP_ID = "IrOz1yXuSvzSOLf4osllytXQkADgOXbiBfWUgeQi"; //process.env.NEXT_PUBLIC_MORALIS_APPLICATION_ID;
-const SERVER_URL = "https://klkggmithift.usemoralis.com:2053/server"; //process.env.NEXT_PUBLIC_MORALIS_SERVER_URL;
+const APP_ID = process.env.NEXT_PUBLIC_MORALIS_APPLICATION_ID;
+const SERVER_URL = process.env.NEXT_PUBLIC_MORALIS_SERVER_URL;
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 	// const Provider =
