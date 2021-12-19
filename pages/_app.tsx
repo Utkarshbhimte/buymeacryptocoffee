@@ -6,12 +6,14 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ReactTooltip from "react-tooltip";
 import "tailwindcss/tailwind.css";
+import './globals.css'
 import Account from "../components/Account";
 import Chains from "../components/Chains";
 import Logo from "../components/Logo";
 import { AuthWrapper } from "../utils/context";
 import NextNProgress from "nextjs-progressbar";
 import MetaHead from "../components/MetaHead";
+import "antd/dist/antd.css";
 
 const APP_ID = process.env.NEXT_PUBLIC_MORALIS_APPLICATION_ID;
 const SERVER_URL = process.env.NEXT_PUBLIC_MORALIS_SERVER_URL;

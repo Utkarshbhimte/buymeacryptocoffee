@@ -26,9 +26,9 @@ const makerData = [
 	{
 		name: "Ajinkya",
 		address: "0xCF193782f2eBC069ae05eC0Ef955E4B042D000Dd",
-		image: "https://pbs.twimg.com/profile_images/1379068290643886084/_uPr_3jj_400x400.jpg",
+		image: "https://pbs.twimg.com/profile_images/1472167817705369605/9kFketfA_400x400.jpg",
 		twitterUrl: "https://twitter.com/CreakFoder",
-		description: "Frontend Developer",
+		description: "Frontend Developer @zomentum, building @buycryptocoffee",
 	},
 	{
 		name: "Abhishek",

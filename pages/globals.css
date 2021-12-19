@@ -3,3 +3,11 @@
 body {
     --heading-color: #FF8906;
 }
+
+div.embed-modal .ant-modal-content {
+   border-radius: 10px;
+}
+
+div.embed-modal .ant-modal-header {
+    border-radius: 10px 10px 0 0;
+ }
