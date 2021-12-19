@@ -77,7 +77,7 @@ const Profile: React.FC<ProfileProps> = ({
 		You%20can%20support%20by%20donating%20some%20CryptoCoffee%20(%E2%98%95%EF%B8%8F)%20here%20%E2%80%94%0Ahttps://buymeacryptocoffee.xyz/${profileAddress}%0ACreate%20your%20own%20page%20%40buycryptocoffee
 	`;
 
-	const script = `<script type="text/javascript" src="http://buymeacryptocoffee.xyz/buttonwidget.js" data-address="${profileAddress}" data-name="crypto-coffee-button" ></script>`
+	const script = `<script type="text/javascript" src="https://buymeacryptocoffee.xyz/buttonwidget.js" data-address="${profileAddress}" data-name="crypto-coffee-button" ></script>`
 
 	const copyEmbedButtonScript = () => {
 		if (!profileAddress) return;
