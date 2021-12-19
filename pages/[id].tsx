@@ -39,6 +39,7 @@ const Profile: React.FC<ProfileProps> = ({
 		avatar: defaultAvatar,
 	};
 	const { account } = useMoralis();
+	const isOwner = account === profileAddress;
 	const [snapshot] = useCollection(
 		db.collection('transactions').where("to", "==", profileAddress.toString().toLowerCase())
 	)
@@ -366,7 +367,7 @@ const Profile: React.FC<ProfileProps> = ({
 
 						<section
 							aria-labelledby="timeline-title"
-							className="grid grid-cols-1 gap-4 lg:col-start-3 lg:col-span-1 sm:row-span-full"
+							className={`${isOwner ? 'grid grid-cols-1 gap-4' : ''} lg:col-start-3 lg:col-span-1 sm:row-span-full`}
 						>
 							<div className="bg-white border border-gray-200 rounded-lg">
 								<div className="hidden p-6 justify-between items-center sm:flex">
@@ -481,7 +482,7 @@ const Profile: React.FC<ProfileProps> = ({
 								/>
 							</div>
 							{
-								account === profileAddress && (
+								isOwner && (
 									<div className="bg-white border font-urbanist border-gray-200 rounded-lg p-8 shadow-md sm:hidden">
 										<h1 className="text-xl font-bold mb-1">Are you a Creator?</h1>
 										<p className="text-base mb-8">Install CryptoCoffee badge on your website and redirect your audience!</p>
