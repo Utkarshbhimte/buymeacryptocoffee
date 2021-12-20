@@ -1,29 +1,14 @@
-const gtag_id = "G-4HENSLHDZS";
+
 let widgetScript = document.querySelector('script[data-name="crypto-coffee-button"]');
 
-const ga = document.createElement('script');
-ga.type = 'text/javascript'; 
-ga.async = true;
-ga.src = `https://www.googletagmanager.com/gtag/js?id=${gtag_id}`;
-var s = document.getElementsByTagName('script')[0]; 
-s.parentNode.insertBefore(ga, s);
+var s = document.getElementsByTagName('script')[0];
 
 const buttonEventScript = document.createElement('script');
+buttonEventScript.defer = true;
+buttonEventScript.src='https://static.cloudflareinsights.com/beacon.min.js';
+buttonEventScript.dataset.cfBeacon = '{"token": "31fafc582c564dca9461cd9a1e3b6f4f"}'
 
-buttonEventScript.innerHTML = `
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){window.dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', gtag_id, { 'send_page_view': false });
-
-    gtag('event', 'button_embedded', {
-        event_label: widgetScript.attributes['data-address'].value
-    })
-`
-
-var p = document.getElementsByTagName('script')[1]; 
-p.parentNode.insertBefore(buttonEventScript, p);
+s.parentNode.insertBefore(buttonEventScript, s);
 
 window.cryptoCoffeeWidget = window.cryptoCoffeeWidget || function(
     // text,
