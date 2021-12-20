@@ -20,7 +20,6 @@ buttonEventScript.innerHTML = `
     gtag('event', 'button_embedded', {
         event_label: widgetScript.attributes['data-address'].value
     })
-    console.log(widgetScript.attributes['data-address'].value)
 `
 
 var p = document.getElementsByTagName('script')[1]; 
