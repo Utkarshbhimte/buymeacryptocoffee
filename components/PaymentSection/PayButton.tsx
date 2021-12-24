@@ -41,11 +41,10 @@ const PayButton: React.FC<IPayButton> = ({
 	});
 
 	const { chainId } = useChain();
-	const { account } = useMoralis();
+	const { account: walletAddress, user } = useMoralis();
 
-	useEffect(() => {
-		Moralis.Web3.enableWeb3();
-	}, []);
+	const queriedAddress = user?.get("ethAddress");
+	const account = walletAddress ?? queriedAddress;
 
 	const saveTransactionToDB = async (tx: any) => {
 		const walletMeta = await fetchEnsAddress(account);
@@ -89,9 +88,6 @@ const PayButton: React.FC<IPayButton> = ({
 
 	useEffect(() => {
 		if (!!data) {
-			console.log(
-				"Transaction is successful, saving to DB and redirecting to home page"
-			);
 			saveTransactionToDB(data);
 		}
 	}, [data]);

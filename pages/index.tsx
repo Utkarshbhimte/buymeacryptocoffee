@@ -47,8 +47,15 @@ const makerData = [
 ];
 
 const CtaButton = () => {
-	const { authenticate, isAuthenticated, account } =
-		useMoralis();
+	const {
+		authenticate,
+		isAuthenticated,
+		account: walletAddress,
+		user,
+	} = useMoralis();
+
+	const queriedAddress = user?.get("ethAddress");
+	const account = walletAddress ?? queriedAddress;
 
 	const router = useRouter();
 	const [loading, setLoading] = useState(false);
@@ -73,13 +80,13 @@ const CtaButton = () => {
 
 			await authenticate(options);
 
-			!!account?.length && router.push(`/${account}`)
+			!!account?.length && router.push(`/${account}`);
 		} catch (error) {
 			console.error(error);
 			setLoading(false);
 			toast.error(error.message);
 		} finally {
-			setLoading(false)
+			setLoading(false);
 		}
 	};
 
@@ -198,7 +205,19 @@ const Dashboard: React.FC = () => {
 								support you with cryptocurrency
 							</span>
 						</p>
-						<a href="https://www.producthunt.com/posts/buymeacryptocoffee?utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-buymeacryptocoffee" target="_blank"><img className='mb-6' src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=322788&theme=light&period=daily" alt="BuyMeACryptoCoffee - Get your audience support with crypto | Product Hunt" style={{width: 250, height: 54}} width="250" height="54" /></a>
+						<a
+							href="https://www.producthunt.com/posts/buymeacryptocoffee?utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-buymeacryptocoffee"
+							target="_blank"
+						>
+							<img
+								className="mb-6"
+								src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=322788&theme=light&period=daily"
+								alt="BuyMeACryptoCoffee - Get your audience support with crypto | Product Hunt"
+								style={{ width: 250, height: 54 }}
+								width="250"
+								height="54"
+							/>
+						</a>
 						<CtaButton />
 						{/* <div>
 							<form
@@ -223,13 +242,18 @@ const Dashboard: React.FC = () => {
 					</div>
 				</div>
 			</div>
-			<div className='max-w-7xl flex flex-col font-urbanist items-center justify-center mx-auto py-16'>
-				<h2 className='mb-4 font-extrabold text-4xl'>Not a creator?</h2>
-				<p className='mb-8 text-center xs:mx-2'>
-					You can show support to your favorite creators with just their wallet address! 
-					<br/><span className='font-semibold'> And also add a few words of gratitude</span>
+			<div className="max-w-7xl flex flex-col font-urbanist items-center justify-center mx-auto py-16">
+				<h2 className="mb-4 font-extrabold text-4xl">Not a creator?</h2>
+				<p className="mb-8 text-center xs:mx-2">
+					You can show support to your favorite creators with just
+					their wallet address!
+					<br />
+					<span className="font-semibold">
+						{" "}
+						And also add a few words of gratitude
+					</span>
 				</p>
-				<div className='w-full'>
+				<div className="w-full">
 					<form
 						className="flex xs:flex-col xs:w-4/5 xs:mx-auto xs:space-y-4 mx-auto w-2/5 space-x-2 xs:space-x-0"
 						onSubmit={handleRedirect}
@@ -247,10 +271,12 @@ const Dashboard: React.FC = () => {
 					</form>
 				</div>
 			</div>
-			<div className='bg-lightpurple py-4'>
+			<div className="bg-lightpurple py-4">
 				<div className="max-w-7xl font-urbanist mt-16 mb-32 mx-auto px-2 sm:px-4 lg:px-8">
 					<h2 className="text-4xl font-extrabold mb-4">
-						<span className="text-cryptopurple">Support Makers,</span>{" "}
+						<span className="text-cryptopurple">
+							Support Makers,
+						</span>{" "}
 						Today!
 					</h2>
 					{/* <span className='w-20 text-base'>

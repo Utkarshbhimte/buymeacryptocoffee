@@ -1,12 +1,12 @@
 import Head from "next/head";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect } from "react";
 import { MoralisProvider } from "react-moralis";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ReactTooltip from "react-tooltip";
 import "tailwindcss/tailwind.css";
-import './globals.css'
+import "./globals.css";
 import Account from "../components/Account";
 import Chains from "../components/Chains";
 import Logo from "../components/Logo";
@@ -19,7 +19,6 @@ const APP_ID = process.env.NEXT_PUBLIC_MORALIS_APPLICATION_ID;
 const SERVER_URL = process.env.NEXT_PUBLIC_MORALIS_SERVER_URL;
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
-	// const Provider =
 	return (
 		<MoralisProvider appId={APP_ID} serverUrl={SERVER_URL}>
 			<AuthWrapper>

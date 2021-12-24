@@ -8,7 +8,10 @@ import { useMoralis } from "react-moralis";
  */
 
 function Blockie(props) {
-	const { account } = useMoralis();
+	const { account: walletAddress, user } = useMoralis();
+
+	const queriedAddress = user?.get("ethAddress");
+	const account = walletAddress ?? queriedAddress;
 	if (!props.address && !account)
 		return <span className="h-5 w-5 bg-gray-500 inline-block"></span>;
 

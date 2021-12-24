@@ -1,23 +1,23 @@
 import { DuplicateIcon, LinkIcon } from "@heroicons/react/outline";
 import { ArrowUpIcon, CheckIcon } from "@heroicons/react/solid";
+import { Modal } from "antd";
 import copy from "copy-to-clipboard";
 import { ethers } from "ethers";
-import { GetServerSideProps, GetStaticProps } from "next";
-import { useCollection } from 'react-firebase-hooks/firestore';
+import { GetStaticProps } from "next";
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import Blockies from "react-blockies";
+import { useCollection } from "react-firebase-hooks/firestore";
 import { useMoralis } from "react-moralis";
 import { toast } from "react-toastify";
 import PaymentSection from "../components/PaymentSection";
 import { Transaction } from "../contracts";
+import embedbadge from "../public/embedbadge.svg";
 import { minimizeAddress } from "../utils";
 import { validateAndResolveAddress } from "../utils/crypto";
 import { db } from "../utils/firebaseClient";
 import { getTxnUrl } from "../utils/getTxnUrl";
 import { useEnsAddress } from "../utils/useEnsAddress";
-import { Modal } from "antd";
-import Image from 'next/image'
-import embedbadge from '../public/embedbadge.svg';
 
 declare let window: any;
 
@@ -38,11 +38,25 @@ const Profile: React.FC<ProfileProps> = ({
 		currProfileEns: ens,
 		avatar: defaultAvatar,
 	};
-	const { account } = useMoralis();
+	const {
+		account: walletAddress,
+		user,
+		isAuthenticated,
+		isWeb3Enabled,
+		enableWeb3,
+	} = useMoralis();
+
+	console.log({ isAuthenticated, isWeb3Enabled });
+
+	const queriedAddress = user?.get("ethAddress");
+	const account = walletAddress ?? queriedAddress;
+
 	const isOwner = account === profileAddress;
 	const [snapshot] = useCollection(
-		db.collection('transactions').where("to", "==", profileAddress.toString().toLowerCase())
-	)
+		db
+			.collection("transactions")
+			.where("to", "==", profileAddress.toString().toLowerCase())
+	);
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
 	const [isCopied, setIsCopied] = useState(false);
 	const [isScriptCopied, setIsScriptCopied] = useState(false);
@@ -55,13 +69,13 @@ const Profile: React.FC<ProfileProps> = ({
 		setTimeout(() => setIsCopied(false), 1500);
 	};
 
-	const handleTransactionChange = (transactions: Transaction[]) => { 
+	const handleTransactionChange = (transactions: Transaction[]) => {
 		const sortedTransactions = transactions.sort((a, b) => {
 			return b.timestamp - a.timestamp;
 		});
 
 		setTransactions(sortedTransactions);
-	}
+	};
 
 	useEffect(() => {
 		handleTransactionChange(allTransactions);
@@ -69,7 +83,12 @@ const Profile: React.FC<ProfileProps> = ({
 
 	useEffect(() => {
 		if (snapshot) {
-			handleTransactionChange(snapshot.docs.map(doc => ({...doc.data() as Transaction, id: doc.id})));
+			handleTransactionChange(
+				snapshot.docs.map((doc) => ({
+					...(doc.data() as Transaction),
+					id: doc.id,
+				}))
+			);
 		}
 	}, [snapshot]);
 
@@ -77,14 +96,23 @@ const Profile: React.FC<ProfileProps> = ({
 		You%20can%20support%20by%20donating%20some%20CryptoCoffee%20(%E2%98%95%EF%B8%8F)%20here%20%E2%80%94%0Ahttps://buymeacryptocoffee.xyz/${profileAddress}%0ACreate%20your%20own%20page%20%40buycryptocoffee
 	`;
 
-	const script = `<script type="text/javascript" src="https://buymeacryptocoffee.xyz/buttonwidget.js" data-address="${profileAddress}" data-name="crypto-coffee-button" ></script>`
+	const script = `<script type="text/javascript" src="https://buymeacryptocoffee.xyz/buttonwidget.js" data-address="${profileAddress}" data-name="crypto-coffee-button" ></script>`;
 
 	const copyEmbedButtonScript = () => {
 		if (!profileAddress) return;
 		setIsScriptCopied(true);
 		copy(script);
 		setTimeout(() => setIsScriptCopied(false), 1500);
-	}
+	};
+
+	useEffect(() => {
+		if (!isWeb3Enabled && isAuthenticated) {
+			console.log("here coming ser");
+			enableWeb3({
+				provider: "walletconnect",
+			});
+		}
+	}, [!!isWeb3Enabled, isAuthenticated, account]);
 
 	return (
 		<>
@@ -367,7 +395,9 @@ const Profile: React.FC<ProfileProps> = ({
 
 						<section
 							aria-labelledby="timeline-title"
-							className={`${isOwner ? 'grid grid-cols-1 gap-4' : ''} lg:col-start-3 lg:col-span-1 sm:row-span-full`}
+							className={`${
+								isOwner ? "grid grid-cols-1 gap-4" : ""
+							} lg:col-start-3 lg:col-span-1 sm:row-span-full`}
 						>
 							<div className="bg-white border border-gray-200 rounded-lg">
 								<div className="hidden p-6 justify-between items-center sm:flex">
@@ -481,15 +511,23 @@ const Profile: React.FC<ProfileProps> = ({
 									profileAddress={profileAddress}
 								/>
 							</div>
-							{
-								isOwner && (
-									<div className="bg-white border font-urbanist border-gray-200 rounded-lg p-8 shadow-md sm:hidden">
-										<h1 className="text-xl font-bold mb-1">Are you a Creator?</h1>
-										<p className="text-base mb-8">Install CryptoCoffee badge on your website and redirect your audience!</p>
-										<button className="border-cryptopurple border text-cryptopurple rounded-md w-full py-3 text-lg" onClick={() => setIsModalVisible(true)}>Get embed code</button>
-									</div>
-								)
-							}
+							{isOwner && (
+								<div className="bg-white border font-urbanist border-gray-200 rounded-lg p-8 shadow-md sm:hidden">
+									<h1 className="text-xl font-bold mb-1">
+										Are you a Creator?
+									</h1>
+									<p className="text-base mb-8">
+										Install CryptoCoffee badge on your
+										website and redirect your audience!
+									</p>
+									<button
+										className="border-cryptopurple border text-cryptopurple rounded-md w-full py-3 text-lg"
+										onClick={() => setIsModalVisible(true)}
+									>
+										Get embed code
+									</button>
+								</div>
+							)}
 						</section>
 					</div>
 				</div>
@@ -499,32 +537,35 @@ const Profile: React.FC<ProfileProps> = ({
 					className="embed-modal"
 					width={1032}
 					bodyStyle={{
-						borderRadius: '10px',
+						borderRadius: "10px",
 					}}
 					title={
 						<div className="font-urbanist">
-							<h3 className="font-bold text-xl mb-1">Embed CryptoCoffee</h3>
-							<p>Copy and paste the code below to send your website's visitors to your cryptocoffee page!</p>
+							<h3 className="font-bold text-xl mb-1">
+								Embed CryptoCoffee
+							</h3>
+							<p>
+								Copy and paste the code below to send your
+								website's visitors to your cryptocoffee page!
+							</p>
 						</div>
 					}
 					footer={null}
 				>
 					<div className="flex flex-col items-center justify-center">
-						<Image 
-							src={embedbadge}
-						/>
-						<div
-							className="mt-8 relative mb-8 mx-8 border border-cryptopurple bg-lightpurple rounded-md py-8 px-12 font-urbanist text-lg"
-						>
+						<Image src={embedbadge} />
+						<div className="mt-8 relative mb-8 mx-8 border border-cryptopurple bg-lightpurple rounded-md py-8 px-12 font-urbanist text-lg">
 							{script}
-							<button 
+							<button
 								className="flex absolute right-4 bottom-3 items-center text-lg text-cryptopurple"
 								onClick={copyEmbedButtonScript}
 								disabled={isScriptCopied}
 							>
-								{
-									isScriptCopied ? <CheckIcon className="w-6 h-6 mr-2" /> : <DuplicateIcon className="w-6 h-6 mr-2" />
-								} 
+								{isScriptCopied ? (
+									<CheckIcon className="w-6 h-6 mr-2" />
+								) : (
+									<DuplicateIcon className="w-6 h-6 mr-2" />
+								)}
 								Copy Code
 							</button>
 						</div>
@@ -566,7 +607,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 			transactions,
 			profileAddress: address,
 			ens: name,
-			avatar: avatar ?? '',
+			avatar: avatar ?? "",
 		},
 	};
 };

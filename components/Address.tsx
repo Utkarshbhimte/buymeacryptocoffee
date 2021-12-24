@@ -23,7 +23,11 @@ interface AddressProps {
 	copyable: boolean;
 }
 const Address: React.FC<AddressProps> = (props) => {
-	const { account } = useMoralis();
+	const { account: walletAddress, user } = useMoralis();
+
+	const queriedAddress = user?.get("ethAddress");
+	const account = walletAddress ?? queriedAddress;
+
 	const [address, setAddress] = useState<string | undefined>();
 	const [isClicked, setIsClicked] = useState(false);
 

@@ -11,12 +11,25 @@ import Blockie from "./Blockie";
 import Loader from "./Loader";
 import Link from "next/link";
 import { useEnsAddress } from "../utils/useEnsAddress";
+import Moralis from "moralis";
 
 function Account() {
-	const { authenticate, isAuthenticated, logout, account, chainId } =
-		useMoralis();
+	const {
+		authenticate,
+		isAuthenticated,
+		logout,
+		account: walletAddress,
+		chainId,
+		enableWeb3,
+		isWeb3Enabled,
+		user,
+	} = useMoralis();
 	const { switchNetwork } = useChain();
 	const [loading, setLoading] = useState(false);
+
+	const queriedAddress = user?.get("ethAddress");
+	const account = walletAddress ?? queriedAddress;
+
 	const { name: ensAddress, avatar } = useEnsAddress(account);
 
 	const handleAuth = async () => {

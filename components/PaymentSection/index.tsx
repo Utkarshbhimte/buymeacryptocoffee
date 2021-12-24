@@ -1,5 +1,4 @@
 import Moralis from "moralis";
-import { useRouter } from "next/router";
 import React, { ReactText, useEffect, useState } from "react";
 import {
 	useChain,
@@ -9,7 +8,6 @@ import {
 	useOneInchTokens,
 } from "react-moralis";
 import { chainLogo, tokenMetadata } from "../../utils/tokens";
-
 import Select from "../Select";
 import PayButton from "./PayButton";
 
@@ -23,8 +21,14 @@ interface Token {
 }
 
 const PaymentSection = ({ profileAddress }) => {
-	const { account: address } = useMoralis();
+	const { account: walletAddress, user } = useMoralis();
+
+	const queriedAddress = user?.get("ethAddress");
+	const address = walletAddress ?? queriedAddress;
+
 	const { chainId } = useChain();
+
+	console.log({ chainId });
 	const { data: tokenMetadataData } = useOneInchTokens({
 		chain: chainId,
 	});
@@ -50,17 +54,19 @@ const PaymentSection = ({ profileAddress }) => {
 		error: errorNative,
 	} = useNativeBalance();
 
+	console.log({ nativeData, data });
+
 	const fetchBalances = async () => {
 		await getBalances({
 			params: {
 				address,
-				chain: chainId as any,
+				chain: (chainId as any) ?? "0x1",
 			},
 		});
 		await fetchERC20Balances({
 			params: {
 				address,
-				chain: chainId as any,
+				chain: (chainId as any) ?? "0x1",
 			},
 		});
 	};
@@ -90,26 +96,6 @@ const PaymentSection = ({ profileAddress }) => {
 				tokenMetadata[token.symbol]?.logoURI ??
 				chainLogo[nativeTokenName],
 		})) ?? [];
-
-	// fetch tokens data for plugin, need to add plugin in moralis
-	const getData = async () => {
-		// const tokenMetadata = await Moralis.Web3API.token.getTokenMetadata({
-		// 	chain: chainId as any,
-		// 	addresses: [address],
-		// });
-		// console.log({ tokenMetadata });
-	};
-
-	useEffect(() => {
-		getData();
-		// console.log("this-->", Moralis?.["Plugins"]);
-		// if (!Moralis?.["Plugins"]?.["oneInch"]) return null;
-		// Moralis.Plugins.oneInch
-		// 	.getSupportedTokens({ chain: chainId })
-		// 	.then((tokens) => {
-		// 		console.log({ tokens });
-		// 	});
-	}, []);
 
 	const tokensArray: Token[] = [...cleanedERC20Tokens, cleanedNativeTokens];
 
@@ -170,7 +156,7 @@ const PaymentSection = ({ profileAddress }) => {
 					</div>
 					<div className="px-6 py-4">
 						<div className="font-urbanist font-normal rounded-md space-x-4">
-							<div className='flex items-center justify-between'>
+							<div className="flex items-center justify-between">
 								<div className="flex flex-col flex-1 w-44">
 									<Select
 										options={tokensArray.map((token) => ({
@@ -218,8 +204,8 @@ const PaymentSection = ({ profileAddress }) => {
 							</div>
 							<div className="mt-2 text-xs">
 								Balance: {selectedTokenData?.balance ?? 0}
-								<button 
-									className='px-1 ml-2 border border-cryptopurple bg-lightpurple text-cryptopurple rounded-lg'
+								<button
+									className="px-1 ml-2 border border-cryptopurple bg-lightpurple text-cryptopurple rounded-lg"
 									onClick={handleMax}
 								>
 									max
