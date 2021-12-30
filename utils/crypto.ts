@@ -117,9 +117,10 @@ export const sendTransaction = async (
 	return tx;
 };
 
-
 export interface ENSResponse {
-	address?: string | null; name?: string | null; avatar?: string | null
+	address?: string | null;
+	name?: string | null;
+	avatar?: string | null;
 }
 export const validateAndResolveAddress = async (
 	userAddress: string,
@@ -157,4 +158,23 @@ export const validateAndResolveAddress = async (
 		console.error(error);
 		return {};
 	}
+};
+
+export const usePhantomWallet = async (): Promise<{
+	connectedWallet: string;
+	connectWallet: () => void;
+}> => {
+	const connectWallet = async () => {
+		const { solana } = window;
+
+		if (solana) {
+			const response = await solana.connect();
+			return response.publicKey.toString();
+		}
+	};
+
+	return {
+		connectedWallet: "0x0",
+		connectWallet,
+	};
 };

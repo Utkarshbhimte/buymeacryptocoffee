@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { AvaxLogo, PolygonLogo, BSCLogo, ETHLogo } from "./Logos";
+import Image from "next/image";
+import { SolanaLogo, PolygonLogo, BSCLogo, ETHLogo } from "./Logos";
 import { useChain, useMoralis } from "react-moralis";
 import classNames from "classnames";
 
@@ -69,6 +70,11 @@ const menuItems: ChainItem[] = [
 		key: "0x89",
 		value: "Polygon",
 		icon: <PolygonLogo />,
+	},
+	{
+		key: "000",
+		value: "Solana",
+		icon: <SolanaLogo />,
 	},
 	// {
 	// 	key: "0x13881",
