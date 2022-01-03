@@ -33,6 +33,11 @@
 		"react-tooltip": "^4.2.21"
 	},
 	"devDependencies": {
+		"@solana/wallet-adapter-base": "^0.9.0",
+		"@solana/wallet-adapter-react": "^0.15.0",
+		"@solana/wallet-adapter-react-ui": "^0.8.0",
+		"@solana/wallet-adapter-wallets": "^0.14.0",
+		"@solana/web3.js": "^1.31.0",
 		"@types/node": "^16.10.3",
 		"@types/react": "^17.0.27",
 		"autoprefixer": "^10.2.6",
