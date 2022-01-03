@@ -1,5 +1,10 @@
 // import { useWallet } from "@solana/wallet-adapter-react";
 import { useWallet } from "@solana/wallet-adapter-react/lib/useWallet";
+import {
+	WalletDisconnectButton,
+	WalletMultiButton,
+} from "@solana/wallet-adapter-react-ui";
+
 import bs58 from "bs58";
 import classNames from "classnames";
 import React, { FC, useCallback, useEffect, useState } from "react";
@@ -97,32 +102,34 @@ const Chains = () => {
 	const { isAuthenticated } = useMoralis();
 	const [selected, setSelected] = useState<ChainItem | undefined>();
 
-	const { publicKey, signMessage } = useWallet();
+	const { publicKey, signMessage, connect } = useWallet();
 
-	// const solanaAuth = useCallback(async () => {
-	// 	try {
-	// 		// `publicKey` will be null if the wallet isn't connected
+	const solanaAuth = useCallback(async () => {
+		try {
+			// `publicKey` will be null if the wallet isn't connected
 
-	// 		console.log({ publicKey, signMessage });
+			const response = await connect();
 
-	// 		if (!publicKey) throw new Error("Wallet not connected!");
-	// 		// `signMessage` will be undefined if the wallet doesn't support it
-	// 		if (!signMessage)
-	// 			throw new Error("Wallet does not support message signing!");
+			console.log({ publicKey, signMessage, response });
 
-	// 		// Encode anything as bytes
-	// 		const message = new TextEncoder().encode("Hello, world!");
-	// 		// Sign the bytes using the wallet
-	// 		const signature = await signMessage(message);
-	// 		// Verify that the bytes were signed using the private key that matches the known public key
-	// 		if (!sign.detached.verify(message, signature, publicKey.toBytes()))
-	// 			throw new Error("Invalid signature!");
+			if (!publicKey) throw new Error("Wallet not connected!");
+			// `signMessage` will be undefined if the wallet doesn't support it
+			if (!signMessage)
+				throw new Error("Wallet does not support message signing!");
 
-	// 		alert(`Message signature: ${bs58.encode(signature)}`);
-	// 	} catch (error: any) {
-	// 		alert(`Signing failed: ${error?.message}`);
-	// 	}
-	// }, [publicKey, signMessage]);
+			// Encode anything as bytes
+			const message = new TextEncoder().encode("Hello, world!");
+			// Sign the bytes using the wallet
+			const signature = await signMessage(message);
+			// Verify that the bytes were signed using the private key that matches the known public key
+			if (!sign.detached.verify(message, signature, publicKey.toBytes()))
+				throw new Error("Invalid signature!");
+
+			alert(`Message signature: ${bs58.encode(signature)}`);
+		} catch (error: any) {
+			alert(`Signing failed: ${error?.message}`);
+		}
+	}, [publicKey, signMessage]);
 
 	useEffect(() => {
 		if (!chainId) return null;
@@ -132,8 +139,9 @@ const Chains = () => {
 
 	const handleMenuClick = async (key: string) => {
 		if (key === "solana") {
-			const res = await window?.solana?.connect();
-			console.log(res.publicKey.toString());
+			// const res = await window?.solana?.connect();
+			// console.log(res.publicKey.toString());
+			solanaAuth();
 			return;
 		}
 		switchNetwork(key);
@@ -144,6 +152,8 @@ const Chains = () => {
 	return (
 		<div className="space-x-4 items-center hidden md:flex">
 			<span className="text-gray-500 text-sm">Switch Chain:</span>
+			{/* <WalletDisconnectButton />
+			<WalletMultiButton /> */}
 			{menuItems.map((item) => (
 				<button
 					key={item.key}
