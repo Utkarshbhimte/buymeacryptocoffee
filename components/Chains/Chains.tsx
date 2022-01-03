@@ -1,16 +1,14 @@
 // import { useWallet } from "@solana/wallet-adapter-react";
 import { useWallet } from "@solana/wallet-adapter-react/lib/useWallet";
-import {
-	WalletDisconnectButton,
-	WalletMultiButton,
-} from "@solana/wallet-adapter-react-ui";
 
 import bs58 from "bs58";
 import classNames from "classnames";
-import React, { FC, useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useChain, useMoralis } from "react-moralis";
 import { sign } from "tweetnacl";
 import { ETHLogo, PolygonLogo, SolanaLogo } from "./Logos";
+import dynamic from "next/dynamic";
+const WalletButton = dynamic(() => import("../WalletButtons"), { ssr: false });
 
 const styles = {
 	item: {
@@ -103,6 +101,7 @@ const Chains = () => {
 	const [selected, setSelected] = useState<ChainItem | undefined>();
 
 	const { publicKey, signMessage, connect } = useWallet();
+	console.log(publicKey);
 
 	const solanaAuth = useCallback(async () => {
 		try {
@@ -139,8 +138,8 @@ const Chains = () => {
 
 	const handleMenuClick = async (key: string) => {
 		if (key === "solana") {
-			// const res = await window?.solana?.connect();
-			// console.log(res.publicKey.toString());
+			const res = await window?.solana?.connect();
+			console.log(res.publicKey.toString());
 			solanaAuth();
 			return;
 		}
@@ -151,9 +150,8 @@ const Chains = () => {
 
 	return (
 		<div className="space-x-4 items-center hidden md:flex">
+			<WalletButton />
 			<span className="text-gray-500 text-sm">Switch Chain:</span>
-			{/* <WalletDisconnectButton />
-			<WalletMultiButton /> */}
 			{menuItems.map((item) => (
 				<button
 					key={item.key}

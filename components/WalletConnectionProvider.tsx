@@ -4,6 +4,7 @@ import {
 	ConnectionProvider,
 	WalletProvider,
 } from "@solana/wallet-adapter-react";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import {
 	LedgerWalletAdapter,
 	PhantomWalletAdapter,
@@ -15,6 +16,7 @@ import {
 } from "@solana/wallet-adapter-wallets";
 import { clusterApiUrl } from "@solana/web3.js";
 import { FC, ReactNode, useMemo } from "react";
+import WalletModal from "./WalletModal";
 
 const WalletConnectionProvider: FC<{ children: ReactNode }> = ({
 	children,
@@ -44,7 +46,8 @@ const WalletConnectionProvider: FC<{ children: ReactNode }> = ({
 	return (
 		<ConnectionProvider endpoint={endpoint}>
 			<WalletProvider wallets={wallets} autoConnect>
-				{children}
+				<WalletModalProvider>{children}</WalletModalProvider>
+				<WalletModal />
 			</WalletProvider>
 		</ConnectionProvider>
 	);
