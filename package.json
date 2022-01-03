@@ -6,11 +6,9 @@
 		"start": "next start"
 	},
 	"dependencies": {
-		"@blocto/sdk": "^0.2.21",
 		"@headlessui/react": "^1.4.1",
 		"@heroicons/react": "^1.0.4",
 		"@next-auth/firebase-adapter": "0.0.2-canary.207",
-		"@project-serum/sol-wallet-adapter": "^0.2.6",
 		"@solana/wallet-adapter-react-ui": "^0.8.0",
 		"@solana/wallet-adapter-wallets": "^0.14.0",
 		"@tailwindcss/forms": "^0.3.4",
@@ -23,7 +21,7 @@
 		"firebase": "^8.10.0",
 		"moralis": "^0.0.154",
 		"multicoin-address-validator": "^0.5.2",
-		"next": "latest",
+		"next": "^11.1.2",
 		"next-transpile-modules": "^9.0.0",
 		"nextjs-progressbar": "^0.0.13",
 		"qrcode": "^1.4.4",
@@ -39,8 +37,8 @@
 	},
 	"devDependencies": {
 		"@solana/wallet-adapter-base": "^0.9.0",
-		"@solana/wallet-adapter-react": "0.14.1",
-		"@solana/web3.js": "^1.31.0",
+		"@solana/wallet-adapter-react": "0.15.0",
+		"@solana/web3.js": "^1.20.0",
 		"@types/node": "^16.10.3",
 		"@types/react": "^17.0.27",
 		"autoprefixer": "^10.2.6",

@@ -1,16 +1,11 @@
-module.exports = {
-	env: {
-		FIREBASE_API_KEY: "AIzaSyC_2tbvfpk7SAJo7aVMJGJHPTFlDPNOW1E",
-		FIREBASE_AUTH_DOMAIN: "buymeacryptocoffee.firebaseapp.com",
-		FIREBASE_PROJECT_ID: "buymeacryptocoffee",
-		FIREBASE_STORAGE_BUCKET: "buymeacryptocoffee.appspot.com",
-		FIREBASE_MESSAGING_SENDING_ID: "131199574933",
-		FIREBASE_APP_ID: "1:131199574933:web:42492d9992f7dc1db4cc9c",
-		FIREBASE_MEASUREMENT_ID: "G-0F4E7N771C",
-		ETHERSCAN_API_KEY: "TYRPF4RRHTHQY6BV5Q5D7B67U63U117S4Z",
-		NEXT_PUBLIC_MORALIS_APPLICATION_ID:
-			"VhKghlnSxANKuKpiY3fSlO9oUKy7YMdQH4CIuAc7",
-		NEXT_PUBLIC_MORALIS_SERVER_URL:
-			"https://yvhxe2ciezrq.usemoralis.com:2053/server",
-	},
-};
+/* eslint-disable @typescript-eslint/no-var-requires */
+const withTM = require("next-transpile-modules")([
+	"@blocto/sdk",
+	"@project-serum/sol-wallet-adapter",
+]);
+
+/** @type {import('next').NextConfig} */
+module.exports = withTM({
+	reactStrictMode: true,
+	webpack5: true,
+});

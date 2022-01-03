@@ -1,5 +1,4 @@
 // import { useWallet } from "@solana/wallet-adapter-react";
-import { useWallet } from "@solana/wallet-adapter-react/lib/useWallet";
 
 import bs58 from "bs58";
 import classNames from "classnames";
@@ -8,7 +7,7 @@ import { useChain, useMoralis } from "react-moralis";
 import { sign } from "tweetnacl";
 import { ETHLogo, PolygonLogo, SolanaLogo } from "./Logos";
 import dynamic from "next/dynamic";
-const WalletButton = dynamic(() => import("../WalletButtons"), { ssr: false });
+import { useWallet } from "@solana/wallet-adapter-react";
 
 const styles = {
 	item: {
@@ -150,7 +149,6 @@ const Chains = () => {
 
 	return (
 		<div className="space-x-4 items-center hidden md:flex">
-			<WalletButton />
 			<span className="text-gray-500 text-sm">Switch Chain:</span>
 			{menuItems.map((item) => (
 				<button
