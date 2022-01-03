@@ -1,13 +1,14 @@
 // import { useWallet } from "@solana/wallet-adapter-react";
 
-import bs58 from "bs58";
-import classNames from "classnames";
-import React, { useCallback, useEffect, useState } from "react";
-import { useChain, useMoralis } from "react-moralis";
-import { sign } from "tweetnacl";
-import { ETHLogo, PolygonLogo, SolanaLogo } from "./Logos";
-import dynamic from "next/dynamic";
+import { WalletReadyState } from "@solana/wallet-adapter-base";
 import { useWallet } from "@solana/wallet-adapter-react";
+import classNames from "classnames";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useChain, useMoralis } from "react-moralis";
+import { toast } from "react-toastify";
+import { sign } from "tweetnacl";
+import Modal from "../Modal";
+import { ETHLogo, PolygonLogo, SolanaLogo } from "./Logos";
 
 const styles = {
 	item: {
@@ -37,41 +38,6 @@ const menuItems: ChainItem[] = [
 		value: "Ethereum",
 		icon: <ETHLogo />,
 	},
-	// {
-	// 	key: "0x539",
-	// 	value: "Local Chain",
-	// 	icon: <ETHLogo />,
-	// },
-	// {
-	// 	key: "0x3",
-	// 	value: "Ropsten Testnet",
-	// 	icon: <ETHLogo />,
-	// },
-	// {
-	// 	key: "0x4",
-	// 	value: "Rinkeby Testnet",
-	// 	icon: <ETHLogo />,
-	// },
-	// {
-	// 	key: "0x2a",
-	// 	value: "Kovan Testnet",
-	// 	icon: <ETHLogo />,
-	// },
-	// {
-	// 	key: "0x5",
-	// 	value: "Goerli Testnet",
-	// 	icon: <ETHLogo />,
-	// },
-	// {
-	// 	key: "0x38",
-	// 	value: "Binance",
-	// 	icon: <BSCLogo />,
-	// },
-	// {
-	// 	key: "0x61",
-	// 	value: "Smart Chain Testnet",
-	// 	icon: <BSCLogo />,
-	// },
 	{
 		key: "0x89",
 		value: "Polygon",
@@ -82,33 +48,45 @@ const menuItems: ChainItem[] = [
 		value: "Solana",
 		icon: <SolanaLogo />,
 	},
-	// {
-	// 	key: "0x13881",
-	// 	value: "Mumbai",
-	// 	icon: <PolygonLogo />,
-	// },
-	// {
-	// 	key: "0xa86a",
-	// 	value: "Avalanche",
-	// 	icon: <AvaxLogo />,
-	// },
 ];
 
 const Chains = () => {
 	const { switchNetwork, chainId, chain } = useChain();
 	const { isAuthenticated } = useMoralis();
 	const [selected, setSelected] = useState<ChainItem | undefined>();
+	const {
+		wallets,
+		select,
+		connect,
+		publicKey,
+		signMessage,
+		connected,
+		disconnect,
+		wallet,
+	} = useWallet();
 
-	const { publicKey, signMessage, connect } = useWallet();
-	console.log(publicKey);
+	// state for modal open
+	const [modalOpen, setModalOpen] = useState(false);
+
+	const [installed] = useMemo(() => {
+		const installedWallets = [];
+		const otherWallets = [];
+		wallets.forEach((wallet) => {
+			if (wallet.readyState === WalletReadyState.Installed) {
+				installedWallets.push(wallet);
+			} else {
+				otherWallets.push(wallet);
+			}
+		});
+		const remainingFeaturedSpots = Math.max(0, installedWallets.length);
+		return [[...installedWallets]];
+	}, [wallets]);
 
 	const solanaAuth = useCallback(async () => {
 		try {
 			// `publicKey` will be null if the wallet isn't connected
 
-			const response = await connect();
-
-			console.log({ publicKey, signMessage, response });
+			console.log({ wallet });
 
 			if (!publicKey) throw new Error("Wallet not connected!");
 			// `signMessage` will be undefined if the wallet doesn't support it
@@ -116,18 +94,18 @@ const Chains = () => {
 				throw new Error("Wallet does not support message signing!");
 
 			// Encode anything as bytes
-			const message = new TextEncoder().encode("Hello, world!");
+			const message = new TextEncoder().encode("Connect to bmcc!");
 			// Sign the bytes using the wallet
 			const signature = await signMessage(message);
 			// Verify that the bytes were signed using the private key that matches the known public key
 			if (!sign.detached.verify(message, signature, publicKey.toBytes()))
 				throw new Error("Invalid signature!");
-
-			alert(`Message signature: ${bs58.encode(signature)}`);
 		} catch (error: any) {
-			alert(`Signing failed: ${error?.message}`);
+			toast.error(error.message);
 		}
 	}, [publicKey, signMessage]);
+
+	console.log("publicKey", publicKey?.toString());
 
 	useEffect(() => {
 		if (!chainId) return null;
@@ -137,15 +115,26 @@ const Chains = () => {
 
 	const handleMenuClick = async (key: string) => {
 		if (key === "solana") {
-			const res = await window?.solana?.connect();
-			console.log(res.publicKey.toString());
-			solanaAuth();
+			// if (!connected) setModalOpen(true);
+			setModalOpen(true);
 			return;
+		}
+		if (connected) {
+			disconnect();
 		}
 		switchNetwork(key);
 	};
 
+	const closeModal = () => {
+		setModalOpen(false);
+	};
 	if (!isAuthenticated) return <div />;
+
+	useEffect(() => {
+		if (!!publicKey) {
+			solanaAuth();
+		}
+	}, [!!publicKey]);
 
 	return (
 		<div className="space-x-4 items-center hidden md:flex">
@@ -164,6 +153,22 @@ const Chains = () => {
 					{item.icon}
 				</button>
 			))}
+			<Modal title="Connect wallet" onClose={closeModal} open={modalOpen}>
+				{installed.map((wallet) => {
+					console.log(wallet);
+					return (
+						<div
+							className="cursor-pointer"
+							onClick={() => {
+								console.log("clicked");
+								select(wallet.adapter.name);
+							}}
+						>
+							{wallet.adapter.name}
+						</div>
+					);
+				})}
+			</Modal>
 		</div>
 	);
 };
