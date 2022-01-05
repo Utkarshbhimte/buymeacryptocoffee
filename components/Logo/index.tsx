@@ -7,12 +7,10 @@ import cryptocoffeecup from "../../assets/cryptocoffeecup.svg";
 const Logo: React.FC<{ isWhite?: boolean }> = ({ isWhite = false }) => {
 	return (
 		<>
-			<div className={`${isWhite ? 'hidden' : 'hidden xs:block'}`}>
-				<Image 
-					src={cryptocoffeecup}
-				/>
+			<div className={`${isWhite ? "hidden" : "hidden xs:block"}`}>
+				<Image src={cryptocoffeecup} />
 			</div>
-			<div className={`${isWhite ? '' : 'xs:hidden'}`}>
+			<div className={`${isWhite ? "" : "xs:hidden"}`}>
 				<Image
 					height={34}
 					width={87}

@@ -1,3 +1,5 @@
+import { useWallet } from "@solana/wallet-adapter-react";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import Moralis from "moralis";
 import React, { ReactText, useEffect, useState } from "react";
 import {
@@ -7,9 +9,14 @@ import {
 	useNativeBalance,
 	useOneInchTokens,
 } from "react-moralis";
+import { SolanaAccountDetails, SolanaTokenData } from "../../contracts";
+import {
+	getSolanaWalletDetails,
+	getTokensAvailableInSolanaWallet,
+} from "../../utils/crypto";
 import { chainLogo, tokenMetadata } from "../../utils/tokens";
-import Select from "../Select";
 import PayButton from "./PayButton";
+import Select from "../Select";
 
 interface Token {
 	readonly name: string;
@@ -20,98 +27,76 @@ interface Token {
 	readonly logo?: string;
 }
 
-const PaymentSection = ({ profileAddress }) => {
+const SolanaPaymentSection = ({ profileAddress }) => {
 	const { account: walletAddress, user } = useMoralis();
 
 	const queriedAddress = user?.get("ethAddress");
 	const address = walletAddress ?? queriedAddress;
 
-	const { chainId } = useChain();
-
-	console.log({ chainId });
-	const { data: tokenMetadataData } = useOneInchTokens({
-		chain: chainId,
-	});
-
 	const [price, setPrice] = useState(0);
 	const [message, setMessage] = useState("");
+	const [loading, setIsLoading] = useState(false);
+	const [accountDetails, setAccountDetails] =
+		useState<SolanaAccountDetails>();
+	const [tokens, setTokens] = useState<SolanaTokenData[]>([]);
 
 	const [selectedToken, setSelectedToken] = useState<string>();
 
-	const {
-		fetchERC20Balances,
-		data,
-		isFetching: isFetchingERC20,
-		isLoading: isLoadingERC20,
-		error,
-	} = useERC20Balances();
+	const { publicKey, connected, sendTransaction } = useWallet();
 
-	const {
-		getBalances,
-		data: nativeData,
-		isFetching: isFetchingNative,
-		isLoading: isLoadingNative,
-		error: errorNative,
-	} = useNativeBalance();
+	useEffect(() => {
+		fetchBalances();
+	}, [connected, publicKey]);
 
 	const fetchBalances = async () => {
-		await getBalances({
-			params: {
-				address,
-				chain: (chainId as any) ?? "0x1",
-			},
-		});
-		await fetchERC20Balances({
-			params: {
-				address,
-				chain: (chainId as any) ?? "0x1",
-			},
-		});
+		setIsLoading(true);
+		try {
+			if (connected) {
+				const accountDetails = await getSolanaWalletDetails(
+					publicKey.toString()
+				);
+				const tokensData = await getTokensAvailableInSolanaWallet(
+					publicKey.toString()
+				);
+				setAccountDetails(accountDetails);
+				setTokens(tokensData);
+			}
+		} catch (error) {
+			console.error(error);
+		} finally {
+			setIsLoading(false);
+		}
 	};
-	const nativeTokenName = nativeData?.formatted?.split(" ")[1] ?? "";
+
 	const cleanedNativeTokens = {
-		symbol: nativeTokenName,
-		balance: nativeData.formatted,
-		name: nativeTokenName,
+		symbol: "SOL",
+		balance: (accountDetails?.lamports ?? 0) / LAMPORTS_PER_SOL,
+		name: "SOL",
 		decimals: 18,
 		tokenAddress: null,
-		logo: tokenMetadata[nativeTokenName]?.logoURI,
+		logo: "/solanaLogoMark.svg",
 	};
 
-	const cleanedERC20Tokens: Token[] =
-		data?.map((token) => ({
-			name: token.name,
-			symbol: token.symbol,
-			balance: Moralis.Units.FromWei(
-				token.balance,
-				Number(token.decimals)
-			),
-			decimals: Number(token.decimals),
-			tokenAddress:
-				tokenMetadata[token.symbol]?.address ?? token.token_address,
-			logo:
-				token.logo ??
-				tokenMetadata[token.symbol]?.logoURI ??
-				chainLogo[nativeTokenName],
+	const cleanedSOLTokens: Token[] =
+		tokens?.map((token) => ({
+			name: token.tokenName,
+			symbol: token.tokenSymbol,
+			balance: token.tokenAmount.amount,
+			decimals: token.tokenAmount.decimals,
+			tokenAddress: token.tokenAddress,
+			logo: token.tokenIcon,
 		})) ?? [];
 
-	const tokensArray: Token[] = [...cleanedERC20Tokens, cleanedNativeTokens];
+	const tokensArray: Token[] = [cleanedNativeTokens, ...cleanedSOLTokens];
 
-	const disableDonateButton =
-		isLoadingERC20 ||
-		isLoadingNative ||
-		isFetchingERC20 ||
-		isFetchingNative ||
-		!price;
+	const disableDonateButton = loading || !price;
 
 	const selectedTokenData =
 		tokensArray.find((token) => token.name === selectedToken) ??
 		cleanedNativeTokens;
 
 	const handleMax = () => {
-		setPrice(
-			Number((selectedTokenData.balance as string)?.split(" ")[0] ?? 0)
-		);
+		setPrice(Number(selectedTokenData.balance as string));
 	};
 
 	return (
@@ -126,10 +111,7 @@ const PaymentSection = ({ profileAddress }) => {
 						Support the Creator 🤝
 						<span
 							className={`p-2 rounded-lg  ${
-								isFetchingERC20 ||
-								isLoadingERC20 ||
-								isFetchingNative ||
-								isLoadingNative
+								loading
 									? " animate-spin "
 									: " hover:bg-indigo-100 cursor-pointer "
 							}`}
@@ -250,4 +232,4 @@ const PaymentSection = ({ profileAddress }) => {
 	);
 };
 
-export default PaymentSection;
+export default SolanaPaymentSection;

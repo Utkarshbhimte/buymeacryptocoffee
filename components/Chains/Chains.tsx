@@ -9,6 +9,8 @@ import { toast } from "react-toastify";
 import { sign } from "tweetnacl";
 import Modal from "../Modal";
 import { ETHLogo, PolygonLogo, SolanaLogo } from "./Logos";
+import { useRouter } from "next/router";
+import WAValidator from "multicoin-address-validator";
 
 const styles = {
 	item: {
@@ -31,33 +33,42 @@ interface ChainItem {
 	key: string;
 	value: string;
 	icon: JSX.Element;
+	hidden?: boolean;
 }
-const menuItems: ChainItem[] = [
-	{
-		key: "0x1",
-		value: "Ethereum",
-		icon: <ETHLogo />,
-	},
-	{
-		key: "0x89",
-		value: "Polygon",
-		icon: <PolygonLogo />,
-	},
-	{
-		key: "solana",
-		value: "Solana",
-		icon: <SolanaLogo />,
-	},
-];
+
+const menuItems = (isEthAddress: boolean): ChainItem[] => {
+	return [
+		{
+			key: "0x1",
+			value: "Ethereum",
+			icon: <ETHLogo />,
+			hidden: !isEthAddress,
+		},
+		{
+			key: "0x89",
+			value: "Polygon",
+			icon: <PolygonLogo />,
+			hidden: !isEthAddress,
+		},
+		{
+			key: "solana",
+			value: "Solana",
+			icon: <SolanaLogo />,
+			hidden: isEthAddress,
+		},
+	];
+};
 
 const Chains = () => {
 	const { switchNetwork, chainId, chain } = useChain();
-	const { isAuthenticated } = useMoralis();
+	const { isAuthenticated, logout } = useMoralis();
+	const router = useRouter();
+	const id = router.query.id;
 	const [selected, setSelected] = useState<ChainItem | undefined>();
+	const [isEthAddress, setIsEthAddress] = useState(false);
 	const {
 		wallets,
 		select,
-		connect,
 		publicKey,
 		signMessage,
 		connected,
@@ -86,8 +97,6 @@ const Chains = () => {
 		try {
 			// `publicKey` will be null if the wallet isn't connected
 
-			console.log({ wallet });
-
 			if (!publicKey) throw new Error("Wallet not connected!");
 			// `signMessage` will be undefined if the wallet doesn't support it
 			if (!signMessage)
@@ -105,17 +114,25 @@ const Chains = () => {
 		}
 	}, [publicKey, signMessage]);
 
-	console.log("publicKey", publicKey?.toString());
-
 	useEffect(() => {
 		if (!chainId) return null;
-		const newSelected = menuItems.find((item) => item.key === chainId);
+		const newSelected = menuItems(isEthAddress).find(
+			(item) => item.key === chainId
+		);
 		setSelected(newSelected);
 	}, [chainId]);
+
+	useEffect(() => {
+		if (id) {
+			const isEthAddress = WAValidator.validate(id, "ETH");
+			setIsEthAddress(isEthAddress);
+		}
+	}, [id]);
 
 	const handleMenuClick = async (key: string) => {
 		if (key === "solana") {
 			// if (!connected) setModalOpen(true);
+			isAuthenticated && logout();
 			setModalOpen(true);
 			return;
 		}
@@ -128,18 +145,17 @@ const Chains = () => {
 	const closeModal = () => {
 		setModalOpen(false);
 	};
-	if (!isAuthenticated) return <div />;
 
-	useEffect(() => {
-		if (!!publicKey) {
-			solanaAuth();
-		}
-	}, [!!publicKey]);
+	// useEffect(() => {
+	// 	if (!!publicKey) {
+	// 		solanaAuth();
+	// 	}
+	// }, [!!publicKey]);
 
 	return (
 		<div className="space-x-4 items-center hidden md:flex">
 			<span className="text-gray-500 text-sm">Switch Chain:</span>
-			{menuItems.map((item) => (
+			{menuItems(isEthAddress).map((item) => (
 				<button
 					key={item.key}
 					onClick={() => handleMenuClick(item.key)}
@@ -147,7 +163,8 @@ const Chains = () => {
 						"rounded-lg focus:bg-indigo-100 hover:bg-indigo-100 text-white",
 						selected?.key === item.key
 							? ""
-							: "focus:bg-indigo-100 hover:bg-indigo-100 cursor-pointer opacity-40"
+							: "focus:bg-indigo-100 hover:bg-indigo-100 cursor-pointer opacity-40",
+						item.hidden ? "hidden" : ""
 					)}
 				>
 					{item.icon}
@@ -155,12 +172,10 @@ const Chains = () => {
 			))}
 			<Modal title="Connect wallet" onClose={closeModal} open={modalOpen}>
 				{installed.map((wallet) => {
-					console.log(wallet);
 					return (
 						<div
 							className="cursor-pointer"
 							onClick={() => {
-								console.log("clicked");
 								select(wallet.adapter.name);
 							}}
 						>

@@ -1,6 +1,9 @@
 import { ethers } from "ethers";
+import { SolanaAccountDetails, SolanaTokenData } from "../contracts";
 
 declare let window: any;
+
+const solscanBaseURL = "https://public-api.solscan.io";
 
 export const checkIfWalletIsConnected = async (): Promise<string> => {
 	try {
@@ -117,9 +120,10 @@ export const sendTransaction = async (
 	return tx;
 };
 
-
 export interface ENSResponse {
-	address?: string | null; name?: string | null; avatar?: string | null
+	address?: string | null;
+	name?: string | null;
+	avatar?: string | null;
 }
 export const validateAndResolveAddress = async (
 	userAddress: string,
@@ -156,5 +160,39 @@ export const validateAndResolveAddress = async (
 	} catch (error) {
 		console.error(error);
 		return {};
+	}
+};
+
+export const getSolanaWalletDetails = async (
+	walletAddress: string
+): Promise<SolanaAccountDetails> => {
+	try {
+		const response = await fetch(
+			`${solscanBaseURL}/account/${walletAddress}`
+		);
+
+		const json = await response.json();
+		console.log(json);
+
+		return json;
+	} catch (error) {
+		console.error(error);
+	}
+};
+
+export const getTokensAvailableInSolanaWallet = async (
+	walletAddress: string
+): Promise<SolanaTokenData[]> => {
+	try {
+		const response = await fetch(
+			`${solscanBaseURL}/account/tokens?account=${walletAddress}`
+		);
+
+		const json = await response.json();
+		console.log(json.filter((token) => !!token?.tokenSymbol));
+
+		return json.filter((token) => !!token?.tokenSymbol);
+	} catch (error) {
+		console.error(error);
 	}
 };

@@ -18,6 +18,8 @@ import { validateAndResolveAddress } from "../utils/crypto";
 import { db } from "../utils/firebaseClient";
 import { getTxnUrl } from "../utils/getTxnUrl";
 import { useEnsAddress } from "../utils/useEnsAddress";
+import WAValidator from "multicoin-address-validator";
+import SolanaPaymentSection from "../components/SolanaPaymentSection";
 
 declare let window: any;
 
@@ -26,6 +28,7 @@ export interface ProfileProps {
 	profileAddress: string;
 	ens?: string;
 	avatar?: string;
+	isEthereumAddress?: boolean;
 }
 
 const Profile: React.FC<ProfileProps> = ({
@@ -33,6 +36,7 @@ const Profile: React.FC<ProfileProps> = ({
 	profileAddress,
 	ens,
 	avatar: defaultAvatar,
+	isEthereumAddress,
 }) => {
 	const { name: currProfileEns, avatar } = useEnsAddress(profileAddress) || {
 		currProfileEns: ens,
@@ -45,8 +49,6 @@ const Profile: React.FC<ProfileProps> = ({
 		isWeb3Enabled,
 		enableWeb3,
 	} = useMoralis();
-
-	console.log({ isAuthenticated, isWeb3Enabled });
 
 	const queriedAddress = user?.get("ethAddress");
 	const account = walletAddress ?? queriedAddress;
@@ -507,9 +509,15 @@ const Profile: React.FC<ProfileProps> = ({
 										</svg>
 									</a>
 								</div> */}
-								<PaymentSection
-									profileAddress={profileAddress}
-								/>
+								{isEthereumAddress ? (
+									<PaymentSection
+										profileAddress={profileAddress}
+									/>
+								) : (
+									<SolanaPaymentSection
+										profileAddress={profileAddress}
+									/>
+								)}
 							</div>
 							{isOwner && (
 								<div className="bg-white border font-urbanist border-gray-200 rounded-lg p-8 shadow-md sm:hidden">
@@ -579,14 +587,29 @@ const Profile: React.FC<ProfileProps> = ({
 export const getStaticProps: GetStaticProps = async (context) => {
 	const userAddress = context.params.id;
 
-	const mainnetEndpoint =
-		"https://speedy-nodes-nyc.moralis.io/d35afcfb3d409232f26629cd/eth/mainnet";
-	const provider = new ethers.providers.JsonRpcProvider(mainnetEndpoint);
+	const isEthereumAddress =
+		WAValidator.validate(userAddress, "ETH") ||
+		userAddress.includes(".eth");
 
-	const { address, name, avatar } = await validateAndResolveAddress(
-		userAddress.toString(),
-		provider
-	);
+	let address = userAddress;
+	let name, avatar;
+
+	console.log(isEthereumAddress);
+	if (isEthereumAddress) {
+		const mainnetEndpoint =
+			"https://speedy-nodes-nyc.moralis.io/d35afcfb3d409232f26629cd/eth/mainnet";
+		const provider = new ethers.providers.JsonRpcProvider(mainnetEndpoint);
+
+		const {
+			address: ethAddress,
+			name: ensName,
+			avatar: ensAvatar,
+		} = await validateAndResolveAddress(userAddress.toString(), provider);
+
+		address = ethAddress;
+		name = name;
+		avatar = ensAvatar;
+	}
 
 	const transactionsResponse = await db
 		.collection("transactions")
@@ -606,8 +629,9 @@ export const getStaticProps: GetStaticProps = async (context) => {
 		props: {
 			transactions,
 			profileAddress: address,
-			ens: name,
+			ens: name ?? "",
 			avatar: avatar ?? "",
+			isEthereumAddress,
 		},
 	};
 };

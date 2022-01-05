@@ -10,7 +10,12 @@ import Loader from "../components/Loader";
 import { useEnsAddress } from "../utils/useEnsAddress";
 import Link from "next/link";
 import { ethers } from "ethers";
-import { validateAndResolveAddress } from "../utils/crypto";
+import {
+	getSolanaWalletDetails,
+	getTokensAvailableInSolanaWallet,
+	validateAndResolveAddress,
+} from "../utils/crypto";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 declare let window: any;
 
@@ -49,13 +54,21 @@ const makerData = [
 const CtaButton = () => {
 	const {
 		authenticate,
-		isAuthenticated,
+		isAuthenticated: isAuthenticatedMoralis,
 		account: walletAddress,
 		user,
 	} = useMoralis();
 
+	const { connected, publicKey } = useWallet();
+
+	const isAuthenticated = isAuthenticatedMoralis || connected;
+
 	const queriedAddress = user?.get("ethAddress");
-	const account = walletAddress ?? queriedAddress;
+	const account = connected
+		? publicKey?.toString()
+		: isAuthenticated
+		? walletAddress ?? queriedAddress
+		: undefined;
 
 	const router = useRouter();
 	const [loading, setLoading] = useState(false);

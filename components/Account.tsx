@@ -20,8 +20,6 @@ function Account() {
 		logout,
 		account: walletAddress,
 		chainId,
-		enableWeb3,
-		isWeb3Enabled,
 		user,
 	} = useMoralis();
 	const { switchNetwork } = useChain();

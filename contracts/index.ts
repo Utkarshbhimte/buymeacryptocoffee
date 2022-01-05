@@ -30,3 +30,27 @@ export class Transaction {
 	tokenDecimals: number = 0;
 	senderAvatar?: string = null;
 }
+
+export interface SolanaAccountDetails {
+	account: string;
+	lamports: number;
+	ownerProgram: string;
+	rentEpoch: number;
+	typos: string;
+}
+
+export interface SolanaTokenAmount {
+	decimals: number;
+	amount: string;
+	uiAmount: string;
+	uiAmountString: string;
+}
+
+export interface SolanaTokenData {
+	tokenAccount: string;
+	tokenAddress: string;
+	tokenIcon: string;
+	tokenName: string;
+	tokenSymbol: string;
+	tokenAmount: SolanaTokenAmount;
+}
