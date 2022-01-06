@@ -1,4 +1,12 @@
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { SendTransactionOptions } from "@solana/wallet-adapter-base";
+import {
+	Connection,
+	Keypair,
+	LAMPORTS_PER_SOL,
+	PublicKey,
+	Transaction as SolanaTransaction,
+} from "@solana/web3.js";
 import { ethers } from "ethers";
 import { SolanaAccountDetails, SolanaTokenData } from "../contracts";
 
@@ -198,7 +206,106 @@ export const getTokensAvailableInSolanaWallet = async (
 	}
 };
 
-export const formatSolanaBalance = (lamports?: number) =>
-	!lamports ? 0 : (lamports ?? 0) / LAMPORTS_PER_SOL;
+export const formatSolanaBalance = (lamports?: number, decimals?: number) => {
+	if (decimals) {
+		return !lamports ? 0 : lamports / 10 ** decimals;
+	}
+	return !lamports ? 0 : (lamports ?? 0) / LAMPORTS_PER_SOL;
+};
 
 export const getLamportsFromSol = (sol: number) => sol * LAMPORTS_PER_SOL;
+
+export const sendSPL = async (
+	mint: string,
+	toWallet: PublicKey,
+	amount: number,
+	decimals: number,
+	from: PublicKey,
+	connection: Connection,
+	signTransaction?: (
+		transaction: SolanaTransaction
+	) => Promise<SolanaTransaction>
+) => {
+	const SPL_pubkey = new PublicKey(mint);
+
+	const fromWallet = Keypair.generate();
+	const SPL_Token = new Token(
+		connection,
+		SPL_pubkey,
+		TOKEN_PROGRAM_ID,
+		fromWallet
+	);
+	console.log(SPL_Token);
+
+	let fromTokenAccount;
+
+	try {
+		fromTokenAccount = await SPL_Token.getOrCreateAssociatedAccountInfo(
+			from
+		);
+		// Create associated token accounts for the recipient if they don't exist yet
+	} catch (error: any) {
+		return;
+	}
+
+	const associatedDestinationTokenAddr =
+		await Token.getAssociatedTokenAddress(
+			SPL_Token.associatedProgramId,
+			SPL_Token.programId,
+			SPL_pubkey,
+			toWallet
+		);
+
+	const receiverAccount = await connection.getAccountInfo(
+		associatedDestinationTokenAddr
+	);
+
+	const transaction = new SolanaTransaction();
+
+	if (receiverAccount === null) {
+		transaction.add(
+			Token.createAssociatedTokenAccountInstruction(
+				SPL_Token.associatedProgramId,
+				SPL_Token.programId,
+				SPL_pubkey,
+				associatedDestinationTokenAddr,
+				toWallet,
+				from
+			)
+		);
+	}
+
+	// Add token transfer instructions to transaction
+	transaction.add(
+		Token.createTransferInstruction(
+			TOKEN_PROGRAM_ID,
+			fromTokenAccount.address,
+			associatedDestinationTokenAddr,
+			from,
+			[],
+			Number(amount) * 10 ** decimals
+		)
+	);
+
+	let signedTransaction: any = null;
+
+	const { blockhash } = await connection.getRecentBlockhash();
+
+	transaction.recentBlockhash = blockhash;
+	transaction.feePayer = from;
+
+	if (signTransaction) {
+		try {
+			signedTransaction = await signTransaction(transaction);
+		} catch (e: any) {
+			return;
+		}
+	} else return;
+
+	const txid = await connection
+		.sendRawTransaction(signedTransaction.serialize())
+		.catch((err) => {
+			console.log(err);
+		});
+	if (txid) return txid;
+};

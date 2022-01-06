@@ -77,18 +77,22 @@ const SolanaPaymentSection = ({ profileAddress }) => {
 		tokenAddress: null,
 		logo: "/solanaLogoMark.svg",
 	};
+	console.log(accountDetails?.lamports);
 
-	const cleanedSOLTokens: Token[] =
+	const cleanedSPLTokens: Token[] =
 		tokens?.map((token) => ({
 			name: token.tokenName,
 			symbol: token.tokenSymbol,
-			balance: token.tokenAmount.amount,
+			balance: formatSolanaBalance(
+				Number(token.tokenAmount.amount),
+				token.tokenAmount.decimals
+			),
 			decimals: token.tokenAmount.decimals,
 			tokenAddress: token.tokenAddress,
 			logo: token.tokenIcon,
 		})) ?? [];
 
-	const tokensArray: Token[] = [cleanedNativeTokens, ...cleanedSOLTokens];
+	const tokensArray: Token[] = [cleanedNativeTokens, ...cleanedSPLTokens];
 
 	const disableDonateButton = loading || !price;
 

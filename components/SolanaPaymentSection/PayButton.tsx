@@ -14,7 +14,7 @@ import {
 	SystemProgram,
 	Transaction as SolanaTransaction,
 } from "@solana/web3.js";
-import { getLamportsFromSol } from "../../utils/crypto";
+import { getLamportsFromSol, sendSPL } from "../../utils/crypto";
 
 interface IPayButton {
 	readonly amount: number;
@@ -38,17 +38,29 @@ const PayButton: React.FC<IPayButton> = ({
 	symbol,
 }) => {
 	const txAmount =
-		// type === "native"
-		getLamportsFromSol(amount);
-	// : Moralis.Units.Token(amount, decimals);
+		type === "native" ? getLamportsFromSol(amount) : Number(amount);
 
 	const { connection } = useConnection();
-	const { sendTransaction, publicKey } = useWallet();
+	const { sendTransaction, publicKey, signTransaction } = useWallet();
 
 	const account = publicKey?.toString();
 
 	const onClick = useCallback(async () => {
 		if (!publicKey) throw new WalletNotConnectedError();
+
+		if (type === "spl") {
+			const tx = await sendSPL(
+				contractAddress,
+				new PublicKey(receiver),
+				amount,
+				decimals,
+				publicKey,
+				connection,
+				signTransaction
+			);
+			saveTransactionToDB(tx);
+			return;
+		}
 
 		const transaction = new SolanaTransaction().add(
 			SystemProgram.transfer({
