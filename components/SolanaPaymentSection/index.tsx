@@ -77,7 +77,6 @@ const SolanaPaymentSection = ({ profileAddress }) => {
 		tokenAddress: null,
 		logo: "/solanaLogoMark.svg",
 	};
-	console.log(accountDetails?.lamports);
 
 	const cleanedSPLTokens: Token[] =
 		tokens?.map((token) => ({

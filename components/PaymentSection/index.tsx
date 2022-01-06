@@ -28,11 +28,6 @@ const PaymentSection = ({ profileAddress }) => {
 
 	const { chainId } = useChain();
 
-	console.log({ chainId });
-	const { data: tokenMetadataData } = useOneInchTokens({
-		chain: chainId,
-	});
-
 	const [price, setPrice] = useState(0);
 	const [message, setMessage] = useState("");
 

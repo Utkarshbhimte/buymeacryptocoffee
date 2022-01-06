@@ -126,7 +126,6 @@ const PayButton: React.FC<IPayButton> = ({
 	// 		saveTransactionToDB(data);
 	// 	}
 	// }, [data]);
-	console.log("called");
 
 	return (
 		<>

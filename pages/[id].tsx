@@ -109,7 +109,6 @@ const Profile: React.FC<ProfileProps> = ({
 
 	useEffect(() => {
 		if (!isWeb3Enabled && isAuthenticated) {
-			console.log("here coming ser");
 			enableWeb3({
 				provider: "walletconnect",
 			});
@@ -593,8 +592,6 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
 	let address = userAddress;
 	let name, avatar;
-
-	console.log(isEthereumAddress);
 	if (isEthereumAddress) {
 		const mainnetEndpoint =
 			"https://speedy-nodes-nyc.moralis.io/d35afcfb3d409232f26629cd/eth/mainnet";
