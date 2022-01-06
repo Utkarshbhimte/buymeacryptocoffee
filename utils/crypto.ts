@@ -221,12 +221,13 @@ export const sendSPL = async (
 	amount: number,
 	decimals: number,
 	from: PublicKey,
-	connection: Connection,
 	signTransaction?: (
 		transaction: SolanaTransaction
 	) => Promise<SolanaTransaction>
 ) => {
 	const SPL_pubkey = new PublicKey(mint);
+
+	const connection = new Connection("https://api.mainnet-beta.solana.com");
 
 	const fromWallet = Keypair.generate();
 	const SPL_Token = new Token(

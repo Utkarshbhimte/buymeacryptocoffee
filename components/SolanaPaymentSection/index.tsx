@@ -228,6 +228,7 @@ const SolanaPaymentSection = ({ profileAddress }) => {
 								contractAddress={
 									selectedTokenData?.tokenAddress
 								}
+								refreshBalance={fetchBalances}
 							/>
 						</div>
 					</div>

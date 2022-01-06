@@ -25,6 +25,7 @@ interface IPayButton {
 	readonly disabled?: boolean;
 	readonly message?: string;
 	readonly symbol: string;
+	readonly refreshBalance: () => void;
 }
 
 const PayButton: React.FC<IPayButton> = ({
@@ -36,6 +37,7 @@ const PayButton: React.FC<IPayButton> = ({
 	disabled,
 	message,
 	symbol,
+	refreshBalance,
 }) => {
 	const txAmount =
 		type === "native" ? getLamportsFromSol(amount) : Number(amount);
@@ -55,7 +57,6 @@ const PayButton: React.FC<IPayButton> = ({
 				amount,
 				decimals,
 				publicKey,
-				connection,
 				signTransaction
 			);
 			saveTransactionToDB(tx);
@@ -114,6 +115,7 @@ const PayButton: React.FC<IPayButton> = ({
 				</div>,
 				{ closeButton: false, position: "top-center" }
 			);
+			refreshBalance();
 		} catch (error) {
 			console.error(error);
 		}
