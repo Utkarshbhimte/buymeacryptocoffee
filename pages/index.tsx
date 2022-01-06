@@ -298,7 +298,10 @@ const Dashboard: React.FC = () => {
 					</span> */}
 					<div className="flex justify-center mt-16 mx-auto space-x-24 sm:flex-col sm:space-x-0 sm:space-y-12">
 						{makerData.map((maker) => (
-							<div className="flex flex-1/4 flex-col items-center justify-center">
+							<div
+								key={maker.address}
+								className="flex flex-1/4 flex-col items-center justify-center"
+							>
 								<img
 									src={maker.image}
 									className="rounded-full w-28 h-28"
