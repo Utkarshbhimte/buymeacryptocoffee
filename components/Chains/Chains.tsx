@@ -157,7 +157,7 @@ const Chains = () => {
 			<span className="text-gray-500 text-sm">Switch Chain:</span>
 			{menuItems(isEthAddress).map((item) => (
 				<button
-					key={item.key}
+					key={item.value}
 					onClick={() => handleMenuClick(item.key)}
 					className={classNames(
 						"rounded-lg focus:bg-indigo-100 hover:bg-indigo-100 text-white",
@@ -174,6 +174,7 @@ const Chains = () => {
 				{installed.map((wallet) => {
 					return (
 						<div
+							key={wallet.name}
 							className="cursor-pointer"
 							onClick={() => {
 								select(wallet.adapter.name);
