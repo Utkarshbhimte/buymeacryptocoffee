@@ -214,7 +214,7 @@ const SolanaPaymentSection = ({ profileAddress }) => {
 								receiver={profileAddress}
 								type={
 									selectedTokenData?.tokenAddress
-										? "erc20"
+										? "spl"
 										: "native"
 								}
 								symbol={selectedTokenData?.symbol}

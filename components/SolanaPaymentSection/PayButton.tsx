@@ -19,7 +19,7 @@ import { getLamportsFromSol } from "../../utils/crypto";
 interface IPayButton {
 	readonly amount: number;
 	readonly receiver: string;
-	readonly type: "native" | "erc20";
+	readonly type: "native" | "spl";
 	readonly decimals?: number;
 	readonly contractAddress?: string;
 	readonly disabled?: boolean;
@@ -65,7 +65,7 @@ const PayButton: React.FC<IPayButton> = ({
 		// 	"processed"
 		// );
 		saveTransactionToDB(signature);
-	}, [publicKey, sendTransaction, connection]);
+	}, [publicKey, sendTransaction, connection, txAmount]);
 
 	const saveTransactionToDB = async (tx: string) => {
 		const walletMeta = await fetchEnsAddress(account);
@@ -93,7 +93,7 @@ const PayButton: React.FC<IPayButton> = ({
 					<span>Transaction Successful!</span>
 					<a
 						className="cursor-pointer absolute flex items-center justify-center rounded-full w-6 h-6 bg-cryptoblue right-4"
-						href={"#"}
+						href={`https://solscan.io/tx/${tx}`}
 						target="_blank"
 						rel="noopener noreferrer"
 					>
