@@ -11,6 +11,7 @@ import {
 } from "react-moralis";
 import { SolanaAccountDetails, SolanaTokenData } from "../../contracts";
 import {
+	formatSolanaBalance,
 	getSolanaWalletDetails,
 	getTokensAvailableInSolanaWallet,
 } from "../../utils/crypto";
@@ -70,7 +71,7 @@ const SolanaPaymentSection = ({ profileAddress }) => {
 
 	const cleanedNativeTokens = {
 		symbol: "SOL",
-		balance: (accountDetails?.lamports ?? 0) / LAMPORTS_PER_SOL,
+		balance: formatSolanaBalance(accountDetails?.lamports),
 		name: "SOL",
 		decimals: 18,
 		tokenAddress: null,

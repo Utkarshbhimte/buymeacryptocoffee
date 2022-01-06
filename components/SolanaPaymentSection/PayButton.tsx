@@ -1,11 +1,20 @@
 import { ArrowUpIcon } from "@heroicons/react/solid";
+import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import Moralis from "moralis";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useChain, useMoralis, useWeb3Transfer } from "react-moralis";
 import { toast } from "react-toastify";
 import { Transaction } from "../../contracts";
 import { saveTransaction } from "../../utils";
 import { fetchEnsAddress } from "../../utils/useEnsAddress";
+import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
+import {
+	Keypair,
+	PublicKey,
+	SystemProgram,
+	Transaction as SolanaTransaction,
+} from "@solana/web3.js";
+import { getLamportsFromSol } from "../../utils/crypto";
 
 interface IPayButton {
 	readonly amount: number;
@@ -29,35 +38,47 @@ const PayButton: React.FC<IPayButton> = ({
 	symbol,
 }) => {
 	const txAmount =
-		type === "native"
-			? Moralis.Units.ETH(amount)
-			: Moralis.Units.Token(amount, decimals);
+		// type === "native"
+		getLamportsFromSol(amount);
+	// : Moralis.Units.Token(amount, decimals);
 
-	const { fetch, error, isFetching, data } = useWeb3Transfer({
-		amount: txAmount,
-		receiver,
-		type,
-		contractAddress,
-	});
+	const { connection } = useConnection();
+	const { sendTransaction, publicKey } = useWallet();
 
-	const { chainId } = useChain();
-	const { account: walletAddress, user } = useMoralis();
+	const account = publicKey?.toString();
 
-	const queriedAddress = user?.get("ethAddress");
-	const account = walletAddress ?? queriedAddress;
+	const onClick = useCallback(async () => {
+		if (!publicKey) throw new WalletNotConnectedError();
 
-	const saveTransactionToDB = async (tx: any) => {
+		const transaction = new SolanaTransaction().add(
+			SystemProgram.transfer({
+				fromPubkey: publicKey,
+				toPubkey: new PublicKey(receiver),
+				lamports: txAmount,
+			})
+		);
+
+		const signature = await sendTransaction(transaction, connection);
+
+		// const response = await connection.confirmTransaction(
+		// 	signature,
+		// 	"processed"
+		// );
+		saveTransactionToDB(signature);
+	}, [publicKey, sendTransaction, connection]);
+
+	const saveTransactionToDB = async (tx: string) => {
 		const walletMeta = await fetchEnsAddress(account);
 		try {
 			const transaction: Transaction = {
 				...new Transaction(),
 				to: receiver.toLowerCase(),
 				from: account.toLowerCase(),
-				id: tx.transactionHash,
+				id: tx,
 				amount,
 				message,
 				formattedAmount: `${amount} ${symbol}`,
-				chain: chainId,
+				chain: "solana",
 				fromEns: walletMeta?.name ?? null,
 				senderAvatar: walletMeta?.avatar ?? null,
 				tokenDecimals: decimals || null,
@@ -86,25 +107,26 @@ const PayButton: React.FC<IPayButton> = ({
 		}
 	};
 
-	useEffect(() => {
-		if (!!data) {
-			saveTransactionToDB(data);
-		}
-	}, [data]);
+	// useEffect(() => {
+	// 	if (!!data) {
+	// 		saveTransactionToDB(data);
+	// 	}
+	// }, [data]);
+	console.log("called");
 
 	return (
 		<>
 			<button
 				type="button"
-				disabled={disabled || isFetching}
-				onClick={() => fetch()}
+				disabled={disabled}
+				onClick={onClick}
 				className={`justify-center inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 w-full ${
-					isFetching || disabled
+					disabled
 						? "opacity-50 cursor-not-allowed "
 						: " hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cryptopurple "
 				}`}
 			>
-				{!isFetching ? (
+				{true ? (
 					`Donate now ${!!symbol ? `( ${amount} ${symbol} )` : ""} `
 				) : (
 					<svg
@@ -129,9 +151,9 @@ const PayButton: React.FC<IPayButton> = ({
 					</svg>
 				)}{" "}
 			</button>
-			{error && (
+			{/* {error && (
 				<div className="text-red-500 text-sm mt-3">{error.message}</div>
-			)}
+			)} */}
 		</>
 	);
 };

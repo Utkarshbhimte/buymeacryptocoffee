@@ -1,3 +1,4 @@
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { ethers } from "ethers";
 import { SolanaAccountDetails, SolanaTokenData } from "../contracts";
 
@@ -196,3 +197,8 @@ export const getTokensAvailableInSolanaWallet = async (
 		console.error(error);
 	}
 };
+
+export const formatSolanaBalance = (lamports?: number) =>
+	!lamports ? 0 : (lamports ?? 0) / LAMPORTS_PER_SOL;
+
+export const getLamportsFromSol = (sol: number) => sol * LAMPORTS_PER_SOL;
