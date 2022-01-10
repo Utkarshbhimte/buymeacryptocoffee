@@ -12,11 +12,7 @@ const init = async (req: NextApiRequest, res: NextApiResponse) => {
 
 		const { address: userAddress } = req.query;
 
-		const mainnetEndpoint =
-			"https://speedy-nodes-nyc.moralis.io/d35afcfb3d409232f26629cd/eth/mainnet";
-		const provider = new ethers.providers.JsonRpcProvider(mainnetEndpoint);
-
-		const user = await getOrCreateUser(userAddress.toString(), provider);
+		const user = await getOrCreateUser(userAddress.toString());
 
 		res.status(200).json(user);
 	} catch (error) {

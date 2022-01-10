@@ -13,6 +13,7 @@
 		"@solana/wallet-adapter-react-ui": "^0.8.0",
 		"@solana/wallet-adapter-wallets": "^0.14.0",
 		"@tailwindcss/forms": "^0.3.4",
+		"@types/multicoin-address-validator": "^0.5.0",
 		"@types/qrcode": "^1.4.1",
 		"@types/react-blockies": "^1.4.1",
 		"@walletconnect/web3-provider": "^1.6.6",

@@ -1,6 +1,8 @@
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useMoralis } from "react-moralis";
+import { getOrCreateUser } from ".";
 import { User } from "../contracts";
 import { useMoralisData } from "../hooks/useMoralisData";
 
@@ -23,11 +25,27 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 	const [user, setUser] = useState<User | null>(null);
 
 	const router = useRouter();
+	const id = router.query?.id?.toString();
+
+	const fetchUsers = async (currId: string) => {
+		try {
+			const response = await getOrCreateUser(currId);
+			console.log({ response });
+			setUser(response);
+		} catch (error) {
+			console.error(error);
+			toast.error(error.message);
+		}
+	};
 
 	useEffect(() => {
-		if (!isWeb3Enabled && !isWeb3EnableLoading) enableWeb3();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		if (!isWeb3Enabled && !isWeb3EnableLoading && !(window as any).ethereum)
+			enableWeb3();
 	}, [isAuthenticated, isWeb3Enabled]);
+
+	useEffect(() => {
+		fetchUsers(id);
+	}, [id]);
 
 	return (
 		<AuthContext.Provider

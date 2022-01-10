@@ -1,25 +1,10 @@
-import { ethers } from "ethers";
-import { Transaction, Social, User } from "../contracts";
+import { Social, Transaction, User } from "../contracts";
 import { validateAndResolveAddress } from "./crypto";
 import { db, firestoreCollections } from "./firebaseClient";
+import WAValidator from "multicoin-address-validator";
 
-export const getOrCreateUser = async (
-	address: string,
-	customProvider?:
-		| ethers.providers.Web3Provider
-		| ethers.providers.JsonRpcProvider
-): Promise<User> => {
-	// create new user in firesbase if not exists
-
-	const provider = customProvider
-		? customProvider
-		: new ethers.providers.Web3Provider((window as any).ethereum);
-
-	const { address: userAddress, name } = await validateAndResolveAddress(
-		address
-	);
-
-	const user = await getUser(userAddress, provider);
+export const getOrCreateUser = async (address: string): Promise<User> => {
+	const user = await getUser(address);
 
 	if (user) {
 		return user;
@@ -30,34 +15,41 @@ export const getOrCreateUser = async (
 	const newUser: User = {
 		...new User(),
 		id: docRef.id,
-		name: !!name ? name : "Unnamed",
+		name: minimizeAddress(address),
 		social: {
 			...new Social(),
 		},
-		ens: name,
-		ethAddress: userAddress,
 	};
+
+	const isEthAddress = WAValidator.validate(address, "ETH");
+	const isSolanaAddress = WAValidator.validate(address, "slr");
+
+	if (isEthAddress) {
+		const { address: userAddress, name } = await validateAndResolveAddress(
+			address
+		);
+		newUser.ethAddress = address;
+		newUser.name = name ?? newUser.name;
+		newUser.identifiers = [...newUser.identifiers, address];
+		if (name) {
+			newUser.identifiers = [...newUser.identifiers, name];
+		}
+	}
+
+	if (isSolanaAddress) {
+		newUser.solAddress = address;
+		newUser.identifiers = [...newUser.identifiers, address];
+	}
 
 	await db.doc(`${firestoreCollections.USERS}/${docRef.id}`).set(newUser);
 
 	return newUser;
 };
 
-export const getUser = async (
-	address: string,
-	customProvider?:
-		| ethers.providers.Web3Provider
-		| ethers.providers.JsonRpcProvider
-): Promise<User> => {
-	const provider = customProvider
-		? customProvider
-		: new ethers.providers.Web3Provider((window as any).ethereum);
-
-	const { address: userAddress } = await validateAndResolveAddress(address);
-
+export const getUser = async (key: string): Promise<User> => {
 	const response = await db
 		.collection(firestoreCollections.USERS)
-		.where("address", "==", userAddress)
+		.where("identifiers", "array-contains", [key])
 		.get();
 
 	if (!response.empty) {
