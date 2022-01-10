@@ -4,6 +4,7 @@ import { getEllipsisTxt } from "../helpers/formatters";
 import Blockie from "./Blockie";
 // import "./identicon.css";
 import { useMoralis } from "react-moralis";
+import { useMoralisData } from "../hooks/useMoralisData";
 
 const styles = {
 	address: {
@@ -23,10 +24,7 @@ interface AddressProps {
 	copyable: boolean;
 }
 const Address: React.FC<AddressProps> = (props) => {
-	const { account: walletAddress, user } = useMoralis();
-
-	const queriedAddress = user?.get("ethAddress");
-	const account = walletAddress ?? queriedAddress;
+	const { account, user } = useMoralisData();
 
 	const [address, setAddress] = useState<string | undefined>();
 	const [isClicked, setIsClicked] = useState(false);

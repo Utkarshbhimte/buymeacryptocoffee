@@ -3,23 +3,23 @@ import { ArrowUpIcon, CheckIcon } from "@heroicons/react/solid";
 import { Modal } from "antd";
 import copy from "copy-to-clipboard";
 import { ethers } from "ethers";
+import WAValidator from "multicoin-address-validator";
 import { GetStaticProps } from "next";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import Blockies from "react-blockies";
 import { useCollection } from "react-firebase-hooks/firestore";
-import { useMoralis } from "react-moralis";
 import { toast } from "react-toastify";
 import PaymentSection from "../components/PaymentSection";
+import SolanaPaymentSection from "../components/SolanaPaymentSection";
 import { Transaction } from "../contracts";
+import { useMoralisData } from "../hooks/useMoralisData";
 import embedbadge from "../public/embedbadge.svg";
 import { minimizeAddress } from "../utils";
 import { validateAndResolveAddress } from "../utils/crypto";
 import { db } from "../utils/firebaseClient";
 import { getTxnUrl } from "../utils/getTxnUrl";
 import { useEnsAddress } from "../utils/useEnsAddress";
-import WAValidator from "multicoin-address-validator";
-import SolanaPaymentSection from "../components/SolanaPaymentSection";
 
 declare let window: any;
 
@@ -42,16 +42,8 @@ const Profile: React.FC<ProfileProps> = ({
 		currProfileEns: ens,
 		avatar: defaultAvatar,
 	};
-	const {
-		account: walletAddress,
-		user,
-		isAuthenticated,
-		isWeb3Enabled,
-		enableWeb3,
-	} = useMoralis();
-
-	const queriedAddress = user?.get("ethAddress");
-	const account = walletAddress ?? queriedAddress;
+	const { account, user, isAuthenticated, isWeb3Enabled, enableWeb3 } =
+		useMoralisData();
 
 	const isOwner = account === profileAddress;
 	const [snapshot] = useCollection(
@@ -108,7 +100,8 @@ const Profile: React.FC<ProfileProps> = ({
 	};
 
 	useEffect(() => {
-		if (!isWeb3Enabled && isAuthenticated) {
+		if (!isWeb3Enabled && isAuthenticated && !(window as any).ethereum) {
+			console.log("coming here");
 			enableWeb3({
 				provider: "walletconnect",
 			});
@@ -601,7 +594,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 			address: ethAddress,
 			name: ensName,
 			avatar: ensAvatar,
-		} = await validateAndResolveAddress(userAddress.toString(), provider);
+		} = await validateAndResolveAddress(userAddress.toString());
 
 		address = ethAddress;
 		name = name;

@@ -16,8 +16,7 @@ export const getOrCreateUser = async (
 		: new ethers.providers.Web3Provider((window as any).ethereum);
 
 	const { address: userAddress, name } = await validateAndResolveAddress(
-		address,
-		provider
+		address
 	);
 
 	const user = await getUser(userAddress, provider);
@@ -36,7 +35,7 @@ export const getOrCreateUser = async (
 			...new Social(),
 		},
 		ens: name,
-		address: userAddress,
+		ethAddress: userAddress,
 	};
 
 	await db.doc(`${firestoreCollections.USERS}/${docRef.id}`).set(newUser);
@@ -54,10 +53,7 @@ export const getUser = async (
 		? customProvider
 		: new ethers.providers.Web3Provider((window as any).ethereum);
 
-	const { address: userAddress } = await validateAndResolveAddress(
-		address,
-		provider
-	);
+	const { address: userAddress } = await validateAndResolveAddress(address);
 
 	const response = await db
 		.collection(firestoreCollections.USERS)

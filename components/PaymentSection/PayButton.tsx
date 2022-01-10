@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useChain, useMoralis, useWeb3Transfer } from "react-moralis";
 import { toast } from "react-toastify";
 import { Transaction } from "../../contracts";
+import { useMoralisData } from "../../hooks/useMoralisData";
 import { saveTransaction } from "../../utils";
 import { fetchEnsAddress } from "../../utils/useEnsAddress";
 
@@ -41,10 +42,7 @@ const PayButton: React.FC<IPayButton> = ({
 	});
 
 	const { chainId } = useChain();
-	const { account: walletAddress, user } = useMoralis();
-
-	const queriedAddress = user?.get("ethAddress");
-	const account = walletAddress ?? queriedAddress;
+	const { account, user } = useMoralisData();
 
 	const saveTransactionToDB = async (tx: any) => {
 		const walletMeta = await fetchEnsAddress(account);

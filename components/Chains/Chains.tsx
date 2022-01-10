@@ -11,6 +11,8 @@ import Modal from "../Modal";
 import { ETHLogo, PolygonLogo, SolanaLogo } from "./Logos";
 import { useRouter } from "next/router";
 import WAValidator from "multicoin-address-validator";
+import { useMoralisData } from "../../hooks/useMoralisData";
+import { useSolana } from "../../hooks/useSolana";
 
 const styles = {
 	item: {
@@ -60,59 +62,16 @@ const menuItems = (isEthAddress: boolean): ChainItem[] => {
 };
 
 const Chains = () => {
-	const { switchNetwork, chainId, chain } = useChain();
-	const { isAuthenticated, logout } = useMoralis();
+	const { switchNetwork, chainId, chain, account } = useChain();
+	const { isAuthenticated, logout } = useMoralisData();
 	const router = useRouter();
 	const id = router.query.id;
 	const [selected, setSelected] = useState<ChainItem | undefined>();
 	const [isEthAddress, setIsEthAddress] = useState(false);
-	const {
-		wallets,
-		select,
-		publicKey,
-		signMessage,
-		connected,
-		disconnect,
-		wallet,
-	} = useWallet();
+	const { publicKey } = useSolana();
 
 	// state for modal open
 	const [modalOpen, setModalOpen] = useState(false);
-
-	const [installed] = useMemo(() => {
-		const installedWallets = [];
-		const otherWallets = [];
-		wallets.forEach((wallet) => {
-			if (wallet.readyState === WalletReadyState.Installed) {
-				installedWallets.push(wallet);
-			} else {
-				otherWallets.push(wallet);
-			}
-		});
-		const remainingFeaturedSpots = Math.max(0, installedWallets.length);
-		return [[...installedWallets]];
-	}, [wallets]);
-
-	const solanaAuth = useCallback(async () => {
-		try {
-			// `publicKey` will be null if the wallet isn't connected
-
-			if (!publicKey) throw new Error("Wallet not connected!");
-			// `signMessage` will be undefined if the wallet doesn't support it
-			if (!signMessage)
-				throw new Error("Wallet does not support message signing!");
-
-			// Encode anything as bytes
-			const message = new TextEncoder().encode("Connect to bmcc!");
-			// Sign the bytes using the wallet
-			const signature = await signMessage(message);
-			// Verify that the bytes were signed using the private key that matches the known public key
-			if (!sign.detached.verify(message, signature, publicKey.toBytes()))
-				throw new Error("Invalid signature!");
-		} catch (error: any) {
-			toast.error(error.message);
-		}
-	}, [publicKey, signMessage]);
 
 	useEffect(() => {
 		if (!chainId) return null;
@@ -136,9 +95,6 @@ const Chains = () => {
 			setModalOpen(true);
 			return;
 		}
-		if (connected) {
-			disconnect();
-		}
 		switchNetwork(key);
 	};
 
@@ -152,10 +108,14 @@ const Chains = () => {
 	// 	}
 	// }, [!!publicKey]);
 
+	if (!account || !!publicKey) {
+		return null;
+	}
+
 	return (
 		<div className="space-x-4 items-center hidden md:flex">
 			<span className="text-gray-500 text-sm">Switch Chain:</span>
-			{menuItems(isEthAddress).map((item) => (
+			{menuItems(!publicKey).map((item) => (
 				<button
 					key={item.value}
 					onClick={() => handleMenuClick(item.key)}
@@ -170,21 +130,6 @@ const Chains = () => {
 					{item.icon}
 				</button>
 			))}
-			<Modal title="Connect wallet" onClose={closeModal} open={modalOpen}>
-				{installed.map((wallet) => {
-					return (
-						<div
-							key={wallet.name}
-							className="cursor-pointer"
-							onClick={() => {
-								select(wallet.adapter.name);
-							}}
-						>
-							{wallet.adapter.name}
-						</div>
-					);
-				})}
-			</Modal>
 		</div>
 	);
 };

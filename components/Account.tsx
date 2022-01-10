@@ -1,33 +1,28 @@
 import { Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
 import classNames from "classnames";
-import { Fragment, useEffect, useState } from "react";
+import router from "next/router";
+import { Fragment, useState } from "react";
 import toast from "react-hot-toast";
-import { useChain, useMoralis } from "react-moralis";
+import { useChain } from "react-moralis";
 import { AuthenticateOptions } from "react-moralis/lib/hooks/core/useMoralis/_useMoralisAuth";
 import { getEllipsisTxt } from "../helpers/formatters";
 import { getExplorer } from "../helpers/networks";
-import Blockie from "./Blockie";
-import Loader from "./Loader";
-import Link from "next/link";
+import { useMoralisData } from "../hooks/useMoralisData";
+import { useSolana } from "../hooks/useSolana";
 import { useEnsAddress } from "../utils/useEnsAddress";
-import Moralis from "moralis";
+import Blockie from "./Blockie";
+import { MetamaskLogo, SolanaLogo } from "./Chains/Logos";
+import Loader from "./Loader";
+import Modal from "./Modal";
 
 function Account() {
-	const {
-		authenticate,
-		isAuthenticated,
-		logout,
-		account: walletAddress,
-		chainId,
-		user,
-	} = useMoralis();
+	const { authenticate, isAuthenticated, logout, account, chainId, user } =
+		useMoralisData();
 	const { switchNetwork } = useChain();
 	const [loading, setLoading] = useState(false);
-
-	const queriedAddress = user?.get("ethAddress");
-	const account = walletAddress ?? queriedAddress;
-
+	const [modalOpen, setModalOpen] = useState(false);
+	const { wallets, publicKey, select, disconnect } = useSolana();
 	const { name: ensAddress, avatar } = useEnsAddress(account);
 
 	const handleAuth = async () => {
@@ -45,6 +40,7 @@ function Account() {
 			};
 
 			if (!(window as any).ethereum) {
+				console.log("no ethereum");
 				options.provider = "walletconnect";
 			}
 
@@ -65,15 +61,117 @@ function Account() {
 		);
 	}
 
-	if (!isAuthenticated) {
+	const handleCheckoutPageRedirect = () => {
+		if (!!publicKey) {
+			router.push(`/${publicKey}`);
+		}
+
+		if (!!account) {
+			router.push(`/${account}`);
+		}
+	};
+
+	const handleLogout = () => {
+		if (publicKey) {
+			disconnect();
+		}
+
+		if (!!account) {
+			logout();
+		}
+	};
+	const handleSwitchToEth = async () => {
+		await handleAuth();
+		disconnect();
+	};
+	const handleSwitchToSolana = async () => {
+		logout();
+		setModalOpen(true);
+	};
+
+	if (!account && !publicKey) {
 		return (
-			<button
-				type="button"
-				onClick={handleAuth}
-				className="relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-cryptopurple hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cryptopurple"
-			>
-				Connect Wallet
-			</button>
+			<>
+				<Menu as="div" className="relative inline-block text-left">
+					<div>
+						<Menu.Button className="inline-flex justify-center items-center space-x-2 w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-cryptopurple">
+							Connect Wallet
+							<ChevronDownIcon
+								className="-mr-1 ml-2 h-5 w-5"
+								aria-hidden="true"
+							/>
+						</Menu.Button>
+					</div>
+
+					<Transition
+						as={Fragment}
+						enter="transition ease-out duration-100"
+						enterFrom="transform opacity-0 scale-95"
+						enterTo="transform opacity-100 scale-100"
+						leave="transition ease-in duration-75"
+						leaveFrom="transform opacity-100 scale-100"
+						leaveTo="transform opacity-0 scale-95"
+					>
+						<Menu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-20">
+							<div className="py-1">
+								<Menu.Item>
+									{({ active }) => (
+										<div
+											onClick={handleAuth}
+											className={classNames(
+												active
+													? "bg-gray-100 text-gray-900"
+													: "text-gray-700",
+												" px-4 py-2 text-sm flex items-center cursor-pointer space-x-4"
+											)}
+										>
+											<MetamaskLogo /> <div>Metamask</div>
+										</div>
+									)}
+								</Menu.Item>
+								<Menu.Item>
+									{({ active }) => (
+										<div
+											onClick={() => setModalOpen(true)}
+											className={classNames(
+												active
+													? "bg-gray-100 text-gray-900"
+													: "text-gray-700",
+												" px-4 py-2 text-sm flex items-center cursor-pointer space-x-4"
+											)}
+										>
+											<SolanaLogo /> <div>Solana</div>
+										</div>
+									)}
+								</Menu.Item>
+							</div>
+						</Menu.Items>
+					</Transition>
+				</Menu>
+				<Modal
+					title="Connect wallet"
+					onClose={() => setModalOpen(false)}
+					open={modalOpen}
+				>
+					{wallets.map((wallet) => {
+						return (
+							<div
+								key={(wallet as any).name}
+								className="cursor-pointer"
+								onClick={() => {
+									setModalOpen(false);
+									select(wallet.adapter.name);
+								}}
+							>
+								{wallet.adapter.name}
+							</div>
+						);
+					})}
+					{!wallets.length && (
+						<div>No solana wallets present to authenticate</div>
+					)}
+				</Modal>
+			</>
 		);
 	}
 
@@ -82,11 +180,22 @@ function Account() {
 			<Menu as="div" className="relative inline-block text-left z-40">
 				<div>
 					<Menu.Button className="inline-flex justify-center items-center space-x-2 w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-cryptopurple">
-						{!!avatar && (
+						{!publicKey && !!avatar && (
 							<img src={avatar} className="h-6 w-6 rounded-lg" />
 						)}
-						{!avatar && <Blockie currentWallet scale={3} />}
-						<p>{ensAddress || getEllipsisTxt(account, 6)}</p>
+						{!publicKey && !!account && !avatar && (
+							<Blockie currentWallet scale={3} />
+						)}
+						{!publicKey && (
+							<p className="m-0">
+								{ensAddress || getEllipsisTxt(account, 6)}
+							</p>
+						)}
+						{publicKey && (
+							<p className="m-0">
+								{getEllipsisTxt(publicKey, 6)}
+							</p>
+						)}
 						<ChevronDownIcon
 							className="-mr-1 ml-2 h-5 w-5"
 							aria-hidden="true"
@@ -107,7 +216,8 @@ function Account() {
 						<div className="py-1 z-20">
 							<Menu.Item>
 								{({ active }) => (
-									<a
+									<div
+										onClick={handleCheckoutPageRedirect}
 										className={classNames(
 											active
 												? "bg-gray-100 text-gray-900"
@@ -115,20 +225,59 @@ function Account() {
 											"block px-4 py-2 text-sm"
 										)}
 									>
-										<Link href={`/${account}`}>
-											Checkout your page
-										</Link>
-									</a>
+										Checkout your page
+									</div>
 								)}
 							</Menu.Item>
-							<div className="block md:hidden">
-								{chainId == "0x1" && (
+							{!publicKey && (
+								<>
+									<div className="block md:hidden">
+										{chainId == "0x1" && (
+											<Menu.Item>
+												{({ active }) => (
+													<a
+														onClick={() =>
+															switchNetwork(
+																"0x89"
+															)
+														}
+														className={classNames(
+															active
+																? "bg-gray-100 text-gray-900"
+																: "text-gray-700",
+															"block px-4 py-2 text-sm"
+														)}
+													>
+														Switch to Polygon
+													</a>
+												)}
+											</Menu.Item>
+										)}
+
+										{chainId !== "0x1" && (
+											<Menu.Item>
+												{({ active }) => (
+													<a
+														onClick={() =>
+															switchNetwork("0x1")
+														}
+														className={classNames(
+															active
+																? "bg-gray-100 text-gray-900"
+																: "text-gray-700",
+															"block px-4 py-2 text-sm"
+														)}
+													>
+														Switch to Ethereum
+													</a>
+												)}
+											</Menu.Item>
+										)}
+									</div>
 									<Menu.Item>
 										{({ active }) => (
-											<a
-												onClick={() =>
-													switchNetwork("0x89")
-												}
+											<div
+												onClick={handleSwitchToSolana}
 												className={classNames(
 													active
 														? "bg-gray-100 text-gray-900"
@@ -136,19 +285,40 @@ function Account() {
 													"block px-4 py-2 text-sm"
 												)}
 											>
-												Switch to Polygon
-											</a>
+												Switch to Solana
+											</div>
 										)}
 									</Menu.Item>
-								)}
 
-								{chainId !== "0x1" && (
 									<Menu.Item>
 										{({ active }) => (
 											<a
-												onClick={() =>
-													switchNetwork("0x1")
-												}
+												href={`${getExplorer(
+													chainId
+												)}address/${account}`}
+												target="_blank"
+												rel="noreferrer"
+												className={classNames(
+													active
+														? "bg-gray-100 text-gray-900"
+														: "text-gray-700",
+													"block px-4 py-2 text-sm"
+												)}
+											>
+												{chainId === "0x1"
+													? "View on Etherscan"
+													: "View on PolygonScan"}
+											</a>
+										)}
+									</Menu.Item>
+								</>
+							)}
+							{publicKey && (
+								<>
+									<Menu.Item>
+										{({ active }) => (
+											<div
+												onClick={handleSwitchToEth}
 												className={classNames(
 													active
 														? "bg-gray-100 text-gray-900"
@@ -157,37 +327,32 @@ function Account() {
 												)}
 											>
 												Switch to Ethereum
+											</div>
+										)}
+									</Menu.Item>
+									<Menu.Item>
+										{({ active }) => (
+											<a
+												href={`https://explorer.solana.com/address/${publicKey}`}
+												target="_blank"
+												rel="noreferrer"
+												className={classNames(
+													active
+														? "bg-gray-100 text-gray-900"
+														: "text-gray-700",
+													"block px-4 py-2 text-sm"
+												)}
+											>
+												View on Explorer
 											</a>
 										)}
 									</Menu.Item>
-								)}
-							</div>
-
-							<Menu.Item>
-								{({ active }) => (
-									<a
-										href={`${getExplorer(
-											chainId
-										)}address/${account}`}
-										target="_blank"
-										rel="noreferrer"
-										className={classNames(
-											active
-												? "bg-gray-100 text-gray-900"
-												: "text-gray-700",
-											"block px-4 py-2 text-sm"
-										)}
-									>
-										{chainId === "0x1"
-											? "View on Etherscan"
-											: "View on PolygonScan"}
-									</a>
-								)}
-							</Menu.Item>
+								</>
+							)}
 							<Menu.Item>
 								{({ active }) => (
 									<button
-										onClick={logout}
+										onClick={handleLogout}
 										type="submit"
 										className={classNames(
 											active
@@ -204,6 +369,29 @@ function Account() {
 					</Menu.Items>
 				</Transition>
 			</Menu>
+			<Modal
+				title="Connect wallet"
+				onClose={() => setModalOpen(false)}
+				open={modalOpen}
+			>
+				{wallets.map((wallet) => {
+					return (
+						<div
+							key={(wallet as any).name}
+							className="cursor-pointer"
+							onClick={() => {
+								setModalOpen(false);
+								select(wallet.adapter.name);
+							}}
+						>
+							{wallet.adapter.name}
+						</div>
+					);
+				})}
+				{!wallets.length && (
+					<div>No solana wallets present to authenticate</div>
+				)}
+			</Modal>
 		</>
 	);
 }

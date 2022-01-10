@@ -1,23 +1,14 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-import Moralis from "moralis";
 import React, { ReactText, useEffect, useState } from "react";
-import {
-	useChain,
-	useERC20Balances,
-	useMoralis,
-	useNativeBalance,
-	useOneInchTokens,
-} from "react-moralis";
 import { SolanaAccountDetails, SolanaTokenData } from "../../contracts";
+import { useMoralisData } from "../../hooks/useMoralisData";
 import {
 	formatSolanaBalance,
 	getSolanaWalletDetails,
 	getTokensAvailableInSolanaWallet,
 } from "../../utils/crypto";
-import { chainLogo, tokenMetadata } from "../../utils/tokens";
-import PayButton from "./PayButton";
 import Select from "../Select";
+import PayButton from "./PayButton";
 
 interface Token {
 	readonly name: string;
@@ -29,10 +20,7 @@ interface Token {
 }
 
 const SolanaPaymentSection = ({ profileAddress }) => {
-	const { account: walletAddress, user } = useMoralis();
-
-	const queriedAddress = user?.get("ethAddress");
-	const address = walletAddress ?? queriedAddress;
+	const { account, user } = useMoralisData();
 
 	const [price, setPrice] = useState(0);
 	const [message, setMessage] = useState("");

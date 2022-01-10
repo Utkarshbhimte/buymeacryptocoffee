@@ -7,6 +7,7 @@ import {
 	useNativeBalance,
 	useOneInchTokens,
 } from "react-moralis";
+import { useMoralisData } from "../../hooks/useMoralisData";
 import { chainLogo, tokenMetadata } from "../../utils/tokens";
 import Select from "../Select";
 import PayButton from "./PayButton";
@@ -21,10 +22,7 @@ interface Token {
 }
 
 const PaymentSection = ({ profileAddress }) => {
-	const { account: walletAddress, user } = useMoralis();
-
-	const queriedAddress = user?.get("ethAddress");
-	const address = walletAddress ?? queriedAddress;
+	const { account: address, user } = useMoralisData();
 
 	const { chainId } = useChain();
 

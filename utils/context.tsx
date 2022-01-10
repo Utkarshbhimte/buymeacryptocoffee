@@ -1,20 +1,46 @@
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
+import { User } from "../contracts";
+import { useMoralisData } from "../hooks/useMoralisData";
 
-interface IAuthContext {}
+interface IAuthContext {
+	readonly canEdit: boolean;
+	readonly user: User | null;
+}
 
 const AuthContext = React.createContext<IAuthContext | null>(null);
 
 export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
-	const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading } =
-		useMoralis();
+	const {
+		isWeb3Enabled,
+		enableWeb3,
+		isAuthenticated,
+		isWeb3EnableLoading,
+		account,
+	} = useMoralisData();
+
+	const [user, setUser] = useState<User | null>(null);
+
+	const router = useRouter();
 
 	useEffect(() => {
 		if (!isWeb3Enabled && !isWeb3EnableLoading) enableWeb3();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isAuthenticated, isWeb3Enabled]);
 
-	return <AuthContext.Provider value={{}}>{children}</AuthContext.Provider>;
+	return (
+		<AuthContext.Provider
+			value={{
+				user,
+				canEdit: !![user?.ethAddress, user?.solAddress].includes(
+					account
+				),
+			}}
+		>
+			{children}
+		</AuthContext.Provider>
+	);
 };
 
 export const useUser = () => {

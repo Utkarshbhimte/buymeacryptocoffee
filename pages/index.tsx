@@ -16,6 +16,7 @@ import {
 	validateAndResolveAddress,
 } from "../utils/crypto";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { useMoralisData } from "../hooks/useMoralisData";
 
 declare let window: any;
 
@@ -55,19 +56,18 @@ const CtaButton = () => {
 	const {
 		authenticate,
 		isAuthenticated: isAuthenticatedMoralis,
-		account: walletAddress,
+		account: address,
 		user,
-	} = useMoralis();
+	} = useMoralisData();
 
 	const { connected, publicKey } = useWallet();
 
 	const isAuthenticated = isAuthenticatedMoralis || connected;
 
-	const queriedAddress = user?.get("ethAddress");
 	const account = connected
 		? publicKey?.toString()
 		: isAuthenticated
-		? walletAddress ?? queriedAddress
+		? address
 		: undefined;
 
 	const router = useRouter();
@@ -167,10 +167,7 @@ const Dashboard: React.FC = () => {
 			const provider = !(window as any).ethereum
 				? rpcProvider
 				: new ethers.providers.Web3Provider(window.ethereum);
-			const validatedAddress = await validateAndResolveAddress(
-				address,
-				provider
-			);
+			const validatedAddress = await validateAndResolveAddress(address);
 			const { name, address: userAddress } = validatedAddress;
 
 			if (!userAddress) {

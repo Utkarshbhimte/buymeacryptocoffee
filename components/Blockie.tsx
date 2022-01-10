@@ -1,5 +1,6 @@
 import Blockies from "react-blockies";
 import { useMoralis } from "react-moralis";
+import { useMoralisData } from "../hooks/useMoralisData";
 
 /**
  * Shows a blockie image for the provided wallet address
@@ -8,10 +9,8 @@ import { useMoralis } from "react-moralis";
  */
 
 function Blockie(props) {
-	const { account: walletAddress, user } = useMoralis();
+	const { account, user } = useMoralisData();
 
-	const queriedAddress = user?.get("ethAddress");
-	const account = walletAddress ?? queriedAddress;
 	if (!props.address && !account)
 		return <span className="h-5 w-5 bg-gray-500 inline-block"></span>;
 
