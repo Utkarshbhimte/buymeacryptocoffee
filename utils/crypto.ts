@@ -93,7 +93,7 @@ export const validateAndResolveAddress = async (
 			const ensResolver = await provider.resolveName(userAddress);
 
 			if (!ensResolver) {
-				// toast.error("This address is not valid");
+				// toast.error("This address is not valid"); change
 				throw new Error("This address is not valid");
 			}
 
