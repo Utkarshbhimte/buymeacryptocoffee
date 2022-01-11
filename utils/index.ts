@@ -23,7 +23,9 @@ export const getOrCreateUser = async (address: string): Promise<User> => {
 	};
 
 	const isEthAddress = WAValidator.validate(address, "ETH");
-	const isSolanaAddress = WAValidator.validate(address, "slr");
+
+	const { key } = await detectAddress(address);
+	const isSolanaAddress = key === "solAddress";
 
 	if (!isEthAddress && !isSolanaAddress && !address.includes("eth")) {
 		throw new Error("Invalid attempt to fetch user");
