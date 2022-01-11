@@ -82,7 +82,8 @@ export interface ENSResponse {
 	avatar?: string | null;
 }
 export const validateAndResolveAddress = async (
-	userAddress: string
+	userAddress: string,
+	ssr?: boolean
 ): Promise<ENSResponse | undefined> => {
 	try {
 		let address, name, avatar;
@@ -92,10 +93,12 @@ export const validateAndResolveAddress = async (
 		const rpcProvider = new ethers.providers.JsonRpcProvider(
 			mainnetEndpoint
 		);
-
-		const provider = !(window as any).ethereum
-			? rpcProvider
-			: new ethers.providers.Web3Provider(window.ethereum);
+		const provider =
+			ssr || typeof window === "undefined"
+				? rpcProvider
+				: !(window as any)?.ethereum
+				? rpcProvider
+				: new ethers.providers.Web3Provider(window.ethereum);
 
 		if (userAddress.includes(".")) {
 			const ensResolver = await provider.resolveName(userAddress);

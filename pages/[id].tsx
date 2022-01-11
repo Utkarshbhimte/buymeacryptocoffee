@@ -594,7 +594,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 			address: ethAddress,
 			name: ensName,
 			avatar: ensAvatar,
-		} = await validateAndResolveAddress(userAddress.toString());
+		} = await validateAndResolveAddress(userAddress.toString(), true);
 
 		address = ethAddress;
 		name = name;
