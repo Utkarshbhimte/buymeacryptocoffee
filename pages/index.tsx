@@ -163,10 +163,6 @@ const Dashboard: React.FC = () => {
 			const rpcProvider = new ethers.providers.JsonRpcProvider(
 				mainnetEndpoint
 			);
-
-			const provider = !(window as any).ethereum
-				? rpcProvider
-				: new ethers.providers.Web3Provider(window.ethereum);
 			const validatedAddress = await validateAndResolveAddress(address);
 			const { name, address: userAddress } = validatedAddress;
 

@@ -18,19 +18,7 @@ const Page404: React.FC = () => {
 			e.preventDefault();
 			if (!address.length) return;
 
-			const mainnetEndpoint =
-				"https://speedy-nodes-nyc.moralis.io/d35afcfb3d409232f26629cd/eth/mainnet";
-			const rpcProvider = new ethers.providers.JsonRpcProvider(
-				mainnetEndpoint
-			);
-
-			const provider = !(window as any).ethereum
-				? rpcProvider
-				: new ethers.providers.Web3Provider(window.ethereum);
-			const validatedAddress = await validateAndResolveAddress(
-				address,
-				provider
-			);
+			const validatedAddress = await validateAndResolveAddress(address);
 			const { name, address: userAddress } = validatedAddress;
 
 			if (!userAddress) {

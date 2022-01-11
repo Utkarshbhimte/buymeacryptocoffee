@@ -1,5 +1,4 @@
 import { Token, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { SendTransactionOptions } from "@solana/wallet-adapter-base";
 import {
 	Connection,
 	Keypair,
@@ -83,11 +82,20 @@ export interface ENSResponse {
 	avatar?: string | null;
 }
 export const validateAndResolveAddress = async (
-	userAddress: string,
-	provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider
+	userAddress: string
 ): Promise<ENSResponse | undefined> => {
 	try {
 		let address, name, avatar;
+
+		const mainnetEndpoint =
+			"https://speedy-nodes-nyc.moralis.io/d35afcfb3d409232f26629cd/eth/mainnet";
+		const rpcProvider = new ethers.providers.JsonRpcProvider(
+			mainnetEndpoint
+		);
+
+		const provider = !(window as any).ethereum
+			? rpcProvider
+			: new ethers.providers.Web3Provider(window.ethereum);
 
 		if (userAddress.includes(".")) {
 			const ensResolver = await provider.resolveName(userAddress);
