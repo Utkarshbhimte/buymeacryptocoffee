@@ -580,7 +580,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 	const userAddress = context.params.id;
 
 	const isEthereumAddress =
-		WAValidator.validate(userAddress, "ETH") ||
+		WAValidator.validate(userAddress.toString(), "ETH") ||
 		userAddress.includes(".eth");
 
 	let address = userAddress;
