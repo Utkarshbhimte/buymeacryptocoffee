@@ -84,7 +84,7 @@ export interface ENSResponse {
 }
 export const validateAndResolveAddress = async (
 	userAddress: string,
-	provider: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider
+	provider?: ethers.providers.Web3Provider | ethers.providers.JsonRpcProvider
 ): Promise<ENSResponse | undefined> => {
 	try {
 		let address, name, avatar;
