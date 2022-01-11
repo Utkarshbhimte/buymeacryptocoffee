@@ -14,7 +14,6 @@ export class User {
 	ens: string | null = null;
 	ethAddress: string = "";
 	solAddress: string = "";
-	identifiers: string[] = [];
 }
 
 export class Transaction {

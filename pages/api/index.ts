@@ -1,4 +1,3 @@
-import { ethers } from "ethers";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getOrCreateUser } from "../../utils";
 

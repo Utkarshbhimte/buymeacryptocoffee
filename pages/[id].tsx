@@ -16,6 +16,7 @@ import { Transaction } from "../contracts";
 import { useMoralisData } from "../hooks/useMoralisData";
 import embedbadge from "../public/embedbadge.svg";
 import { minimizeAddress } from "../utils";
+import { useUser } from "../utils/context";
 import { validateAndResolveAddress } from "../utils/crypto";
 import { db } from "../utils/firebaseClient";
 import { getTxnUrl } from "../utils/getTxnUrl";
@@ -42,14 +43,20 @@ const Profile: React.FC<ProfileProps> = ({
 		currProfileEns: ens,
 		avatar: defaultAvatar,
 	};
-	const { account, user, isAuthenticated, isWeb3Enabled, enableWeb3 } =
+	const { account, isAuthenticated, isWeb3Enabled, enableWeb3 } =
 		useMoralisData();
+	const { user } = useUser();
 
 	const isOwner = account === profileAddress;
+
+	const addressTx = [
+		user?.ethAddress?.toString()?.toLowerCase(),
+		user?.solAddress?.toString()?.toLowerCase(),
+	].filter((a) => !!a);
+
 	const [snapshot] = useCollection(
-		db
-			.collection("transactions")
-			.where("to", "==", profileAddress.toString().toLowerCase())
+		!!addressTx.length &&
+			db.collection("transactions").where("to", "in", addressTx)
 	);
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
 	const [isCopied, setIsCopied] = useState(false);
@@ -138,7 +145,8 @@ const Profile: React.FC<ProfileProps> = ({
 									<div className="group">
 										<h1 className="font-urbanist text-3xl font-bold text-gray-900 mb-1">
 											{/* <div className="animate-pulse h-12 w-48 bg-gray-300 rounded-md" /> */}
-											{currProfileEns ??
+											{user?.name ??
+												currProfileEns ??
 												minimizeAddress(profileAddress)}
 										</h1>
 										{!!currProfileEns && (

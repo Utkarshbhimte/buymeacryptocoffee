@@ -2,6 +2,7 @@ import { Social, Transaction, User } from "../contracts";
 import { validateAndResolveAddress } from "./crypto";
 import { db, firestoreCollections } from "./firebaseClient";
 import WAValidator from "multicoin-address-validator";
+import { PublicKey } from "@solana/web3.js";
 
 export const getOrCreateUser = async (address: string): Promise<User> => {
 	const user = await getUser(address);
@@ -24,21 +25,31 @@ export const getOrCreateUser = async (address: string): Promise<User> => {
 	const isEthAddress = WAValidator.validate(address, "ETH");
 	const isSolanaAddress = WAValidator.validate(address, "slr");
 
+	if (!isEthAddress && !isSolanaAddress && !address.includes("eth")) {
+		throw new Error("Invalid attempt to fetch user");
+	}
+
+	if (address.includes(".eth")) {
+		const { address: userAddress, name } = await validateAndResolveAddress(
+			address,
+			true
+		);
+
+		newUser.ethAddress = userAddress;
+		newUser.name = name ?? newUser.name;
+		newUser.ens = name ?? null;
+	}
+
 	if (isEthAddress) {
 		const { address: userAddress, name } = await validateAndResolveAddress(
 			address
 		);
 		newUser.ethAddress = address;
 		newUser.name = name ?? newUser.name;
-		newUser.identifiers = [...newUser.identifiers, address];
-		if (name) {
-			newUser.identifiers = [...newUser.identifiers, name];
-		}
 	}
 
 	if (isSolanaAddress) {
 		newUser.solAddress = address;
-		newUser.identifiers = [...newUser.identifiers, address];
 	}
 
 	await db.doc(`${firestoreCollections.USERS}/${docRef.id}`).set(newUser);
@@ -46,10 +57,12 @@ export const getOrCreateUser = async (address: string): Promise<User> => {
 	return newUser;
 };
 
-export const getUser = async (key: string): Promise<User> => {
+export const getUser = async (address: string): Promise<User> => {
+	const { key, value } = await detectAddress(address);
+
 	const response = await db
 		.collection(firestoreCollections.USERS)
-		.where("identifiers", "array-contains", [key])
+		.where(key, "==", value)
 		.get();
 
 	if (!response.empty) {
@@ -72,4 +85,42 @@ export const minimizeAddress = (address?: string): string => {
 	return (
 		address.substring(0, 6) + "..." + address.substring(address.length - 4)
 	);
+};
+
+export const detectAddress = async (
+	address?: string
+): Promise<Record<string, string>> => {
+	if (!address) return {};
+
+	if (address.includes(".eth")) {
+		return {
+			key: "ens",
+			value: address,
+		};
+	}
+
+	const isEthAddress = WAValidator.validate(address, "ETH");
+
+	if (isEthAddress) {
+		return {
+			key: "ethAddress",
+			value: address,
+		};
+	}
+
+	try {
+		if (PublicKey.isOnCurve(new Uint8Array(Number(address)))) {
+			return {
+				key: "solAddress",
+				value: address,
+			};
+		}
+	} catch (error) {
+		console.error(error);
+	}
+
+	return {
+		key: "name",
+		value: address,
+	};
 };
