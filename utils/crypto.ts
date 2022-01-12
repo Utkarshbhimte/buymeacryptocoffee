@@ -102,7 +102,6 @@ export const validateAndResolveAddress = async (
 
 		if (userAddress.includes(".")) {
 			const ensResolver = await provider.resolveName(userAddress);
-			console.log({ ensResolver });
 
 			if (!ensResolver) {
 				// toast.error("This address is not valid");
@@ -141,7 +140,6 @@ export const getSolanaWalletDetails = async (
 		);
 
 		const json = await response.json();
-		console.log(json);
 
 		return json;
 	} catch (error) {
@@ -264,7 +262,7 @@ export const sendSPL = async (
 	const txid = await connection
 		.sendRawTransaction(signedTransaction.serialize())
 		.catch((err) => {
-			console.log(err);
+			console.error(err);
 		});
 	if (txid) return txid;
 };
