@@ -421,7 +421,7 @@ const Profile: React.FC<ProfileProps> = ({
 										</div>
 									</div>
 								</div>
-								{!walletNotConnected && (
+								{!walletNotConnected ? (
 									<>
 										{shouldShowEthereum ? (
 											<PaymentSection
@@ -433,6 +433,11 @@ const Profile: React.FC<ProfileProps> = ({
 											/>
 										)}
 									</>
+								) : (
+									<div className="flex flex-col items-center font-urbanist font-bold text-xl bg-white rounded-lg shadow-md h-full px-12 text-center  justify-center">
+										Please Connect your Ethereum or Solana
+										Wallet to send CryptoCoffee
+									</div>
 								)}
 							</div>
 							{isOwner && (
