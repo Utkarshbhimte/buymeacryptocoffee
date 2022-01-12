@@ -66,7 +66,7 @@ const Profile: React.FC<ProfileProps> = ({
 		!!user?.ethAddress?.length && !!user?.solAddress?.length;
 
 	const isOwner = isMergedAccount
-		? publicKey.toString() === user?.solAddress ||
+		? publicKey?.toString() === user?.solAddress ||
 		  account === user?.ethAddress
 		: (account === profileAddress && isAuthenticated) ||
 		  publicKey?.toString() === profileAddress;
