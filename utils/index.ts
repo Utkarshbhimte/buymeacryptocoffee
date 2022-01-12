@@ -4,10 +4,13 @@ import { db, firestoreCollections } from "./firebaseClient";
 import WAValidator from "multicoin-address-validator";
 import { PublicKey } from "@solana/web3.js";
 
-export const getOrCreateUser = async (address: string): Promise<User> => {
+export const getOrCreateUser = async (
+	address: string,
+	isForClaiming?: boolean
+): Promise<User> => {
 	const user = await getUser(address);
 
-	if (user) {
+	if (user || isForClaiming) {
 		return user;
 	}
 
@@ -125,4 +128,28 @@ export const detectAddress = async (
 		key: "name",
 		value: address,
 	};
+};
+
+export const mergeAddresses = async (
+	user: User,
+	ethAddress: string,
+	solAddress: string,
+	deleteId?: string
+) => {
+	try {
+		const udpatedAddresses = {
+			ethAddress,
+			solAddress,
+		};
+		await db
+			.doc(`${firestoreCollections.USERS}/${user.id}`)
+			.update(udpatedAddresses);
+		if (!!deleteId?.length) {
+			await db.doc(`${firestoreCollections.USERS}/${deleteId}`).delete();
+		}
+		return true;
+	} catch (error) {
+		console.error(error);
+		return false;
+	}
 };

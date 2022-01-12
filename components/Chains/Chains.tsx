@@ -83,7 +83,7 @@ const Chains = () => {
 
 	useEffect(() => {
 		if (id) {
-			const isEthAddress = WAValidator.validate(id.toString(), "ETH");
+			const isEthAddress = WAValidator.validate(String(id), "ETH");
 			setIsEthAddress(isEthAddress);
 		}
 	}, [id]);
@@ -108,7 +108,7 @@ const Chains = () => {
 	// 	}
 	// }, [!!publicKey]);
 
-	if (!account || !!publicKey) {
+	if (!isAuthenticated || !!publicKey) {
 		return null;
 	}
 

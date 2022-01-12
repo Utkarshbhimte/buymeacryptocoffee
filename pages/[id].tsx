@@ -1,21 +1,24 @@
 import { DuplicateIcon, LinkIcon } from "@heroicons/react/outline";
 import { ArrowUpIcon, CheckIcon } from "@heroicons/react/solid";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { Modal } from "antd";
 import copy from "copy-to-clipboard";
 import { ethers } from "ethers";
 import WAValidator from "multicoin-address-validator";
 import { GetStaticProps } from "next";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Blockies from "react-blockies";
 import { useCollection } from "react-firebase-hooks/firestore";
+import { AuthenticateOptions } from "react-moralis/lib/hooks/core/useMoralis/_useMoralisAuth";
 import { toast } from "react-toastify";
 import PaymentSection from "../components/PaymentSection";
 import SolanaPaymentSection from "../components/SolanaPaymentSection";
+import WalletModal from "../components/WalletModal";
 import { Transaction } from "../contracts";
 import { useMoralisData } from "../hooks/useMoralisData";
 import embedbadge from "../public/embedbadge.svg";
-import { minimizeAddress } from "../utils";
+import { getOrCreateUser, mergeAddresses, minimizeAddress } from "../utils";
 import { useUser } from "../utils/context";
 import { validateAndResolveAddress } from "../utils/crypto";
 import { db } from "../utils/firebaseClient";
@@ -43,11 +46,25 @@ const Profile: React.FC<ProfileProps> = ({
 		currProfileEns: ens,
 		avatar: defaultAvatar,
 	};
-	const { account, isAuthenticated, isWeb3Enabled, enableWeb3 } =
-		useMoralisData();
+	const [modalOpen, setModalOpen] = useState(false);
+	const {
+		account,
+		isAuthenticated,
+		isWeb3Enabled,
+		enableWeb3,
+		authenticate,
+	} = useMoralisData();
 	const { user } = useUser();
+	const { publicKey, connected, connect } = useWallet();
+	console.log(user);
 
-	const isOwner = account === profileAddress;
+	const isOwner =
+		(account === profileAddress && isAuthenticated) ||
+		publicKey?.toString() === profileAddress;
+
+	const shouldShowButton =
+		(isOwner && isAuthenticated && !user?.solAddress?.length) ||
+		(publicKey?.toString() && !user?.ethAddress?.length);
 
 	const addressTx = [
 		user?.ethAddress?.toString()?.toLowerCase(),
@@ -62,6 +79,8 @@ const Profile: React.FC<ProfileProps> = ({
 	const [isCopied, setIsCopied] = useState(false);
 	const [isScriptCopied, setIsScriptCopied] = useState(false);
 	const [isModalVisible, setIsModalVisible] = useState(false);
+	const [isClaiming, setIsClaiming] = useState("");
+	const [isMerging, setIsMerging] = useState(false);
 
 	const handleCopyAddress = () => {
 		if (!profileAddress) return;
@@ -76,6 +95,62 @@ const Profile: React.FC<ProfileProps> = ({
 		});
 
 		setTransactions(sortedTransactions);
+	};
+
+	const handleClaim = async (claiming: "SOL" | "ETH") => {
+		if (claiming === "SOL") {
+			if (!connected) {
+				setIsClaiming("SOL");
+				setModalOpen(true);
+				return;
+			}
+			onSubmit(publicKey.toString());
+		} else {
+			if (!isAuthenticated) {
+				setIsClaiming("ETH");
+				const options: AuthenticateOptions = {
+					signingMessage: `
+					Get your audience support with crypto!\n
+					With BuyMeACryptoCoffee your audience can support you with cryptocurrency.\n
+					How does it work?\n
+					- Supporter connects their Wallet on Crypto Coffee
+					- They enter their favorite creator’s wallet address and donate crypto.
+					- Creators can create their own crypto coffee page and share with their audience too
+				`,
+				};
+
+				if (!(window as any).ethereum) {
+					console.log("no ethereum");
+					options.provider = "walletconnect";
+				}
+
+				await authenticate(options);
+				return;
+			}
+			onSubmit(account);
+		}
+	};
+
+	const onSubmit = async (address: string) => {
+		setIsMerging(true);
+		try {
+			const userToMergeAndDelete = await getOrCreateUser(address, true);
+			const isMerged = await mergeAddresses(
+				user,
+				account,
+				publicKey.toString(),
+				userToMergeAndDelete.id
+			);
+			if (isMerged) {
+				toast.success("Claiming done successfully");
+			}
+		} catch (error) {
+			console.error(error);
+		} finally {
+			setModalOpen(false);
+			setIsClaiming("");
+			setIsMerging(false);
+		}
 	};
 
 	useEffect(() => {
@@ -93,6 +168,14 @@ const Profile: React.FC<ProfileProps> = ({
 		}
 	}, [snapshot]);
 
+	useEffect(() => {
+		if (isClaiming === "SOL" && !!publicKey) {
+			onSubmit(publicKey?.toString());
+		} else if (isClaiming === "ETH" && !!account) {
+			onSubmit(account);
+		}
+	}, [isClaiming, publicKey, account]);
+
 	const twitterIntent = `
 		You%20can%20support%20by%20donating%20some%20CryptoCoffee%20(%E2%98%95%EF%B8%8F)%20here%20%E2%80%94%0Ahttps://buymeacryptocoffee.xyz/${profileAddress}%0ACreate%20your%20own%20page%20%40buycryptocoffee
 	`;
@@ -108,7 +191,6 @@ const Profile: React.FC<ProfileProps> = ({
 
 	useEffect(() => {
 		if (!isWeb3Enabled && isAuthenticated && !(window as any).ethereum) {
-			console.log("coming here");
 			enableWeb3({
 				provider: "walletconnect",
 			});
@@ -145,9 +227,13 @@ const Profile: React.FC<ProfileProps> = ({
 									<div className="group">
 										<h1 className="font-urbanist text-3xl font-bold text-gray-900 mb-1">
 											{/* <div className="animate-pulse h-12 w-48 bg-gray-300 rounded-md" /> */}
-											{user?.name ??
-												currProfileEns ??
-												minimizeAddress(profileAddress)}
+											{isMerging
+												? "Merging..."
+												: user?.name ??
+												  currProfileEns ??
+												  minimizeAddress(
+														profileAddress
+												  )}
 										</h1>
 										{!!currProfileEns && (
 											<div
@@ -176,6 +262,23 @@ const Profile: React.FC<ProfileProps> = ({
 									</div>
 								</div>
 								<div className="flex space-x-4">
+									{shouldShowButton && (
+										<button
+											onClick={() =>
+												handleClaim(
+													isEthereumAddress
+														? "SOL"
+														: "ETH"
+												)
+											}
+										>
+											{`Claim Your ${
+												isEthereumAddress
+													? "SOL"
+													: "ETH"
+											} Page`}
+										</button>
+									)}
 									<a
 										className="w-12 h-12 rounded-full bg-lightpurple flex items-center justify-center"
 										href={`https://twitter.com/intent/tweet?text=${twitterIntent}`}
@@ -579,6 +682,11 @@ const Profile: React.FC<ProfileProps> = ({
 						</div>
 					</div>
 				</Modal>
+				<WalletModal
+					visible={modalOpen}
+					onClose={() => setModalOpen(false)}
+					onSubmit={console.log}
+				/>
 			</div>
 		</>
 	);
@@ -588,7 +696,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 	const userAddress = context.params.id;
 
 	const isEthereumAddress =
-		WAValidator.validate(userAddress.toString(), "ETH") ||
+		WAValidator.validate(String(userAddress), "ETH") ||
 		userAddress.includes(".eth");
 
 	let address = userAddress;
@@ -611,7 +719,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
 	const transactionsResponse = await db
 		.collection("transactions")
-		.where("to", "==", address.toString().toLowerCase())
+		.where("to", "==", address?.toString()?.toLowerCase())
 		.get();
 
 	const transactions: Transaction[] = transactionsResponse.docs.map((doc) => {
@@ -621,6 +729,7 @@ export const getStaticProps: GetStaticProps = async (context) => {
 			id: doc.id,
 		};
 	});
+	console.log(transactions);
 
 	return {
 		revalidate: 60,

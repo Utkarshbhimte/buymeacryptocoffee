@@ -15,6 +15,7 @@ import Blockie from "./Blockie";
 import { MetamaskLogo, SolanaLogo } from "./Chains/Logos";
 import Loader from "./Loader";
 import Modal from "./Modal";
+import WalletModal from "./WalletModal";
 
 function Account() {
 	const { authenticate, isAuthenticated, logout, account, chainId, user } =
@@ -77,6 +78,7 @@ function Account() {
 		}
 
 		if (!!account) {
+			console.log("called");
 			logout();
 		}
 	};
@@ -89,7 +91,7 @@ function Account() {
 		setModalOpen(true);
 	};
 
-	if (!account && !publicKey) {
+	if (!isAuthenticated && !publicKey) {
 		return (
 			<>
 				<Menu as="div" className="relative inline-block text-left">
@@ -177,7 +179,7 @@ function Account() {
 
 	return (
 		<>
-			<Menu as="div" className="relative inline-block text-left z-40">
+			<Menu as="div" className="relative inline-block text-left">
 				<div>
 					<Menu.Button className="inline-flex justify-center items-center space-x-2 w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-cryptopurple">
 						{!publicKey && !!avatar && (
@@ -212,8 +214,8 @@ function Account() {
 					leaveFrom="transform opacity-100 scale-100"
 					leaveTo="transform opacity-0 scale-95"
 				>
-					<Menu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-20">
-						<div className="py-1 z-20">
+					<Menu.Items className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+						<div className="py-1">
 							<Menu.Item>
 								{({ active }) => (
 									<div
@@ -369,29 +371,11 @@ function Account() {
 					</Menu.Items>
 				</Transition>
 			</Menu>
-			<Modal
-				title="Connect wallet"
+			<WalletModal
+				visible={modalOpen}
 				onClose={() => setModalOpen(false)}
-				open={modalOpen}
-			>
-				{wallets.map((wallet) => {
-					return (
-						<div
-							key={(wallet as any).name}
-							className="cursor-pointer"
-							onClick={() => {
-								setModalOpen(false);
-								select(wallet.adapter.name);
-							}}
-						>
-							{wallet.adapter.name}
-						</div>
-					);
-				})}
-				{!wallets.length && (
-					<div>No solana wallets present to authenticate</div>
-				)}
-			</Modal>
+				onSubmit={() => setModalOpen(false)}
+			/>
 		</>
 	);
 }
