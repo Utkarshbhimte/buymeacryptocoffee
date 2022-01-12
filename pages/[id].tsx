@@ -434,7 +434,7 @@ const Profile: React.FC<ProfileProps> = ({
 										)}
 									</>
 								) : (
-									<div className="flex flex-col items-center font-urbanist font-bold text-xl bg-white rounded-lg shadow-md h-full px-12 text-center  justify-center">
+									<div className="flex flex-col items-center font-urbanist font-bold text-xl bg-white rounded-lg shadow-md h-full px-12 py-4 text-center  justify-center">
 										Please Connect your Ethereum or Solana
 										Wallet to send CryptoCoffee
 									</div>
@@ -544,7 +544,11 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
 	const transactionsResponse = await db
 		.collection("transactions")
-		.where("to", "in", addressTx)
+		.where(
+			"to",
+			!!addressTx.length ? "in" : "==",
+			!!addressTx.length ? addressTx : address
+		)
 		.get();
 
 	const transactions: Transaction[] = transactionsResponse.docs.map((doc) => {
