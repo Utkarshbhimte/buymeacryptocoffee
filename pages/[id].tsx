@@ -59,7 +59,7 @@ const Profile: React.FC<ProfileProps> = ({
 		enableWeb3,
 		authenticate,
 	} = useMoralisData();
-	const { user } = useUser();
+	const { user, setUser } = useUser();
 	const { publicKey, connected, connect } = useWallet();
 
 	const isMergedAccount =
@@ -68,12 +68,11 @@ const Profile: React.FC<ProfileProps> = ({
 	const isOwner = isMergedAccount
 		? publicKey?.toString() === user?.solAddress ||
 		  account === user?.ethAddress
-		: (account === profileAddress && isAuthenticated) ||
-		  publicKey?.toString() === profileAddress;
+		: (account === user?.ethAddress && isAuthenticated) ||
+		  publicKey?.toString() === user?.solAddress;
 
 	const shouldShowButton =
-		(isOwner && isAuthenticated && !user?.solAddress?.length) ||
-		(publicKey?.toString() && !user?.ethAddress?.length);
+		isOwner && (!user?.solAddress?.length || !user?.ethAddress?.length);
 
 	const walletNotConnected = !connected && !isAuthenticated;
 
@@ -151,15 +150,17 @@ const Profile: React.FC<ProfileProps> = ({
 	const onSubmit = async (address: string) => {
 		setIsMerging(true);
 		try {
-			const userToMergeAndDelete = await getOrCreateUser(address, true);
-			const isMerged = await mergeAddresses(
+			const userToMergeAndDelete = await getUser(address);
+			const updatedUser = await mergeAddresses(
 				user,
 				account,
 				publicKey.toString(),
-				userToMergeAndDelete.id
+				userToMergeAndDelete?.id
 			);
-			if (isMerged) {
+
+			if (!!updatedUser) {
 				toast.success("Claiming done successfully");
+				setUser(updatedUser);
 			}
 		} catch (error) {
 			console.error(error);

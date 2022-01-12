@@ -137,19 +137,23 @@ export const mergeAddresses = async (
 	deleteId?: string
 ) => {
 	try {
-		const udpatedAddresses = {
+		const updatedUser: User = {
+			...user,
 			ethAddress,
 			solAddress,
 		};
+
 		await db
 			.doc(`${firestoreCollections.USERS}/${user.id}`)
-			.update(udpatedAddresses);
+			.update({ ...updatedUser });
+
 		if (!!deleteId?.length) {
 			await db.doc(`${firestoreCollections.USERS}/${deleteId}`).delete();
 		}
-		return true;
+
+		return updatedUser;
 	} catch (error) {
 		console.error(error);
-		return false;
+		return null;
 	}
 };

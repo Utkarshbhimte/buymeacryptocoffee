@@ -9,6 +9,7 @@ import { useMoralisData } from "../hooks/useMoralisData";
 interface IAuthContext {
 	readonly canEdit: boolean;
 	readonly user: User | null;
+	readonly setUser: (user: User | null) => void;
 }
 
 const AuthContext = React.createContext<IAuthContext | null>(null);
@@ -29,10 +30,7 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 
 	const fetchUsers = async (currId: string) => {
 		try {
-			console.log("coming here");
 			const response = await getOrCreateUser(currId);
-
-			console.log({ response });
 			setUser(response);
 		} catch (error) {
 			console.error(error);
@@ -56,6 +54,7 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 				canEdit: !![user?.ethAddress, user?.solAddress].includes(
 					account
 				),
+				setUser,
 			}}
 		>
 			{children}
