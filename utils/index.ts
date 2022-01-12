@@ -8,7 +8,7 @@ export const getOrCreateUser = async (
 	address: string,
 	isForClaiming?: boolean
 ): Promise<User> => {
-	const user = await getUser(address);
+	const user = await getUser(address.toLowerCase());
 
 	if (user || isForClaiming) {
 		return user;
