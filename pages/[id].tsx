@@ -66,10 +66,10 @@ const Profile: React.FC<ProfileProps> = ({
 		!!user?.ethAddress?.length && !!user?.solAddress?.length;
 
 	const isOwner = isMergedAccount
-		? publicKey?.toString() === user?.solAddress ||
+		? publicKey?.toString().toLowerCase() === user?.solAddress ||
 		  account === user?.ethAddress
 		: (account === user?.ethAddress && isAuthenticated) ||
-		  publicKey?.toString() === user?.solAddress;
+		  publicKey?.toString().toLowerCase() === user?.solAddress;
 
 	const shouldShowButton =
 		isOwner && (!user?.solAddress?.length || !user?.ethAddress?.length);

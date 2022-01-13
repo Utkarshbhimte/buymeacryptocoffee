@@ -30,7 +30,7 @@ export const AuthWrapper = ({ children }: { children: React.ReactNode }) => {
 
 	const fetchUsers = async (currId: string) => {
 		try {
-			const response = await getOrCreateUser(currId);
+			const response = await getOrCreateUser(currId.toLowerCase());
 			setUser(response);
 		} catch (error) {
 			console.error(error);

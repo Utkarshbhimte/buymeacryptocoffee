@@ -11,7 +11,9 @@ const init = async (req: NextApiRequest, res: NextApiResponse) => {
 
 		const { address: userAddress } = req.query;
 
-		const user = await getOrCreateUser(userAddress.toString());
+		const user = await getOrCreateUser(
+			userAddress.toString().toLowerCase()
+		);
 
 		res.status(200).json(user);
 	} catch (error) {

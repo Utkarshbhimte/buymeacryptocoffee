@@ -140,7 +140,7 @@ export const mergeAddresses = async (
 		const updatedUser: User = {
 			...user,
 			ethAddress,
-			solAddress,
+			solAddress: solAddress.toLowerCase(),
 		};
 
 		await db
