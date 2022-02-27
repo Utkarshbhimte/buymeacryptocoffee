@@ -18,7 +18,7 @@ const makerData = [
 	{
 		name: "Utkarsh",
 		address: "0xbhaisaab.eth",
-		image: "https://pbs.twimg.com/profile_images/1284769236305338368/1QMpU-YP_400x400.jpg",
+		image: "/utkarsh.jpeg",
 		twitterUrl: "https://twitter.com/BhimteBhaisaab",
 		description:
 			"building @worthinnft hanging out @buildbystl, @developer_dao",
@@ -26,21 +26,21 @@ const makerData = [
 	{
 		name: "Ajinkya",
 		address: "0xCF193782f2eBC069ae05eC0Ef955E4B042D000Dd",
-		image: "https://pbs.twimg.com/profile_images/1472167817705369605/9kFketfA_400x400.jpg",
+		image: "/ajinkya.jpeg",
 		twitterUrl: "https://twitter.com/CreakFoder",
 		description: "Frontend Developer @zomentum, building @buycryptocoffee",
 	},
 	{
 		name: "Abhishek",
 		address: "0xAD6561E9e306C923512B4ea7af902994BEbd99B8",
-		image: "https://pbs.twimg.com/profile_images/1111908635494543360/P3M1am5F_400x400.jpg",
+		image: "/abhishek.png",
 		twitterUrl: "https://twitter.com/abhikumar_98",
 		description: "Frontend Developer @zomentum, building @nocodeletters",
 	},
 	{
 		name: "Akhil",
 		address: "0xab14023979a34b4abb17abd099a1de1dc452011a",
-		image: "https://pbs.twimg.com/profile_images/1434216740729155585/X_jLGctP_400x400.jpg",
+		image: "akhil.jpeg",
 		twitterUrl: "https://twitter.com/akhil_bvs",
 		description: "Design @DrumworksHQ | Alumnus @10KDesigners",
 	},
